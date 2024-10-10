@@ -1,0 +1,49 @@
+variables:
+  JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+  - test
+  - package
+  - docs
+
+build:
+  stage: build
+  script:
+    - ./mvnw compile
+
+test:
+  stage: test
+  script:
+    - xvfb-run ./mvnw test
+
+package:
+  stage: package
+  script:
+    - ./mvnw package -f pom-cross.xml -DskipTests
+    - cp target/*.jar .
+  artifacts:
+    paths:
+      - ./*.jar
+    expire_in: 1 week
+
+update_site:
+  stage: docs
+
+  only:
+    - main
+
+  script:
+    - xvfb-run ./mvnw site
+    - rm -rf /var/www/cmpt370.vada.life/*
+    - cp -r target/site/* /var/www/cmpt370.vada.life/
+
+  environment:
+    name: "Project Site"
+    url: https://cmpt370.vada.life/
+
