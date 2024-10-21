@@ -1,48 +1,70 @@
 package com.cmpt370T7.PRJFlow;
 
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+
+import java.io.FileInputStream;
+import java.net.URL;
 
 
 public class ProjectView extends VBox {
 
     //Canvas canvas;
 
+    String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
+
+
     public ProjectView() {
         this.setStyle("-fx-background-color: #eeeee4");
 
 
-        // Temporary Min Size
-        this.setMinHeight(600);
-        this.setMinHeight(600);
-
-        ToolBar toolBar = new ToolBar(new Button("File"), new Button("View"));
-        toolBar.setMinHeight(20);
-
-        HBox body = new HBox();
-
-        GridPane projectFolders = new GridPane();
-        projectFolders.getChildren().add(new Text("Project Folders"));
-
-        GridPane calendar = new GridPane();
-        calendar.setStyle("-fx-background-color: #1e81b0");
-        calendar.getChildren().add(new Text("Calendar"));
-
-        body.getChildren().addAll(projectFolders, calendar);
+        Menu fileMenu = new Menu("File");
+        Menu viewMenu = new Menu("View");
+        MenuBar menuBar = new MenuBar(fileMenu, viewMenu);
+        menuBar.setMinHeight(10);
+        VBox.setVgrow(menuBar, Priority.ALWAYS);
 
 
 
-        this.getChildren().addAll(toolBar, body);
+        GridPane body = new GridPane();
+        body.setMinHeight(20);
+        VBox.setVgrow(body, Priority.SOMETIMES);
+        body.setAlignment(Pos.CENTER);
 
-        // Temporary Code until rest is implemented
+        body.setHgap(5);
+
+        GridPane filesPane = new GridPane();
+        filesPane.setStyle("-fx-background-color: #bebeb6");
+        //TODO Fill gridpane with file icons with filename
+        for (int col = 0; col < files.length; col++) {
+            filesPane.add(new Text(files[col]), col, 0);
+        }
+
+        body.add(filesPane, 0, 0);
+
+        VBox summaryBox = new VBox();
+        summaryBox.getChildren().add(new Text("Generated Summary info"));
+        body.add(summaryBox, 1, 0);
+
+        ColumnConstraints fileCol = new ColumnConstraints();
+        fileCol.setPercentWidth(75);
+        ColumnConstraints summaryCol = new ColumnConstraints();
+        summaryCol.setPercentWidth(20);
+        body.getColumnConstraints().addAll(fileCol, summaryCol);
+
+        RowConstraints bodyRow = new RowConstraints();
+        bodyRow.setPercentHeight(900);
+        body.getRowConstraints().addAll(bodyRow);
 
 
 
-        //this.getChildren().add(new BorderPane());
+        this.getChildren().addAll(menuBar, body);
+
+
     }
 }
