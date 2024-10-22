@@ -9,6 +9,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 // TODO we should also verify errors
 
@@ -24,7 +25,6 @@ public class AppDataManagerTest {
     @BeforeEach
     void setUp() {
         tempDirFile = tempDir.toFile();
-        appDataManager = new AppDataManager(tempDirFile);
     }
 
     @AfterEach
@@ -32,11 +32,13 @@ public class AppDataManagerTest {
         if (tempDirFile.exists()) {
             tempDirFile.delete();
         }
+        AppDataManager.resetInstance();
     }
 
     @Test
     void test_get_database_file() {
         // When
+        appDataManager = new AppDataManager(tempDirFile);
         File databaseFile = appDataManager.getDatabaseFile();
 
         // Then
@@ -46,9 +48,33 @@ public class AppDataManagerTest {
     @Test
     void test_get_config_file() {
         // When
+        appDataManager = new AppDataManager(tempDirFile);
         File configFile = appDataManager.getConfigFile();
 
         // Then
         assertThat(configFile).isEqualTo(new File(String.valueOf(tempDir), CONFIG_FILE));
+    }
+
+    @Test
+    void should_instantiate_AppDataManager() {
+        AppDataManager.instantiate();
+        AppDataManager appDataManager = AppDataManager.getInstance();
+        assertThat(appDataManager).isNotNull();
+    }
+
+    @Test
+    void should_throw_exception_when_getInstance_called_without_instantiate() {
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(AppDataManager::getInstance)
+                .withMessageContaining("not instantiated");
+    }
+
+    @Test
+    void should_create_ConfigManager_and_GlobalTermsDatabase_on_instantiate() {
+        AppDataManager.instantiate();
+        AppDataManager appDataManager = AppDataManager.getInstance();
+
+        assertThat(appDataManager.getConfigManager()).isNotNull();
+        assertThat(appDataManager.getGlobalTermsDatabase()).isNotNull();
     }
 }
