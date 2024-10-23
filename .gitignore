@@ -39,3 +39,6 @@ build/
 
 ### Direnv (Nix) ###
 .direnv/
+
+### Testing output files ###
+**/test-img-out
