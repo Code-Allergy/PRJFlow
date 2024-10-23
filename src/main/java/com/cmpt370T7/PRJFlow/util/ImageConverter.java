@@ -1,6 +1,8 @@
 package com.cmpt370T7.PRJFlow.util;
 
 import org.bytedeco.leptonica.PIX;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,6 +14,7 @@ import static org.bytedeco.leptonica.global.leptonica.pixReadMemPng;
 
 /// Utility methods to convert images into formats suitable for OCR processing with Tesseract.
 public class ImageConverter {
+    private static Logger logger = LoggerFactory.getLogger(ImageConverter.class);
 
     /**
      * Converts a BufferedImage into a PIX format image for use with Tesseract OCR
@@ -38,7 +41,7 @@ public class ImageConverter {
             // Convert byte array to PIX using Leptonica
             return pixReadMemPng(imageData, imageData.length);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to convert buffered image to PIX.", e);
             return null;
         }
     }
