@@ -50,6 +50,7 @@ public class PDFToImage {
      * @param page The <strong>index</strong> of the page number (0 indexed)
      * @return A {@link BufferedImage}
      * @throws IOException if there is an error loading the PDF file or rendering the images
+     * @throws IndexOutOfBoundsException if the page number is invalid.
      */
     public static BufferedImage extract(File file, float dpi, int page) throws IOException {
         try (PDDocument document = Loader.loadPDF(file)) {
