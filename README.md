@@ -16,6 +16,11 @@ This project is a document search tool, developed using JavaFX for the user inte
   - [TestFX Documentation](https://testfx.github.io/)
   - [TestFX GitHub Repository](https://github.com/TestFX/TestFX)
 
+- **Tesseract**: Image OCR library for parsing images of text (via JavaCPP-tesseract).
+  - [JavaCPP Tesseract Documentation](http://bytedeco.org/javacpp-presets/tesseract/apidocs/)
+  - [JavaCPP Tesseract Github Repository](https://github.com/bytedeco/javacpp-presets/blob/master/tesseract/README.md)
+
+
 - **Team: Maintain this list with all technologies used.**
 
 - **GUI Team: I would recommend using the scene builder built into IntelliJ IDEA or installing [Gluon Scene Builder](https://gluonhq.com/products/scene-builder/) to help with building your layouts.**
