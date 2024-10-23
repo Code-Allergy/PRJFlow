@@ -1,67 +1,120 @@
 package com.cmpt370T7.PRJFlow;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 
+/**
+ * The AppDataManager class is responsible for managing application data, including
+ * configuration files and Tesseract OCR data. It handles the creation and
+ * initialization of directories and files necessary for the application to function
+ * correctly. This class follows the singleton design pattern to ensure that only one
+ * instance of AppDataManager is created throughout the application lifecycle.
+ */
 public class AppDataManager {
     /// The folder within the system appdata folder to store the configuration
     private static final String APPDATA_FOLDER = "PRJFlow";
 
+    private static Logger logger;
+
     /// Singleton instance of AppDataManager
     private static AppDataManager instance;
-
-    private static Logger logger;
-    private final File appDataDirectory;
-
     private final ConfigManager configManager;
     private final GlobalTermsDatabase globalTermsDatabase;
 
-    /// Default constructor, uses default name of PRJFlow.
+    private final File appDataDirectory;
+    private final File tesseractDataDirectory;
+
+    /**
+     * Default constructor, initializes the AppDataManager with the default app name of PRJFlow.
+     */
     private AppDataManager() {
         this(APPDATA_FOLDER);
     }
 
-    /// Overloaded constructor, uses passed in app name for directory.
+    /**
+     * Overloaded constructor, initializes the AppDataManager with a specified application name
+     * for the directory.
+     *
+     * @param appName the name of the application, used to create a directory in the app data path.
+     */
     private AppDataManager(String appName) {
         logger = LoggerFactory.getLogger(AppDataManager.class);
         appDataDirectory = getAppDataDirectory(appName);
         createDirectoryIfNotExists(appDataDirectory);
-        configManager = new ConfigManager(getConfigFile());
-        globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
+        this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
+        this.configManager = new ConfigManager(getConfigFile());
+        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
+        initializeTesseractData();
     }
 
-    /// Overloaded constructor for testing, accepts a custom directory.
-    public AppDataManager(File customDirectory) {
+    /**
+     * Overloaded constructor for testing, initializes the AppDataManager with a custom directory.
+     *
+     * @param customDirectory the directory to use for application data storage.
+     */
+    private AppDataManager(File customDirectory) {
         this.appDataDirectory = customDirectory;
         createDirectoryIfNotExists(appDataDirectory);
-        configManager = new ConfigManager(getConfigFile());
-        globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
+        this.configManager = new ConfigManager(getConfigFile());
+        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
+        this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
+        initializeTesseractData();
     }
 
-    /// Instantiate method to create the default singleton instance
+    /**
+     * Instantiates the default singleton instance of AppDataManager.
+     * If an instance already exists, a warning is logged.
+     */
     public static void instantiate() {
         if (instance == null) {
             instance = new AppDataManager();
         } else {
-            logger.warn("Ignored duplicate instantiation of AppDataManager.");
+            logger.warn("Ignored duplicate instantiate of AppDataManager.");
         }
     }
 
+    /**
+     * Instantiates the AppDataManager singleton at a specified path.
+     * If an instance already exists, a warning is logged.
+     *
+     * @param customDirectory the directory to use for application data storage.
+     */
+    public static void instantiateAt(File customDirectory) {
+        if (instance == null) {
+            instance = new AppDataManager(customDirectory);
+        } else {
+            logger.warn("Ignored duplicate instantiateAt of AppDataManager.");
+        }
+    }
+
+    /**
+     * Returns the singleton instance of AppDataManager.
+     *
+     * @return the instance of AppDataManager.
+     * @throws IllegalStateException if the instance has not been instantiated.
+     */
     public static AppDataManager getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("AppDataManager not instantiated. Call instantiate() first.");
+            throw new IllegalStateException(
+                "AppDataManager not instantiated. Call instantiate() first."
+            );
         }
         return instance;
     }
 
-    // Reset method for testing purposes
-    public static void resetInstance() {
-        instance = null;
-    }
-
-    /// Returns the directory of the system's appdata path.
+    /**
+     * Returns the directory of the system's app data path for the specified application name.
+     *
+     * @param appName the name of the application for which the app data directory is to be retrieved.
+     * @return a File object representing the app data directory.
+     */
     private File getAppDataDirectory(String appName) {
         String os = System.getProperty("os.name").toLowerCase();
         String appDataPath;
@@ -69,7 +122,8 @@ public class AppDataManager {
         if (os.contains("win")) {
             appDataPath = System.getenv("APPDATA");
         } else if (os.contains("mac")) {
-            appDataPath = System.getProperty("user.home") + "/Library/Application Support";
+            appDataPath = System.getProperty("user.home") +
+            "/Library/Application Support";
         } else {
             appDataPath = System.getenv("XDG_CONFIG_HOME");
             if (appDataPath == null || appDataPath.isEmpty()) {
@@ -80,31 +134,109 @@ public class AppDataManager {
         return new File(appDataPath, appName);
     }
 
-    // TODO should error
+    /**
+     * Copies the Tesseract data language files to the user app data folder.
+     */
+    private void initializeTesseractData() {
+        try {
+            URL tessDataURL = AppDataManager.class.getResource("tessdata");
+            if (tessDataURL == null) {
+                throw new IOException("Could not find tessdata resources");
+            }
+            Path tessDataPath = Paths.get(tessDataURL.getPath());
+
+            createDirectoryIfNotExists(tesseractDataDirectory);
+
+            // Iterate through each file in the tessdata directory
+            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tessDataPath)) {
+                for (Path sourceFile : directoryStream) {
+                    Path destFile = tesseractDataDirectory.toPath().resolve(sourceFile.getFileName().toString());
+
+                    // Only copy if the file doesn't exist or it's newer
+                    if (!Files.exists(destFile) || Files.getLastModifiedTime(sourceFile).toMillis() >
+                            Files.getLastModifiedTime(destFile).toMillis()) {
+                        try (InputStream is = Files.newInputStream(sourceFile)) {
+                            Files.copy(is, destFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e) {
+            logger.error(e.getMessage());
+            logger.error("Tesseract data file could not be loaded. Exiting.");
+            System.exit(1);
+        }
+    }
+
+    // TODO should pass exception up to UI, so we can render something
+    /**
+     * Creates a directory if it does not already exist.
+     *
+     * @param dir the directory to create.
+     */
     private void createDirectoryIfNotExists(File dir) {
         if (!dir.exists()) {
             if (dir.mkdirs()) {
                 logger.info("Directory created: {}", dir.getAbsolutePath());
             } else {
-                logger.warn("Failed to create directory: {}", dir.getAbsolutePath());
+                logger.error(
+                    "Failed to create directory: {}",
+                    dir.getAbsolutePath()
+                );
+                System.exit(1);
             }
         }
     }
 
-    /// Returns the file handle of the Sqlite database where we store global terms.
+    /**
+     * Resets the singleton instance for testing purposes.
+     */
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    /**
+     * Returns the file handle of the SQLite database where global terms are stored.
+     *
+     * @return a File object representing the global terms database file.
+     */
     public File getDatabaseFile() {
         return new File(appDataDirectory, "global_terms.db");
     }
 
-    /// Returns the file handle of the config file.
+    /**
+     * Returns the file handle of the configuration file.
+     *
+     * @return a File object representing the configuration file.
+     */
     public File getConfigFile() {
         return new File(appDataDirectory, "config.toml");
     }
 
+    /**
+     * Returns the file handle of the Tesseract data directory.
+     *
+     * @return a File object representing the Tesseract data directory.
+     */
+    public File getTesseractDataDirectory() {
+        return tesseractDataDirectory;
+    }
+
+    /**
+     * Gets the global instance of {@link ConfigManager}.
+     *
+     * @return the instance of ConfigManager associated with the global AppDataManager.
+     */
     public ConfigManager getConfigManager() {
         return configManager;
     }
 
+    /**
+     * Gets the global instance of {@link GlobalTermsDatabase}.
+     *
+     * @return the instance of GlobalTermsDatabase associated with the global AppDataManager.
+     */
     public GlobalTermsDatabase getGlobalTermsDatabase() {
         return globalTermsDatabase;
     }

@@ -38,7 +38,8 @@ public class AppDataManagerTest {
     @Test
     void test_get_database_file() {
         // When
-        appDataManager = new AppDataManager(tempDirFile);
+        AppDataManager.instantiateAt(tempDirFile);
+        appDataManager = AppDataManager.getInstance();
         File databaseFile = appDataManager.getDatabaseFile();
 
         // Then
@@ -48,7 +49,8 @@ public class AppDataManagerTest {
     @Test
     void test_get_config_file() {
         // When
-        appDataManager = new AppDataManager(tempDirFile);
+        AppDataManager.instantiateAt(tempDirFile);
+        appDataManager = AppDataManager.getInstance();
         File configFile = appDataManager.getConfigFile();
 
         // Then
