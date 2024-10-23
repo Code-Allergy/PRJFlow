@@ -26,6 +26,9 @@ public class ImageConverter {
      * @return a PIX image that must be freed by the caller.
      */
     public static PIX toPIX(BufferedImage bufferedImage) {
+        if (bufferedImage == null) {
+            return null;
+        }
         try {
             // Write the BufferedImage to a byte array
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
