@@ -1,15 +1,10 @@
 package com.cmpt370T7.PRJFlow.util;
 
-import com.cmpt370T7.PRJFlow.util.ImageConverter;
 import org.bytedeco.leptonica.PIX;
-import org.bytedeco.leptonica.global.leptonica.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bytedeco.leptonica.global.leptonica.*;
