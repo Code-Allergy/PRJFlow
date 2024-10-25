@@ -6,6 +6,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import java.io.File;
+import javafx.scene.control.DatePicker;
 
 public class HomeScreen extends BorderPane {
 
@@ -46,16 +47,15 @@ public class HomeScreen extends BorderPane {
         VBox rightPane = new VBox(10);
         rightPane.setPadding(new Insets(10));
         rightPane.setStyle("-fx-background-color: #f0f0f0;");
+        DatePicker datePicker = new DatePicker();
 
         Label calendarLabel = new Label("Calendar");
-        // Placeholder for calendar
-        Text calendarPlaceholder = new Text("Calendar View Here");
 
         Label remindersLabel = new Label("Reminders");
         // Placeholder for reminders
         Text remindersPlaceholder = new Text("Reminders List Here");
 
-        rightPane.getChildren().addAll(calendarLabel, calendarPlaceholder, remindersLabel, remindersPlaceholder);
+        rightPane.getChildren().addAll(calendarLabel, datePicker, remindersLabel, remindersPlaceholder);
         return rightPane;
     }
 
