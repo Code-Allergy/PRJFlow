@@ -4,7 +4,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.scene.control.DatePicker;
+import javafx.stage.FileChooser;
+import java.io.File;
 
 public class HomeScreen extends BorderPane {
 
@@ -28,7 +29,6 @@ public class HomeScreen extends BorderPane {
     }
 
     private VBox createLeftPane() {
-
         VBox leftPane = new VBox(10);
         leftPane.setPadding(new Insets(10));
         leftPane.setStyle("-fx-background-color: #f0f0f0;");
@@ -46,17 +46,16 @@ public class HomeScreen extends BorderPane {
         VBox rightPane = new VBox(10);
         rightPane.setPadding(new Insets(10));
         rightPane.setStyle("-fx-background-color: #f0f0f0;");
-        DatePicker datePicker = new DatePicker();
 
         Label calendarLabel = new Label("Calendar");
         // Placeholder for calendar
-
+        Text calendarPlaceholder = new Text("Calendar View Here");
 
         Label remindersLabel = new Label("Reminders");
         // Placeholder for reminders
         Text remindersPlaceholder = new Text("Reminders List Here");
 
-        rightPane.getChildren().addAll(calendarLabel, datePicker, remindersLabel, remindersPlaceholder);
+        rightPane.getChildren().addAll(calendarLabel, calendarPlaceholder, remindersLabel, remindersPlaceholder);
         return rightPane;
     }
 
@@ -70,13 +69,28 @@ public class HomeScreen extends BorderPane {
         recentProjectsList.getItems().addAll("Recent Project 1", "Recent Project 2");
 
         Button newProjectButton = new Button("New Project");
-        // Set action for new project button (placeholder)
+        // Set action for new project button
         newProjectButton.setOnAction(e -> {
-            System.out.println("New Project button clicked");
-            // Implement new project creation logic here
+            openFileChooser();
         });
 
         centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsList, newProjectButton);
         return centerPane;
+    }
+
+    private void openFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open PDF File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+        );
+        // Open the file chooser dialog
+        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+        if (selectedFile != null) {
+            // Open the PDF viewer with the selected file
+            PDFViewer pdfViewer = new PDFViewer(selectedFile);
+            // Replace the current view with the PDF viewer
+            this.getScene().setRoot(pdfViewer);
+        }
     }
 }
