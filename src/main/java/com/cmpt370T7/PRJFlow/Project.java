@@ -1,19 +1,20 @@
 package com.cmpt370T7.PRJFlow;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class Project {
 
     private String name;
-    private ArrayList<String> fileNames;
+    private ArrayList<File> files;
 
     Project(String name) {
         this.name = name;
-        this.fileNames = new ArrayList<>();
+        this.files = new ArrayList<>();
     }
 
-    ArrayList<String> getFileNames() {
-        return fileNames;
+    ArrayList<File> getFiles() {
+        return files;
     }
 
     String getName() {
@@ -21,7 +22,7 @@ public class Project {
     }
 
     void addFile(String fileName) {
-        fileNames.add(fileName);
+        files.add(new File(fileName));
     }
 
 

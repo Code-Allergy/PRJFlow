@@ -1,5 +1,7 @@
 package com.cmpt370T7.PRJFlow;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -57,7 +59,14 @@ public class ProjectView extends VBox {
         filesBox.setStyle("-fx-background-color: #bebeb6");
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
 
-        filesBox.getChildren().addAll(addFileButton, displayFiles(project.getFileNames()));
+        addFileButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //File Chooser
+            }
+        });
+
+        filesBox.getChildren().addAll(addFileButton, displayFiles());
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
@@ -87,7 +96,9 @@ public class ProjectView extends VBox {
 
 
 
-    GridPane displayFiles(ArrayList<String> fileNames) {
+    GridPane displayFiles() {
+        ArrayList<String> fileNames = new ArrayList<>();
+        fileNames.add("Hello.txt");
 
         GridPane filesPane = new GridPane();
         filesPane.setStyle("-fx-background-color: #bebeb6");
@@ -97,11 +108,12 @@ public class ProjectView extends VBox {
 
         for (int col = 0; col < fileNames.size(); col++) {
 
+            VBox fileBox = new VBox();
+
+            FontIcon fileIcon = new FontIcon();
             String extension = "";
             int i = fileNames.get(col).lastIndexOf('.');
             if (i > 0) extension = fileNames.get(col).substring(i+1);
-
-            FontIcon fileIcon = new FontIcon();
             switch (extension) {
                 case "pdf":
                     fileIcon.setIconLiteral("mdi-file-pdf");
@@ -112,11 +124,17 @@ public class ProjectView extends VBox {
                 case "png", "jpg":
                     fileIcon.setIconLiteral("mdi-file-image");
                     break;
+                default:
+                    fileIcon.setIconLiteral("mdi-file");
             }
 
-            Button fileButton = new Button(fileNames.get(col), fileIcon);
+            //Button fileButton = new Button(fileNames.get(col), fileIcon);
+            Button fileButton = new Button();
+            fileButton.setGraphic(fileIcon);
             fileButton.setPrefHeight(30);
-            filesPane.add(fileButton, col, 0);
+
+            fileBox.getChildren().addAll(fileButton, new Text("TEST"));
+            filesPane.add(fileBox, col, 0);
         }
         return filesPane;
     }
