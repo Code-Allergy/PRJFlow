@@ -9,6 +9,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cmpt370T7.PRJFlow.TextExtractor.TextElementType.ELEMENT_WORD;
 import static org.bytedeco.leptonica.global.leptonica.pixDestroy;
 import static org.bytedeco.tesseract.global.tesseract.*;
 
@@ -49,6 +52,7 @@ import static org.bytedeco.tesseract.global.tesseract.*;
  * @see BoundingBox
  */
 public class TextExtractor {
+    private static final Logger logger = LoggerFactory.getLogger(TextExtractor.class);
     private final TessBaseAPI api;
 
     /// Regex pattern to extract bounding box coordinates, we can probably do this more efficiently without regex.
@@ -95,6 +99,30 @@ public class TextExtractor {
             return this.type == TextElementType.ELEMENT_PAGE
                     ? this.children.stream().filter(child -> child.text.toLowerCase().contains(text.toLowerCase())).toList()
                     : null;
+        }
+
+        /**
+         * Filters and returns all TextElements (words, lines, paragraphs) containing the specified text.
+         *
+         * @param text The text to search for (case insensitive).
+         * @return A list of matching TextElements or an empty list if none are found.
+         */
+        public List<TextElement> getAllMatchingWordElements(String text) {
+            List<TextElement> matchingElements = new ArrayList<>();
+
+            // Recursively check children if the current element is a page or paragraph
+            if (this.type != TextElementType.ELEMENT_WORD) {
+                for (TextElement child : this.children) {
+                    matchingElements.addAll(child.getAllMatchingWordElements(text));
+                }
+            }
+
+            // Check if the current element contains the search text
+            if (this.type == TextElementType.ELEMENT_WORD && this.text.toLowerCase().contains(text.toLowerCase())) {
+                matchingElements.add(this);
+            }
+
+            return matchingElements;
         }
     }
 
@@ -254,7 +282,7 @@ public class TextExtractor {
         if (className.contains("ocr_page")) return TextElementType.ELEMENT_PAGE;
         if (className.contains("ocr_par")) return TextElementType.ELEMENT_PARAGRAPH;
         if (className.contains("ocr_line")) return TextElementType.ELEMENT_LINE;
-        if (className.contains("ocrx_word")) return TextElementType.ELEMENT_WORD;
+        if (className.contains("ocrx_word")) return ELEMENT_WORD;
         return TextElementType.ELEMENT_UNKNOWN;
     }
 
