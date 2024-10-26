@@ -10,36 +10,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class PdfParser {
 
-    // Function that extracts all data from a PDF file
-    public static List<String> extractDataElementsFromPdf(String pdfPath) {
-        List<String> extractedElements = new ArrayList<>();
+    public static String extractDataElementsFromPdf(String pdfPath) {
+        StringBuilder extractedText = new StringBuilder();
 
         File file = new File(pdfPath);
         try (PDDocument document = Loader.loadPDF(file)) {
             PDFTextStripper pdfStripper = new PDFTextStripper();
             String text = pdfStripper.getText(document);
 
-            // Splits the text into lines
-            String[] lines = text.split("\n");
+            // Removes newlines and carriage returns
+            text = text.replace("\n", " ").replace("\r", " ");
 
-            Collections.addAll(extractedElements, lines);
+            // Adds the cleaned text to the StringBuilder
+            extractedText.append(text);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return extractedElements;
-    }
-    public static void main(String[] args) {
-        String pdfPath = "sample-files/TestFiles/ExampleInvoice.pdf";  // Replace with actual PDF path
-        List<String> invoiceElements = extractDataElementsFromPdf(pdfPath);
-
-        // Prints the extracted data elements for verification
-        System.out.println("Extracted Data Elements:");
-        for (String element : invoiceElements) {
-            System.out.println(element);
-        }
+        return extractedText.toString();
     }
 }

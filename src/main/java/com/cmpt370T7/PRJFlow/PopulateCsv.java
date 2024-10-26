@@ -4,6 +4,13 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class PopulateCsv {
 
     public static void appendDataToCsv(int x, int y, String data, String filename) {
@@ -54,38 +61,66 @@ public class PopulateCsv {
         }
     }
 
-    public static void main(String[] args) {
-        String filename = "sample-files/TestFiles/TestCsv.csv";
+    public static String promptFromData(String input) {
+        try {
+            // Define your prompt and model
+            String prompt = "Generate only the following do not speak or add anything unnesecary.  " +
+                    "From the following data I would like you to output in csv format any key info you " +
+                    "deem nessecary from the following parsed data.  Do not speak, generate only one csv " +
+                    "format message surrounded by {}.  You should also try to align the columns and rows in a manner that would make" +
+                    "the best sense to a human.  The pdf is a parsed invoice statement, and the csv is needed for managing financials" + input;
 
-        // Test 1: Basic write
-        System.out.println("Test 1: Writing 'Hello' at (0, 0)");
-        PopulateCsv.appendDataToCsv(0, 0, "Hello", filename);
 
-        // Test 2: Append new data
-        System.out.println("Test 2: Writing 'World' at (1, 0)");
-        PopulateCsv.appendDataToCsv(1, 0, "World", filename);
+            String model = "llama3.1"; // Model can be changed
 
-        // Test 3: Expand Y dimension
-        System.out.println("Test 3: Writing 'NewRow' at (0, 2)");
-        PopulateCsv.appendDataToCsv(0, 2, "NewRow", filename);
+            // Sets up the requested JSON payload
+            String requestBody = String.format("{\"model\": \"%s\", \"prompt\": \"%s\", \"stream\": false}", model, prompt);
 
-        // Test 4: Expand X dimension in the same row
-        System.out.println("Test 4: Writing 'ExpandX' at (3, 2)");
-        PopulateCsv.appendDataToCsv(3, 2, "ExpandX", filename);
+            // Creates the HTTP client
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/api/generate"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
 
-        // Test 5: Overwrite data
-        System.out.println("Test 5: Overwriting 'Hello' with 'Updated' at (0, 0)");
-        PopulateCsv.appendDataToCsv(0, 0, "Updated", filename);
+            // Sends the request and gets the response
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Display the resulting CSV content
-        System.out.println("\nResulting CSV Content:");
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
+
+            // Parses and prints the response
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonResponse = mapper.readTree(response.body());
+            String output = jsonResponse.get("response").asText();
+            System.out.println("Response from Ollama Model:");
+            System.out.println(output);
+
+            // Returns the output of the model
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Errored out";
+    }
+
+
+    public static void PasteToCsv(String filePath, String data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // Strips unnecessary data
+            data = data.replace("{", "").replace("}", "").trim();
+            // Writes the data to the CSV file
+            writer.write(data);
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static void main(String[] args) {
+
+        String parsedData = PdfParser.extractDataElementsFromPdf("sample-files/TestFiles/ExampleInvoice.pdf");
+        String returnedPrompt = promptFromData(parsedData);
+        PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);
     }
 }
