@@ -32,5 +32,14 @@ public class PdfParser {
 
         return extractedElements;
     }
+    public static void main(String[] args) {
+        String pdfPath = "sample-files/TestFiles/ExampleInvoice.pdf";  // Replace with actual PDF path
+        List<String> invoiceElements = extractDataElementsFromPdf(pdfPath);
 
+        // Prints the extracted data elements for verification
+        System.out.println("Extracted Data Elements:");
+        for (String element : invoiceElements) {
+            System.out.println(element);
+        }
+    }
 }
