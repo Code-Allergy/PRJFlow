@@ -1,54 +1,82 @@
 package com.cmpt370T7.PRJFlow;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
+
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.io.File;
+import javax.swing.*;
+import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class ProjectView extends VBox {
 
-    private final MainGUI mainGUI;
-    private final List<File> files = new ArrayList<>();
+    // Temporary variables before code is implemented correctly
+    String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
+    String testCSV = "testInfo.csv";
+    Project project;
 
-    public ProjectView(MainGUI mainGUI) {
-        this.mainGUI = mainGUI;
 
+
+    public ProjectView(Project project,MainGUI mainGUI) {
+        this.project = project;
         this.setStyle("-fx-background-color: #eeeee4");
+        this.setAlignment(Pos.CENTER);
 
-        // Menu bar setup (optional)
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> mainGUI.switchToHomeScreen());
+
+        /*
         Menu fileMenu = new Menu("File");
         Menu viewMenu = new Menu("View");
         MenuBar menuBar = new MenuBar(fileMenu, viewMenu);
         menuBar.setMinHeight(10);
         VBox.setVgrow(menuBar, Priority.ALWAYS);
+        */
 
         GridPane body = new GridPane();
-        body.setPadding(new Insets(10, 5, 10, 5));
+        body.setPrefHeight(800);
+        body.setPadding(new Insets(5, 10, 10, 10));
         body.setMinHeight(20);
-        VBox.setVgrow(body, Priority.SOMETIMES);
+        VBox.setVgrow(body, Priority.ALWAYS);
         body.setAlignment(Pos.CENTER);
-        body.setHgap(5);
+        body.setHgap(10);
+
 
         VBox projectInfoBox = new VBox();
+        projectInfoBox.setStyle("-fx-background-color: #bebeb6");
         projectInfoBox.getChildren().add(new Text("Project Generated Summary info"));
         body.add(projectInfoBox, 0, 0);
 
         VBox filesBox = new VBox();
-        Button addFileButton = new Button("Add File", new FontIcon("mdi-plus-box"));
-        addFileButton.setOnAction(e -> openFileChooser());  // Set up action for Add File button
+        filesBox.setStyle("-fx-background-color: #bebeb6");
+        Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
+
+        addFileButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //File Chooser
+            }
+        });
+
         filesBox.getChildren().addAll(addFileButton, displayFiles());
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
+        fileInfoBox.setStyle("-fx-background-color: #bebeb6");
         fileInfoBox.getChildren().add(new Text("File Generated Summary Info"));
         body.add(fileInfoBox, 2, 0);
+
 
         ColumnConstraints projectSummaryCol = new ColumnConstraints();
         projectSummaryCol.setPercentWidth(15);
@@ -59,38 +87,58 @@ public class ProjectView extends VBox {
         body.getColumnConstraints().addAll(projectSummaryCol, filesCol, fileSummaryCol);
 
         RowConstraints bodyRow = new RowConstraints();
-        bodyRow.setPercentHeight(900);
+        bodyRow.setPercentHeight(90);
         body.getRowConstraints().addAll(bodyRow);
 
-        this.getChildren().addAll(menuBar, body);
+
+        Text nameText = new Text("Current Project: " + project.getName());
+        VBox.setVgrow(nameText, Priority.NEVER);
+        this.getChildren().addAll(backButton, nameText, body);
     }
 
-    // Method to open file chooser and open selected PDF file
-    private void openFileChooser() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open PDF File");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
 
-        // Open the file chooser dialog
-        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-        if (selectedFile != null) {
-            // Open the PDF viewer with the selected file
-            PDFViewer pdfViewer = new PDFViewer(selectedFile, mainGUI);
-            mainGUI.getChildren().setAll(pdfViewer);
-        }
-    }
 
-    // Display files in the filesBox
-    private GridPane displayFiles() {
+
+    GridPane displayFiles() {
+        ArrayList<String> fileNames = new ArrayList<>();
+        fileNames.add("Hello.txt");
+
         GridPane filesPane = new GridPane();
         filesPane.setStyle("-fx-background-color: #bebeb6");
         filesPane.setPadding(new Insets(10, 10, 10, 10));
         filesPane.setHgap(10);
         filesPane.setVgap(10);
 
-        // Since the files list may be empty, no files will be displayed unless added
+        for (int col = 0; col < fileNames.size(); col++) {
+
+            VBox fileBox = new VBox();
+
+            FontIcon fileIcon = new FontIcon();
+            String extension = "";
+            int i = fileNames.get(col).lastIndexOf('.');
+            if (i > 0) extension = fileNames.get(col).substring(i+1);
+            switch (extension) {
+                case "pdf":
+                    fileIcon.setIconLiteral("mdi-file-pdf");
+                    break;
+                case "xlsx":
+                    fileIcon.setIconLiteral("mdi-file-excel");
+                    break;
+                case "png", "jpg":
+                    fileIcon.setIconLiteral("mdi-file-image");
+                    break;
+                default:
+                    fileIcon.setIconLiteral("mdi-file");
+            }
+
+            //Button fileButton = new Button(fileNames.get(col), fileIcon);
+            Button fileButton = new Button();
+            fileButton.setGraphic(fileIcon);
+            fileButton.setPrefHeight(30);
+
+            fileBox.getChildren().addAll(fileButton, new Text("TEST"));
+            filesPane.add(fileBox, col, 0);
+        }
         return filesPane;
     }
 }
