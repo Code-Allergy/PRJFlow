@@ -11,9 +11,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
+import javafx.stage.FileChooser;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,6 +27,12 @@ public class ProjectView extends VBox {
     String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
     String testCSV = "testInfo.csv";
     Project project;
+
+    GridPane filesPane = new GridPane();
+
+    String selected = "";
+
+
 
 
 
@@ -60,16 +68,16 @@ public class ProjectView extends VBox {
 
         VBox filesBox = new VBox();
         filesBox.setStyle("-fx-background-color: #bebeb6");
+        HBox fileButtonsBox = new HBox();
+
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
+        addFileButton.setOnAction(e -> addFile());
+        Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
+        removeFileButton.setOnAction(e -> removeFile());
+        fileButtonsBox.getChildren().addAll(addFileButton, removeFileButton);
 
-        addFileButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //File Chooser
-            }
-        });
-
-        filesBox.getChildren().addAll(addFileButton, displayFiles());
+        this.filesPane = displayFiles();
+        filesBox.getChildren().addAll(fileButtonsBox, filesPane);
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
@@ -93,15 +101,25 @@ public class ProjectView extends VBox {
 
         Text nameText = new Text("Current Project: " + project.getName());
         VBox.setVgrow(nameText, Priority.NEVER);
-        this.getChildren().addAll(backButton, nameText, body);
+        this.getChildren().addAll(nameText, body);
     }
 
 
+    void addFile() {
+        System.out.println("Add a new file");
+        project.addFile(openFileChooser());
+        System.out.println(project.getFiles());
+        displayFiles();
+    }
 
+    void removeFile() {
+        System.out.println(selected);
+        project.removeFile(selected);
+        displayFiles();
+    }
 
     GridPane displayFiles() {
-        ArrayList<String> fileNames = new ArrayList<>();
-        fileNames.add("Hello.txt");
+        filesPane.getChildren().clear();
 
         GridPane filesPane = new GridPane();
         filesPane.setStyle("-fx-background-color: #bebeb6");
@@ -109,14 +127,15 @@ public class ProjectView extends VBox {
         filesPane.setHgap(10);
         filesPane.setVgap(10);
 
-        for (int col = 0; col < fileNames.size(); col++) {
+        for (int col = 0; col < project.getFiles().size(); col++) {
+            File curFile = project.getFiles().get(col);
 
             VBox fileBox = new VBox();
 
             FontIcon fileIcon = new FontIcon();
             String extension = "";
-            int i = fileNames.get(col).lastIndexOf('.');
-            if (i > 0) extension = fileNames.get(col).substring(i+1);
+            int i = curFile.toString().lastIndexOf('.');
+            if (i > 0) extension = curFile.toString().substring(i+1);
             switch (extension) {
                 case "pdf":
                     fileIcon.setIconLiteral("mdi-file-pdf");
@@ -135,10 +154,25 @@ public class ProjectView extends VBox {
             Button fileButton = new Button();
             fileButton.setGraphic(fileIcon);
             fileButton.setPrefHeight(30);
+            fileButton.setId(curFile.getName());
+            fileButton.setOnAction(e -> selected = fileButton.getId());
 
-            fileBox.getChildren().addAll(fileButton, new Text("TEST"));
+            fileBox.getChildren().addAll(fileButton, new Text(curFile.getName()));
             filesPane.add(fileBox, col, 0);
         }
         return filesPane;
+    }
+
+    File openFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Add a new File");
+        // Open the file chooser dialog
+        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+        if (selectedFile != null) {
+            return selectedFile;
+        } else {
+            System.out.println("Error: no file found");
+            return null;
+        }
     }
 }
