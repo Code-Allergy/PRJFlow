@@ -54,6 +54,17 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-materialdesign-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
@@ -141,6 +152,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
                     <argLine>${argLine} --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
@@ -162,7 +174,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -214,7 +226,7 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
-                            </filters>                            
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -250,7 +262,7 @@
                         <id>default</id>
                         <reports>
                             <report>javadoc</report>
-                            <report>test-javadoc</report> 
+                            <report>test-javadoc</report>
                         </reports>
                     </reportSet>
                 </reportSets>

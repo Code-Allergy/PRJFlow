@@ -3,14 +3,17 @@ package com.cmpt370T7.PRJFlow;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import java.io.File;
-import javafx.scene.control.DatePicker;
+import java.time.LocalDate;
+import java.util.*;
 
 public class HomeScreen extends BorderPane {
 
-    public HomeScreen() {
+    private Map<LocalDate, List<String>> remindersMap = new HashMap<>();
+    private final MainGUI mainGUI;
+
+    public HomeScreen(MainGUI mainGUI) {
+        this.mainGUI = mainGUI;
+
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
 
@@ -44,18 +47,14 @@ public class HomeScreen extends BorderPane {
     }
 
     private VBox createRightPane() {
-        VBox rightPane = new VBox(10);
+        VBox rightPane = new VBox();
         rightPane.setPadding(new Insets(10));
         rightPane.setStyle("-fx-background-color: #f0f0f0;");
-        DatePicker datePicker = new DatePicker();
 
-        Label calendarLabel = new Label("Calendar");
+        // Create the custom calendar and pass the remindersMap
+        CustomCalendar customCalendar = new CustomCalendar(remindersMap);
 
-        Label remindersLabel = new Label("Reminders");
-        // Placeholder for reminders
-        Text remindersPlaceholder = new Text("Reminders List Here");
-
-        rightPane.getChildren().addAll(calendarLabel, datePicker, remindersLabel, remindersPlaceholder);
+        rightPane.getChildren().add(customCalendar);
         return rightPane;
     }
 
@@ -69,28 +68,10 @@ public class HomeScreen extends BorderPane {
         recentProjectsList.getItems().addAll("Recent Project 1", "Recent Project 2");
 
         Button newProjectButton = new Button("New Project");
-        // Set action for new project button
-        newProjectButton.setOnAction(e -> {
-            openFileChooser();
-        });
+        // Set action for new project button to open ProjectView
+        newProjectButton.setOnAction(e -> mainGUI.switchToProjectView());
 
         centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsList, newProjectButton);
         return centerPane;
-    }
-
-    private void openFileChooser() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open PDF File");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
-        // Open the file chooser dialog
-        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-        if (selectedFile != null) {
-            // Open the PDF viewer with the selected file
-            PDFViewer pdfViewer = new PDFViewer(selectedFile);
-            // Replace the current view with the PDF viewer
-            this.getScene().setRoot(pdfViewer);
-        }
     }
 }

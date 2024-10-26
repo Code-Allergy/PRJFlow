@@ -18,14 +18,17 @@ import java.util.List;
 
 public class PDFViewer extends VBox {
 
-    public PDFViewer(File pdfFile) {
+    private final MainGUI mainGUI;
+
+    public PDFViewer(File pdfFile, MainGUI mainGUI) {
+        this.mainGUI = mainGUI;
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> {
-            // Go back to HomeScreen
-            this.getScene().setRoot(new HomeScreen());
+            // Go back to ProjectView
+            mainGUI.switchToProjectView();
         });
 
         ScrollPane scrollPane = new ScrollPane();
