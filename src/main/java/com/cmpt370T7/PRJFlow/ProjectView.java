@@ -16,36 +16,46 @@ import java.net.URL;
 
 
 public class ProjectView extends VBox {
+
+    // Temporary variables before code is implemented correctly
     String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
+    String testCSV = "testInfo.csv";
+
+
 
     public ProjectView() {
         this.setStyle("-fx-background-color: #eeeee4");
 
-
+        /*
         Menu fileMenu = new Menu("File");
         Menu viewMenu = new Menu("View");
         MenuBar menuBar = new MenuBar(fileMenu, viewMenu);
         menuBar.setMinHeight(10);
         VBox.setVgrow(menuBar, Priority.ALWAYS);
+        */
 
         GridPane body = new GridPane();
+        body.setPrefHeight(800);
         body.setPadding(new Insets(10, 5, 10, 5));
         body.setMinHeight(20);
-        VBox.setVgrow(body, Priority.SOMETIMES);
+        //VBox.setVgrow(body, Priority.SOMETIMES);
         body.setAlignment(Pos.CENTER);
         body.setHgap(5);
 
 
         VBox projectInfoBox = new VBox();
+        projectInfoBox.setStyle("-fx-background-color: #bebeb6");
         projectInfoBox.getChildren().add(new Text("Project Generated Summary info"));
         body.add(projectInfoBox, 0, 0);
 
         VBox filesBox = new VBox();
+        filesBox.setStyle("-fx-background-color: #bebeb6");
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
         filesBox.getChildren().addAll(addFileButton, displayFiles());
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
+        fileInfoBox.setStyle("-fx-background-color: #bebeb6");
         fileInfoBox.getChildren().add(new Text("File Generated Summary Info"));
         body.add(fileInfoBox, 2, 0);
 
@@ -62,11 +72,7 @@ public class ProjectView extends VBox {
         bodyRow.setPercentHeight(900);
         body.getRowConstraints().addAll(bodyRow);
 
-
-
-        this.getChildren().addAll(menuBar, body);
-
-
+        this.getChildren().addAll(body);
     }
 
 
