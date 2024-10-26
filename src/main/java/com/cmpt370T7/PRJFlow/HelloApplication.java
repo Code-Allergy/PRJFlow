@@ -60,7 +60,7 @@ public class HelloApplication extends Application {
     }
 
     public static void main(String[] args) {
-//        AppDataManager.instantiate(); broken on windows :(
+        AppDataManager.instantiate();
 
 //        try {
 //            test_parse_pdf(

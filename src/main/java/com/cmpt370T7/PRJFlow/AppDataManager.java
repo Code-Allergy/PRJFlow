@@ -3,6 +3,8 @@ package com.cmpt370T7.PRJFlow;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
 
@@ -139,11 +141,12 @@ public class AppDataManager {
      */
     private void initializeTesseractData() {
         try {
-            URL tessDataURL = AppDataManager.class.getResource("tessdata");
+            URI tessDataURL = AppDataManager.class.getResource("tessdata").toURI();
             if (tessDataURL == null) {
                 throw new IOException("Could not find tessdata resources");
             }
-            Path tessDataPath = Paths.get(tessDataURL.getPath());
+            String pathStr = Paths.get(tessDataURL).toString();
+            Path tessDataPath = Paths.get(pathStr);
 
             createDirectoryIfNotExists(tesseractDataDirectory);
 
@@ -166,6 +169,8 @@ public class AppDataManager {
             logger.error(e.getMessage());
             logger.error("Tesseract data file could not be loaded. Exiting.");
             System.exit(1);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
