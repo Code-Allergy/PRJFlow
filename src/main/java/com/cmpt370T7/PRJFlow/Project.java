@@ -4,12 +4,24 @@ import java.util.ArrayList;
 
 public class Project {
 
-    String name;
-    ArrayList<String> fileNames;
+    private String name;
+    private ArrayList<String> fileNames;
 
     Project(String name) {
         this.name = name;
         this.fileNames = new ArrayList<>();
+    }
+
+    ArrayList<String> getFileNames() {
+        return fileNames;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    void addFile(String fileName) {
+        fileNames.add(fileName);
     }
 
 

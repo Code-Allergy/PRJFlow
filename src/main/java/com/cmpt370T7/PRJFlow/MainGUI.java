@@ -10,7 +10,7 @@ public class MainGUI extends StackPane {
         this.getChildren().add(homeScreen);
 
 
-        ProjectView projectView = new ProjectView();
+        ProjectView projectView = new ProjectView(new Project("Firehall"));
         this.getChildren().add(projectView);
 
     }

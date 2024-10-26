@@ -11,8 +11,10 @@ import javafx.scene.text.Text;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class ProjectView extends VBox {
@@ -20,11 +22,14 @@ public class ProjectView extends VBox {
     // Temporary variables before code is implemented correctly
     String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
     String testCSV = "testInfo.csv";
+    Project project;
 
 
 
-    public ProjectView() {
+    public ProjectView(Project project) {
+        this.project = project;
         this.setStyle("-fx-background-color: #eeeee4");
+        this.setAlignment(Pos.CENTER);
 
         /*
         Menu fileMenu = new Menu("File");
@@ -36,11 +41,11 @@ public class ProjectView extends VBox {
 
         GridPane body = new GridPane();
         body.setPrefHeight(800);
-        body.setPadding(new Insets(10, 5, 10, 5));
+        body.setPadding(new Insets(5, 10, 10, 10));
         body.setMinHeight(20);
-        //VBox.setVgrow(body, Priority.SOMETIMES);
+        VBox.setVgrow(body, Priority.ALWAYS);
         body.setAlignment(Pos.CENTER);
-        body.setHgap(5);
+        body.setHgap(10);
 
 
         VBox projectInfoBox = new VBox();
@@ -51,7 +56,8 @@ public class ProjectView extends VBox {
         VBox filesBox = new VBox();
         filesBox.setStyle("-fx-background-color: #bebeb6");
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
-        filesBox.getChildren().addAll(addFileButton, displayFiles());
+
+        filesBox.getChildren().addAll(addFileButton, displayFiles(project.getFileNames()));
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
@@ -69,14 +75,19 @@ public class ProjectView extends VBox {
         body.getColumnConstraints().addAll(projectSummaryCol, filesCol, fileSummaryCol);
 
         RowConstraints bodyRow = new RowConstraints();
-        bodyRow.setPercentHeight(900);
+        bodyRow.setPercentHeight(90);
         body.getRowConstraints().addAll(bodyRow);
 
-        this.getChildren().addAll(body);
+
+        Text nameText = new Text("Current Project: " + project.getName());
+        VBox.setVgrow(nameText, Priority.NEVER);
+        this.getChildren().addAll(nameText, body);
     }
 
 
-    GridPane displayFiles() {
+
+
+    GridPane displayFiles(ArrayList<String> fileNames) {
 
         GridPane filesPane = new GridPane();
         filesPane.setStyle("-fx-background-color: #bebeb6");
@@ -84,11 +95,11 @@ public class ProjectView extends VBox {
         filesPane.setHgap(10);
         filesPane.setVgap(10);
 
-        for (int col = 0; col < files.length; col++) {
+        for (int col = 0; col < fileNames.size(); col++) {
 
             String extension = "";
-            int i = files[col].lastIndexOf('.');
-            if (i > 0) extension = files[col].substring(i+1);
+            int i = fileNames.get(col).lastIndexOf('.');
+            if (i > 0) extension = fileNames.get(col).substring(i+1);
 
             FontIcon fileIcon = new FontIcon();
             switch (extension) {
@@ -103,7 +114,7 @@ public class ProjectView extends VBox {
                     break;
             }
 
-            Button fileButton = new Button(files[col], fileIcon);
+            Button fileButton = new Button(fileNames.get(col), fileIcon);
             fileButton.setPrefHeight(30);
             filesPane.add(fileButton, col, 0);
         }
