@@ -17,10 +17,10 @@ build:
   script:
     - ./mvnw compile
 
-#test:
-#  stage: test
-#  script:
-#    - xvfb-run ./mvnw test
+test:
+  stage: test
+  script:
+    - xvfb-run ./mvnw test
 
 package:
   stage: package
