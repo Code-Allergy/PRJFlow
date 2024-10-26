@@ -3,14 +3,21 @@ package com.cmpt370T7.PRJFlow;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import java.io.File;
-import javafx.scene.control.DatePicker;
+import java.time.LocalDate;
+import java.util.*;
 
 public class HomeScreen extends BorderPane {
 
-    public HomeScreen() {
+    private Map<LocalDate, List<String>> remindersMap = new HashMap<>();
+    private final MainGUI mainGUI;
+    private List<Project> projects;
+    private ListView<Project> projectsListView;
+    private ListView<Project> recentProjectsListView;
+
+    public HomeScreen(MainGUI mainGUI, List<Project> projects) {
+        this.mainGUI = mainGUI;
+        this.projects = projects;
+
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
 
@@ -35,27 +42,32 @@ public class HomeScreen extends BorderPane {
         leftPane.setStyle("-fx-background-color: #f0f0f0;");
 
         Label projectsLabel = new Label("Projects");
-        ListView<String> projectsList = new ListView<>();
-        // Placeholder items
-        projectsList.getItems().addAll("Project 1", "Project 2", "Project 3");
+        projectsListView = new ListView<>();
+        updateProjectsListView();
 
-        leftPane.getChildren().addAll(projectsLabel, projectsList);
+        // Handle project selection
+        projectsListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // Double-click
+                Project selectedProject = projectsListView.getSelectionModel().getSelectedItem();
+                if (selectedProject != null) {
+                    mainGUI.switchToProjectView(selectedProject);
+                }
+            }
+        });
+
+        leftPane.getChildren().addAll(projectsLabel, projectsListView);
         return leftPane;
     }
 
     private VBox createRightPane() {
-        VBox rightPane = new VBox(10);
+        VBox rightPane = new VBox();
         rightPane.setPadding(new Insets(10));
         rightPane.setStyle("-fx-background-color: #f0f0f0;");
-        DatePicker datePicker = new DatePicker();
 
-        Label calendarLabel = new Label("Calendar");
+        // Create the custom calendar and pass the remindersMap
+        CustomCalendar customCalendar = new CustomCalendar(remindersMap);
 
-        Label remindersLabel = new Label("Reminders");
-        // Placeholder for reminders
-        Text remindersPlaceholder = new Text("Reminders List Here");
-
-        rightPane.getChildren().addAll(calendarLabel, datePicker, remindersLabel, remindersPlaceholder);
+        rightPane.getChildren().add(customCalendar);
         return rightPane;
     }
 
@@ -64,33 +76,58 @@ public class HomeScreen extends BorderPane {
         centerPane.setPadding(new Insets(10));
 
         Label recentProjectsLabel = new Label("Recent Projects");
-        // Placeholder for recent projects
-        ListView<String> recentProjectsList = new ListView<>();
-        recentProjectsList.getItems().addAll("Recent Project 1", "Recent Project 2");
+        recentProjectsListView = new ListView<>();
+        updateRecentProjectsListView();
 
-        Button newProjectButton = new Button("New Project");
-        // Set action for new project button
-        newProjectButton.setOnAction(e -> {
-            openFileChooser();
+        // Handle recent project selection
+        recentProjectsListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // Double-click
+                Project selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
+                if (selectedProject != null) {
+                    mainGUI.switchToProjectView(selectedProject);
+                }
+            }
         });
 
-        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsList, newProjectButton);
+        Button newProjectButton = new Button("New Project");
+        // Set action for new project button to create a new project
+        newProjectButton.setOnAction(e -> createNewProject());
+
+        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsListView, newProjectButton);
         return centerPane;
     }
 
-    private void openFileChooser() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open PDF File");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
-        // Open the file chooser dialog
-        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-        if (selectedFile != null) {
-            // Open the PDF viewer with the selected file
-            PDFViewer pdfViewer = new PDFViewer(selectedFile);
-            // Replace the current view with the PDF viewer
-            this.getScene().setRoot(pdfViewer);
-        }
+    private void createNewProject() {
+        // Prompt the user for a project name
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("New Project");
+        dialog.setHeaderText("Create a New Project");
+        dialog.setContentText("Project Name:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                Project newProject = new Project(name.trim());
+                projects.add(0, newProject); // Add to the top of the list
+                updateProjectsListView();
+                updateRecentProjectsListView();
+                mainGUI.switchToProjectView(newProject);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Invalid Name");
+                alert.setHeaderText(null);
+                alert.setContentText("Project name cannot be empty.");
+                alert.showAndWait();
+            }
+        });
+    }
+
+    private void updateProjectsListView() {
+        projectsListView.getItems().setAll(projects);
+    }
+
+    private void updateRecentProjectsListView() {
+        // Assuming recent projects are the same as projects for now
+        recentProjectsListView.getItems().setAll(projects);
     }
 }

@@ -10,26 +10,30 @@ public class Project {
     private String name;
     private List<File> files;
 
-    Project(String name) {
+    public Project(String name) {
         this.name = name;
         this.files = new ArrayList<>();
     }
 
-    List<File> getFiles() {
+    public List<File> getFiles() {
         return files;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    void addFile(File file) {
+
+    public void addFile(File file) {
         files.add(file);
     }
 
-    void removeFile(String fileName) {
+    public void removeFile(String fileName) {
         files = files.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
     }
 
-
+    @Override
+    public String toString() {
+        return name;
+    }
 }

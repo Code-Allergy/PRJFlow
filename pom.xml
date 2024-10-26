@@ -174,7 +174,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -226,7 +226,7 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
-                            </filters>                            
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -262,7 +262,7 @@
                         <id>default</id>
                         <reports>
                             <report>javadoc</report>
-                            <report>test-javadoc</report> 
+                            <report>test-javadoc</report>
                         </reports>
                     </reportSet>
                 </reportSets>

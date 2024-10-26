@@ -36,10 +36,13 @@ public class ProjectView extends VBox {
 
 
 
-    public ProjectView(Project project) {
+    public ProjectView(Project project,MainGUI mainGUI) {
         this.project = project;
         this.setStyle("-fx-background-color: #eeeee4");
         this.setAlignment(Pos.CENTER);
+
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> mainGUI.switchToHomeScreen());
 
         /*
         Menu fileMenu = new Menu("File");
@@ -75,6 +78,7 @@ public class ProjectView extends VBox {
 
         this.filesPane = displayFiles();
         filesBox.getChildren().addAll(fileButtonsBox, filesPane);
+
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
@@ -98,7 +102,7 @@ public class ProjectView extends VBox {
 
         Text nameText = new Text("Current Project: " + project.getName());
         VBox.setVgrow(nameText, Priority.NEVER);
-        this.getChildren().addAll(nameText, body);
+        this.getChildren().addAll(backButton, nameText, body);
     }
 
 
@@ -130,6 +134,7 @@ public class ProjectView extends VBox {
 
             FontIcon fileIcon = new FontIcon();
             String extension = "";
+
             int i = curFile.toString().lastIndexOf('.');
             if (i > 0) extension = curFile.toString().substring(i+1);
             switch (extension) {
@@ -146,7 +151,6 @@ public class ProjectView extends VBox {
                     fileIcon.setIconLiteral("mdi-file");
             }
 
-            //Button fileButton = new Button(fileNames.get(col), fileIcon);
             Button fileButton = new Button();
             fileButton.setGraphic(fileIcon);
             fileButton.setPrefHeight(30);
