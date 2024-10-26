@@ -53,4 +53,39 @@ public class PopulateCsv {
             e.printStackTrace();
         }
     }
+
+    public static void main(String[] args) {
+        String filename = "sample-files/TestFiles/TestCsv.csv";
+
+        // Test 1: Basic write
+        System.out.println("Test 1: Writing 'Hello' at (0, 0)");
+        PopulateCsv.appendDataToCsv(0, 0, "Hello", filename);
+
+        // Test 2: Append new data
+        System.out.println("Test 2: Writing 'World' at (1, 0)");
+        PopulateCsv.appendDataToCsv(1, 0, "World", filename);
+
+        // Test 3: Expand Y dimension
+        System.out.println("Test 3: Writing 'NewRow' at (0, 2)");
+        PopulateCsv.appendDataToCsv(0, 2, "NewRow", filename);
+
+        // Test 4: Expand X dimension in the same row
+        System.out.println("Test 4: Writing 'ExpandX' at (3, 2)");
+        PopulateCsv.appendDataToCsv(3, 2, "ExpandX", filename);
+
+        // Test 5: Overwrite data
+        System.out.println("Test 5: Overwriting 'Hello' with 'Updated' at (0, 0)");
+        PopulateCsv.appendDataToCsv(0, 0, "Updated", filename);
+
+        // Display the resulting CSV content
+        System.out.println("\nResulting CSV Content:");
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
