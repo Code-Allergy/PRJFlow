@@ -21,10 +21,9 @@ module com.cmpt370T7.PRJFlow {
     requires java.sql;
 
     // Config
-    requires toml4j;
-
     // Required for imageIO functions
     requires java.desktop;
+    requires toml4j;
 
     opens com.cmpt370T7.PRJFlow to javafx.fxml;
     exports com.cmpt370T7.PRJFlow.util;
