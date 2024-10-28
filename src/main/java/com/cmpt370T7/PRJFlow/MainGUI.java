@@ -7,6 +7,8 @@ import java.util.List;
 public class MainGUI extends StackPane {
 
     private List<Project> projects;
+    ProjectView pView;
+    HomeScreen homeScreen;
 
     public MainGUI() {
         this.setPrefSize(800, 600);
@@ -15,19 +17,18 @@ public class MainGUI extends StackPane {
         projects = new ArrayList<>();
 
         // Create HomeScreen and pass the projects list
-        HomeScreen homeScreen = new HomeScreen(this, projects);
+        homeScreen = new HomeScreen(this, projects);
         this.getChildren().add(homeScreen);
     }
 
     // Method to switch to ProjectView
     public void switchToProjectView(Project project) {
-        ProjectView projectView = new ProjectView(project, this);
-        this.getChildren().setAll(projectView);  // Replace current view with ProjectView
+        pView = new ProjectView(project, this);
+        this.getChildren().setAll(pView);  // Replace current view with ProjectView
     }
 
     // Method to switch back to HomeScreen
     public void switchToHomeScreen() {
-        HomeScreen homeScreen = new HomeScreen(this, projects);
         this.getChildren().setAll(homeScreen);
     }
 }

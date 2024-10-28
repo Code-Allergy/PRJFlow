@@ -27,10 +27,11 @@ public class ProjectView extends VBox {
     String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
     String testCSV = "testInfo.csv";
     Project project;
-
+    private MainGUI mainGUI;
     GridPane filesPane = new GridPane();
 
     String selected = "";
+    boolean removeMode = false;
 
 
 
@@ -38,8 +39,9 @@ public class ProjectView extends VBox {
 
     public ProjectView(Project project,MainGUI mainGUI) {
         this.project = project;
+        this.mainGUI = mainGUI;
         this.setStyle("-fx-background-color: #eeeee4");
-        this.setAlignment(Pos.CENTER);
+        this.setAlignment(Pos.TOP_LEFT);
 
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> mainGUI.switchToHomeScreen());
@@ -73,11 +75,14 @@ public class ProjectView extends VBox {
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
         addFileButton.setOnAction(e -> addFile());
         Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
-        removeFileButton.setOnAction(e -> removeFile());
+        removeFileButton.setOnAction(e -> {
+            removeMode = true;
+        });
         fileButtonsBox.getChildren().addAll(addFileButton, removeFileButton);
 
         this.filesPane = displayFiles();
         filesBox.getChildren().addAll(fileButtonsBox, filesPane);
+
         body.add(filesBox, 1, 0);
 
         VBox fileInfoBox = new VBox();
@@ -101,7 +106,7 @@ public class ProjectView extends VBox {
 
         Text nameText = new Text("Current Project: " + project.getName());
         VBox.setVgrow(nameText, Priority.NEVER);
-        this.getChildren().addAll(nameText, body);
+        this.getChildren().addAll(backButton, nameText, body);
     }
 
 
@@ -116,12 +121,12 @@ public class ProjectView extends VBox {
         System.out.println(selected);
         project.removeFile(selected);
         displayFiles();
+        removeMode = false;
     }
 
     GridPane displayFiles() {
         filesPane.getChildren().clear();
 
-        GridPane filesPane = new GridPane();
         filesPane.setStyle("-fx-background-color: #bebeb6");
         filesPane.setPadding(new Insets(10, 10, 10, 10));
         filesPane.setHgap(10);
@@ -134,6 +139,7 @@ public class ProjectView extends VBox {
 
             FontIcon fileIcon = new FontIcon();
             String extension = "";
+
             int i = curFile.toString().lastIndexOf('.');
             if (i > 0) extension = curFile.toString().substring(i+1);
             switch (extension) {
@@ -150,12 +156,22 @@ public class ProjectView extends VBox {
                     fileIcon.setIconLiteral("mdi-file");
             }
 
-            //Button fileButton = new Button(fileNames.get(col), fileIcon);
             Button fileButton = new Button();
             fileButton.setGraphic(fileIcon);
             fileButton.setPrefHeight(30);
             fileButton.setId(curFile.getName());
-            fileButton.setOnAction(e -> selected = fileButton.getId());
+            fileButton.setOnAction(e -> {
+                selected = fileButton.getId();
+                if (removeMode) {
+                    removeFile();
+                    removeMode = false;
+                } else {
+                    PDFViewer pdfViewer = new PDFViewer(curFile, mainGUI, project);
+                    mainGUI.getChildren().setAll(pdfViewer);
+                }
+
+
+            });
 
             fileBox.getChildren().addAll(fileButton, new Text(curFile.getName()));
             filesPane.add(fileBox, col, 0);

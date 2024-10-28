@@ -18,4 +18,58 @@ import java.util.List;
 
 public class PDFViewer extends VBox {
 
+    private final MainGUI mainGUI;
+    private final Project project;
+
+    public PDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
+        this.mainGUI = mainGUI;
+        this.project = project;
+        this.setPadding(new Insets(10));
+        this.setSpacing(10);
+
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> {
+            // Go back to ProjectView
+            mainGUI.switchToProjectView(project);
+        });
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+
+        VBox pdfPagesBox = new VBox(10);
+        scrollPane.setContent(pdfPagesBox);
+
+        new Thread(() -> {
+            try {
+                PDDocument document = PDDocument.load(pdfFile);
+                PDFRenderer pdfRenderer = new PDFRenderer(document);
+                int pageCount = document.getNumberOfPages();
+                List<ImageView> imageViews = new ArrayList<>();
+
+                for (int page = 0; page < pageCount; ++page) {
+                    Image pageImage = renderPageToImage(pdfRenderer, page);
+                    ImageView imageView = new ImageView(pageImage);
+                    imageView.setPreserveRatio(true);
+                    imageView.setFitWidth(600); // Adjust as needed
+                    imageViews.add(imageView);
+                }
+
+                document.close();
+
+                // Update the UI on the JavaFX Application Thread
+                Platform.runLater(() -> pdfPagesBox.getChildren().addAll(imageViews));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        this.getChildren().addAll(backButton, scrollPane);
+    }
+
+    private Image renderPageToImage(PDFRenderer pdfRenderer, int pageIndex) throws IOException {
+        // Render the page to a BufferedImage
+        java.awt.image.BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageIndex, 150);
+        // Convert BufferedImage to JavaFX Image
+        return SwingFXUtils.toFXImage(bufferedImage, null);
+    }
 }
