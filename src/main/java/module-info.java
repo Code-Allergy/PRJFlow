@@ -20,6 +20,7 @@ module com.cmpt370T7.PRJFlow {
     requires org.jsoup;
 
     // Global store
+    requires java.sql;
 
     // Config
     requires toml4j;
@@ -28,7 +29,6 @@ module com.cmpt370T7.PRJFlow {
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
     requires java.desktop;
-    requires java.sql;
 
     opens com.cmpt370T7.PRJFlow to javafx.fxml;
     exports com.cmpt370T7.PRJFlow.util;

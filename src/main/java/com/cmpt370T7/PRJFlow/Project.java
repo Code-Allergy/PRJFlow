@@ -8,28 +8,68 @@ import java.util.stream.Collectors;
 public class Project {
 
     private String name;
-    private List<File> files;
+    private String owner;
+    private ArrayList<File> inputFiles;
+    private ArrayList<File> summaryFiles;
 
     public Project(String name) {
         this.name = name;
-        this.files = new ArrayList<>();
+        this.inputFiles = new ArrayList<>();
+        this.summaryFiles = new ArrayList<>();
     }
 
-    public List<File> getFiles() {
-        return files;
+    ArrayList<String> getInputFileNames() {
+        ArrayList<String> s = new ArrayList<>();
+        for (File f : inputFiles) {
+            s.add(f.toString());
+        }
+
+        return s;
+    }
+
+    ArrayList<String> getSummaryFileNames() {
+        ArrayList<String> s = new ArrayList<>();
+        for (File f : summaryFiles) {
+            s.add(f.toString());
+        }
+
+        return s;
+    }
+
+    ArrayList<File> getInputFiles(){
+        return inputFiles;
+    }
+
+    ArrayList<File> getSummaryFiles(){
+        return summaryFiles;
     }
 
     public String getName() {
         return name;
     }
 
-
-    public void addFile(File file) {
-        files.add(file);
+    public String getOwner() {
+        return owner;
     }
 
-    public void removeFile(String fileName) {
-        files = files.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
+    public void setOwner(String newOwner) {
+        owner = newOwner;
+    }
+
+    void addInputFile(File fileName) {
+        inputFiles.add(fileName);
+    }
+
+    void addSummaryFile(File fileName){
+        summaryFiles.add(fileName);
+    }
+
+    public void removeInputFile(String fileName) {
+        inputFiles = (ArrayList<File>) inputFiles.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
+    }
+
+    void removeSummaryFile(File fileName){
+
     }
 
     @Override
