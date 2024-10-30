@@ -13,6 +13,8 @@ import javafx.scene.text.Text;
 
 import javafx.stage.FileChooser;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.File;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
 
 
 public class ProjectView extends VBox {
-
+    private final Logger logger = LoggerFactory.getLogger(ProjectView.class);
     // Temporary variables before code is implemented correctly
     String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
     String testCSV = "testInfo.csv";
@@ -111,15 +113,15 @@ public class ProjectView extends VBox {
 
 
     void addFile() {
-        System.out.println("Add a new file");
-        project.addFile(openFileChooser());
-        System.out.println(project.getFiles());
+        logger.debug("Add a new file");
+        project.addInputFile(openFileChooser());
+        logger.debug("all files :{}", project.getInputFiles());
         displayFiles();
     }
 
     void removeFile() {
-        System.out.println(selected);
-        project.removeFile(selected);
+        logger.debug("selected: {}", selected);
+        project.removeInputFile(selected);
         displayFiles();
         removeMode = false;
     }
@@ -132,8 +134,8 @@ public class ProjectView extends VBox {
         filesPane.setHgap(10);
         filesPane.setVgap(10);
 
-        for (int col = 0; col < project.getFiles().size(); col++) {
-            File curFile = project.getFiles().get(col);
+        for (int col = 0; col < project.getInputFiles().size(); col++) {
+            File curFile = project.getInputFiles().get(col);
 
             VBox fileBox = new VBox();
 
