@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ public class AppDataManagerTest {
     }
 
     @Test
-    void test_get_database_file() {
+    void test_get_database_file() throws IOException {
         // When
         AppDataManager.instantiateAt(tempDirFile);
         appDataManager = AppDataManager.getInstance();
@@ -47,7 +48,7 @@ public class AppDataManagerTest {
     }
 
     @Test
-    void test_get_config_file() {
+    void test_get_config_file() throws IOException {
         // When
         AppDataManager.instantiateAt(tempDirFile);
         appDataManager = AppDataManager.getInstance();
@@ -58,7 +59,7 @@ public class AppDataManagerTest {
     }
 
     @Test
-    void should_instantiate_AppDataManager() {
+    void should_instantiate_AppDataManager() throws IOException {
         AppDataManager.instantiate();
         AppDataManager appDataManager = AppDataManager.getInstance();
         assertThat(appDataManager).isNotNull();
@@ -72,7 +73,7 @@ public class AppDataManagerTest {
     }
 
     @Test
-    void should_create_ConfigManager_and_GlobalTermsDatabase_on_instantiate() {
+    void should_create_ConfigManager_and_GlobalTermsDatabase_on_instantiate() throws IOException {
         AppDataManager.instantiate();
         AppDataManager appDataManager = AppDataManager.getInstance();
 

@@ -10,10 +10,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 
 public class HelloApplication extends Application {
-
+    private static final Logger logger = LoggerFactory.getLogger(HelloApplication.class);
     public Scene getScene() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(
             HelloApplication.class.getResource("hello-view.fxml")
@@ -60,8 +63,16 @@ public class HelloApplication extends Application {
     }
 
     public static void main(String[] args) {
-        AppDataManager.instantiate();
+        /// we can do this later in the UI, so that we can display an error to a user.
+        try {
+            AppDataManager.instantiate();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error("Failed to start AppDataManager, Exiting...");
+            System.exit(1);
+        }
 
+        // example of how the testing fn works
 //        try {
 //            test_parse_pdf(
 //                new File(

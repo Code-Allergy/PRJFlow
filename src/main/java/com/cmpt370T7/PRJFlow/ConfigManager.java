@@ -2,6 +2,8 @@ package com.cmpt370T7.PRJFlow;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigManager {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
     private final File configFile;
     private Map<String, Object> configData;
 

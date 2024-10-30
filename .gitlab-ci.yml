@@ -27,10 +27,10 @@ package:
   script:
     - ./mvnw package -f pom-cross.xml -DskipTests
     - cp target/*.jar .
-  artifacts:
-    paths:
-      - ./*.jar
-    expire_in: 1 week
+#  artifacts: ## Artifacts are too large right now. We will just try building the package
+#    paths:
+#      - ./*.jar
+#    expire_in: 1 week
 
 update_site:
   stage: docs
