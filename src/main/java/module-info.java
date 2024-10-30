@@ -7,7 +7,9 @@ module com.cmpt370T7.PRJFlow {
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
     requires javafx.swing;
+    requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.materialdesign;
 
     // Logging
     requires org.slf4j;
