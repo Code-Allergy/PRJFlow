@@ -8,6 +8,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
@@ -30,6 +32,7 @@ public class ProjectView extends VBox {
     private MainGUI mainGUI;
     GridPane filesPane = new GridPane();
 
+    //Project selected;
     String selected = "";
     boolean removeMode = false;
 
@@ -40,7 +43,8 @@ public class ProjectView extends VBox {
     public ProjectView(Project project,MainGUI mainGUI) {
         this.project = project;
         this.mainGUI = mainGUI;
-        this.setStyle("-fx-background-color: #eeeee4");
+        this.selected = null;
+        this.setStyle("-fx-background-color: #f0f0f0");
         this.setAlignment(Pos.TOP_LEFT);
 
         Button backButton = new Button("Back");
@@ -56,6 +60,7 @@ public class ProjectView extends VBox {
 
         GridPane body = new GridPane();
         body.setPrefHeight(800);
+        body.setPrefWidth(800);
         body.setPadding(new Insets(5, 10, 10, 10));
         body.setMinHeight(20);
         VBox.setVgrow(body, Priority.ALWAYS);
@@ -76,7 +81,10 @@ public class ProjectView extends VBox {
         addFileButton.setOnAction(e -> addFile());
         Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
         removeFileButton.setOnAction(e -> {
-            removeMode = true;
+            if (selected != null) {
+                removeFile();
+                selected = null;
+            }
         });
         fileButtonsBox.getChildren().addAll(addFileButton, removeFileButton);
 
@@ -109,15 +117,27 @@ public class ProjectView extends VBox {
         this.getChildren().addAll(backButton, nameText, body);
     }
 
+    // Add files that are in projects directory
+    private void initialFiles() {
+        System.out.println("Add initial files");
+    }
 
-    void addFile() {
+    private void addFileToProject(File f) {
+        System.out.println("Add a new file to project");
+        project.addFile(f);
+    }
+
+
+
+
+    private void addFile() {
         System.out.println("Add a new file");
         project.addFile(openFileChooser());
         System.out.println(project.getFiles());
         displayFiles();
     }
 
-    void removeFile() {
+    private void removeFile() {
         System.out.println(selected);
         project.removeFile(selected);
         displayFiles();
@@ -155,11 +175,26 @@ public class ProjectView extends VBox {
                 default:
                     fileIcon.setIconLiteral("mdi-file");
             }
+            System.out.println("Icon Size: " + fileIcon.getIconSize());
+            fileIcon.setIconSize(30);
 
             Button fileButton = new Button();
+            fileButton.setContentDisplay(ContentDisplay.TOP);
             fileButton.setGraphic(fileIcon);
+            fileButton.setText(curFile.getName());
             fileButton.setPrefHeight(30);
             fileButton.setId(curFile.getName());
+            fileButton.setOnMouseClicked(e -> {
+                if (e.getButton().equals(MouseButton.PRIMARY)) {
+                    if (e.getClickCount() == 1) {
+                        selected = fileButton.getId();
+                    } else if (e.getClickCount() == 2) {
+                        PDFViewer pdfViewer = new PDFViewer(curFile, mainGUI, project);
+                        mainGUI.getChildren().setAll(pdfViewer);
+                    }
+                }
+            });
+            /*
             fileButton.setOnAction(e -> {
                 selected = fileButton.getId();
                 if (removeMode) {
@@ -171,15 +206,17 @@ public class ProjectView extends VBox {
                 }
 
 
-            });
+            });*/
 
-            fileBox.getChildren().addAll(fileButton, new Text(curFile.getName()));
-            filesPane.add(fileBox, col, 0);
+            //fileBox.getChildren().addAll(fileButton, new Text(curFile.getName()));
+            filesPane.add(fileButton, col, 0);
         }
         return filesPane;
     }
 
-    File openFileChooser() {
+
+
+    private File openFileChooser() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Add a new File");
         // Open the file chooser dialog
@@ -191,4 +228,15 @@ public class ProjectView extends VBox {
             return null;
         }
     }
+
+    /*
+    private void fileClick(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY)) {
+            if (event.getClickCount() == 1) {
+                selected =
+            } else if (event.getClickCount() == 2) {
+
+            }
+        }
+    }*/
 }

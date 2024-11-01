@@ -23,6 +23,7 @@ public class MainGUI extends StackPane {
 
     // Method to switch to ProjectView
     public void switchToProjectView(Project project) {
+        this.setPrefSize(800, 600);
         pView = new ProjectView(project, this);
         this.getChildren().setAll(pView);  // Replace current view with ProjectView
     }
