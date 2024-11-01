@@ -17,9 +17,12 @@ public class HomeScreen extends BorderPane {
     private ListView<Project> projectsListView;
     private ListView<Project> recentProjectsListView;
 
+    private Project selectedProject;
+
     public HomeScreen(MainGUI mainGUI, List<Project> projects) {
         this.mainGUI = mainGUI;
         this.projects = projects;
+        this.selectedProject = null;
 
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
@@ -50,10 +53,13 @@ public class HomeScreen extends BorderPane {
 
         // Handle project selection
         projectsListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Double-click
-                Project selectedProject = projectsListView.getSelectionModel().getSelectedItem();
-                if (selectedProject != null) {
+            selectedProject = projectsListView.getSelectionModel().getSelectedItem();
+            System.out.println("Selection: " + selectedProject);
+
+            if (selectedProject != null) {
+                if (event.getClickCount() == 2) { // Double-click
                     mainGUI.switchToProjectView(selectedProject);
+                    selectedProject = null;
                 }
             }
         });
@@ -84,10 +90,13 @@ public class HomeScreen extends BorderPane {
 
         // Handle recent project selection
         recentProjectsListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Double-click
-                Project selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
-                if (selectedProject != null) {
+            selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
+            System.out.println("Recent selection: " + selectedProject);
+
+            if (selectedProject != null) {
+                if (event.getClickCount() == 2) { // Double-click
                     mainGUI.switchToProjectView(selectedProject);
+                    selectedProject = null;
                 }
             }
         });
@@ -96,7 +105,10 @@ public class HomeScreen extends BorderPane {
         // Set action for new project button to create a new project
         newProjectButton.setOnAction(e -> createNewProject());
 
-        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsListView, newProjectButton);
+        Button deleteProjectButton = new Button("Delete Project");
+        deleteProjectButton.setOnAction(e -> deleteProject());
+
+        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsListView, newProjectButton, deleteProjectButton);
         return centerPane;
     }
 
@@ -131,6 +143,20 @@ public class HomeScreen extends BorderPane {
                 alert.showAndWait();
             }
         });
+    }
+
+    private void deleteProject() {
+        if (selectedProject != null) {
+            Alert deleteConfirmation = new Alert(Alert.AlertType.CONFIRMATION, "Delete ", ButtonType.YES, ButtonType.NO);
+            deleteConfirmation.setContentText("Are you sure you want to delete the project called: " + selectedProject.getName() + "?");
+            deleteConfirmation.showAndWait();
+            if (deleteConfirmation.getResult() == ButtonType.YES) {
+                projects.remove(selectedProject);
+                updateProjectsListView();
+                updateRecentProjectsListView();
+            }
+        }
+
     }
 
     private void updateProjectsListView() {
