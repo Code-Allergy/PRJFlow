@@ -155,35 +155,34 @@ public class ProjectView extends VBox {
         for (int col = 0; col < project.getFiles().size(); col++) {
             File curFile = project.getFiles().get(col);
 
-            VBox fileBox = new VBox();
-
+            Button fileButton = new Button();
             FontIcon fileIcon = new FontIcon();
-            String extension = "";
 
+            // Determine file extension
+            String extension = "";
             int i = curFile.toString().lastIndexOf('.');
             if (i > 0) extension = curFile.toString().substring(i+1);
             switch (extension) {
-                case "pdf":
-                    fileIcon.setIconLiteral("mdi-file-pdf");
-                    break;
-                case "xlsx":
-                    fileIcon.setIconLiteral("mdi-file-excel");
-                    break;
-                case "png", "jpg":
-                    fileIcon.setIconLiteral("mdi-file-image");
-                    break;
-                default:
-                    fileIcon.setIconLiteral("mdi-file");
+                case "pdf" -> fileIcon.setIconLiteral("mdi-file-pdf");
+                case "xlsx" -> fileIcon.setIconLiteral("mdi-file-excel");
+                case "png", "jpg" -> fileIcon.setIconLiteral("mdi-file-image");
+                default -> fileIcon.setIconLiteral("mdi-file");
             }
-            System.out.println("Icon Size: " + fileIcon.getIconSize());
             fileIcon.setIconSize(30);
 
-            Button fileButton = new Button();
+            // File name cut off if past 20 characters
+            if (curFile.getName().length() > 20) {
+                fileButton.setText(curFile.getName().substring(0, (20 - extension.length() - 3)) + "..." + extension);
+            } else {
+                fileButton.setText(curFile.getName());
+            }
+
+
             fileButton.setContentDisplay(ContentDisplay.TOP);
             fileButton.setGraphic(fileIcon);
-            fileButton.setText(curFile.getName());
-            fileButton.setPrefHeight(30);
+            //fileButton.setPrefHeight(30);
             fileButton.setId(curFile.getName());
+
             fileButton.setOnMouseClicked(e -> {
                 if (e.getButton().equals(MouseButton.PRIMARY)) {
                     if (e.getClickCount() == 1) {
@@ -194,21 +193,7 @@ public class ProjectView extends VBox {
                     }
                 }
             });
-            /*
-            fileButton.setOnAction(e -> {
-                selected = fileButton.getId();
-                if (removeMode) {
-                    removeFile();
-                    removeMode = false;
-                } else {
-                    PDFViewer pdfViewer = new PDFViewer(curFile, mainGUI, project);
-                    mainGUI.getChildren().setAll(pdfViewer);
-                }
 
-
-            });*/
-
-            //fileBox.getChildren().addAll(fileButton, new Text(curFile.getName()));
             filesPane.add(fileButton, col, 0);
         }
         return filesPane;
