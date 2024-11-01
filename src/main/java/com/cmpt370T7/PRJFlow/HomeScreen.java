@@ -3,20 +3,26 @@ package com.cmpt370T7.PRJFlow;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.DirectoryChooser;
+
+import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
 public class HomeScreen extends BorderPane {
 
-    private Map<LocalDate, List<String>> remindersMap = new HashMap<>();
+    private final Map<LocalDate, List<String>> remindersMap = new HashMap<>();
     private final MainGUI mainGUI;
-    private List<Project> projects;
+    private final List<Project> projects;
     private ListView<Project> projectsListView;
     private ListView<Project> recentProjectsListView;
+
+    private Project selectedProject;
 
     public HomeScreen(MainGUI mainGUI, List<Project> projects) {
         this.mainGUI = mainGUI;
         this.projects = projects;
+        this.selectedProject = null;
 
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
@@ -47,10 +53,13 @@ public class HomeScreen extends BorderPane {
 
         // Handle project selection
         projectsListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Double-click
-                Project selectedProject = projectsListView.getSelectionModel().getSelectedItem();
-                if (selectedProject != null) {
+            selectedProject = projectsListView.getSelectionModel().getSelectedItem();
+            System.out.println("Selection: " + selectedProject);
+
+            if (selectedProject != null) {
+                if (event.getClickCount() == 2) { // Double-click
                     mainGUI.switchToProjectView(selectedProject);
+                    selectedProject = null;
                 }
             }
         });
@@ -81,10 +90,13 @@ public class HomeScreen extends BorderPane {
 
         // Handle recent project selection
         recentProjectsListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Double-click
-                Project selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
-                if (selectedProject != null) {
+            selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
+            System.out.println("Recent selection: " + selectedProject);
+
+            if (selectedProject != null) {
+                if (event.getClickCount() == 2) { // Double-click
                     mainGUI.switchToProjectView(selectedProject);
+                    selectedProject = null;
                 }
             }
         });
@@ -93,9 +105,13 @@ public class HomeScreen extends BorderPane {
         // Set action for new project button to create a new project
         newProjectButton.setOnAction(e -> createNewProject());
 
-        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsListView, newProjectButton);
+        Button deleteProjectButton = new Button("Delete Project");
+        deleteProjectButton.setOnAction(e -> deleteProject());
+
+        centerPane.getChildren().addAll(recentProjectsLabel, recentProjectsListView, newProjectButton, deleteProjectButton);
         return centerPane;
     }
+
 
     private void createNewProject() {
         // Prompt the user for a project name
@@ -107,11 +123,18 @@ public class HomeScreen extends BorderPane {
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             if (!name.trim().isEmpty()) {
-                Project newProject = new Project(name.trim());
-                projects.add(0, newProject); // Add to the top of the list
-                updateProjectsListView();
-                updateRecentProjectsListView();
-                mainGUI.switchToProjectView(newProject);
+                DirectoryChooser dc = new DirectoryChooser();
+                dc.setTitle("Choose the project directory");
+
+                File selectedFolder =  dc.showDialog(this.getScene().getWindow());
+                if (selectedFolder != null) {
+                    Project newProject = new Project(name.trim(), selectedFolder);
+                    projects.addFirst(newProject); // Add to the top of the list
+                    updateProjectsListView();
+                    updateRecentProjectsListView();
+                    mainGUI.switchToProjectView(newProject);
+                }
+
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Invalid Name");
@@ -120,6 +143,20 @@ public class HomeScreen extends BorderPane {
                 alert.showAndWait();
             }
         });
+    }
+
+    private void deleteProject() {
+        if (selectedProject != null) {
+            Alert deleteConfirmation = new Alert(Alert.AlertType.CONFIRMATION, "Delete ", ButtonType.YES, ButtonType.NO);
+            deleteConfirmation.setContentText("Are you sure you want to delete the project called: " + selectedProject.getName() + "?");
+            deleteConfirmation.showAndWait();
+            if (deleteConfirmation.getResult() == ButtonType.YES) {
+                projects.remove(selectedProject);
+                updateProjectsListView();
+                updateRecentProjectsListView();
+            }
+        }
+
     }
 
     private void updateProjectsListView() {

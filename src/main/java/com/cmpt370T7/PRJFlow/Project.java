@@ -8,41 +8,19 @@ import java.util.stream.Collectors;
 public class Project {
 
     private String name;
+    private File directory;
     private String owner;
-    private ArrayList<File> inputFiles;
-    private ArrayList<File> summaryFiles;
+    private List<File> inputFiles;
+    private List<File> summaryFiles;
 
-    public Project(String name) {
+    public Project(String name, File directory) {
         this.name = name;
+        this.directory = directory;
         this.inputFiles = new ArrayList<>();
         this.summaryFiles = new ArrayList<>();
+        addInitialFiles();
     }
 
-    ArrayList<String> getInputFileNames() {
-        ArrayList<String> s = new ArrayList<>();
-        for (File f : inputFiles) {
-            s.add(f.toString());
-        }
-
-        return s;
-    }
-
-    ArrayList<String> getSummaryFileNames() {
-        ArrayList<String> s = new ArrayList<>();
-        for (File f : summaryFiles) {
-            s.add(f.toString());
-        }
-
-        return s;
-    }
-
-    ArrayList<File> getInputFiles(){
-        return inputFiles;
-    }
-
-    ArrayList<File> getSummaryFiles(){
-        return summaryFiles;
-    }
 
     public String getName() {
         return name;
@@ -50,6 +28,18 @@ public class Project {
 
     public String getOwner() {
         return owner;
+    }
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    List<File> getInputFiles(){
+        return inputFiles;
+    }
+
+    List<File> getSummaryFiles(){
+        return summaryFiles;
     }
 
     public void setOwner(String newOwner) {
@@ -64,12 +54,31 @@ public class Project {
         summaryFiles.add(fileName);
     }
 
-    public void removeInputFile(String fileName) {
-        inputFiles = (ArrayList<File>) inputFiles.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
+    public void removeFile(String fileName) {
+        inputFiles = inputFiles.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
     }
 
-    void removeSummaryFile(File fileName){
+    public ArrayList<String> getInputFileNames() {
+        ArrayList<String> s = new ArrayList<>();
+        for (File f : inputFiles) {
+            s.add(f.toString());
+        }
+        return s;
+    }
 
+    public ArrayList<String> getSummaryFileNames() {
+        ArrayList<String> s = new ArrayList<>();
+        for (File f : summaryFiles) {
+            s.add(f.toString());
+        }
+        return s;
+    }
+
+    private void addInitialFiles() {
+        File[] directoryFiles = directory.listFiles();
+        for (File f : directoryFiles) {
+            inputFiles.add(f);
+        }
     }
 
     @Override
@@ -77,3 +86,4 @@ public class Project {
         return name;
     }
 }
+

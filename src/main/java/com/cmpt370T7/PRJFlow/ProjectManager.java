@@ -23,7 +23,7 @@ public class ProjectManager {
 
         //Make sure config file has a title, and create a new project file. otherwise, throw an exception
         if (config.contains("PRJFlowTitle")){
-            open = new Project(config.getString("PRJFlowTitle"));
+//            open = new Project(config.getString("PRJFlowTitle"));
         } else
             throw new NoSuchFieldException("TOML Config File " + tomlFile.getName() + " missing title field.");
 
@@ -110,32 +110,32 @@ public class ProjectManager {
         writer.write(configMap, saveFile);
 
     }
-
-    public static void main(String[] args) throws IOException {
-
-        //File settings = new File("test.tomlaaa");
-
-        File testFile = new File("test-project/prjflowconfig.toml");
-
-        Project T = null;
-
-        try {
-            T = openProject(testFile);
-        } catch (NoSuchFieldException e) {
-            System.err.println(Arrays.toString(e.getStackTrace()));
-        }
-
-        assert T != null;
-//        T.addInputFile(new File("test-project/CMPT332-2024.fall.syllabus.pdf"));
-//        T.addInputFile(new File("test-project/CMPT370F24_Syllabus.pdf"));
-//        T.addSummaryFile(new File("test-project/dummy_output.csv"));
-
-        for (File file : T.getSummaryFiles()) {
-            FileWriter myWriter = new FileWriter(file);
-            myWriter.write("1, 2, 3, testing2");
-            myWriter.close();
-        }
-
-        saveProject(T, "test-project/prjflowconfig.toml");
-    }
+//
+//    public static void main(String[] args) throws IOException {
+//
+//        //File settings = new File("test.tomlaaa");
+//
+//        File testFile = new File("test-project/prjflowconfig.toml");
+//
+//        Project T = null;
+//
+//        try {
+//            T = openProject(testFile);
+//        } catch (NoSuchFieldException e) {
+//            System.err.println(Arrays.toString(e.getStackTrace()));
+//        }
+//
+//        assert T != null;
+////        T.addInputFile(new File("test-project/CMPT332-2024.fall.syllabus.pdf"));
+////        T.addInputFile(new File("test-project/CMPT370F24_Syllabus.pdf"));
+////        T.addSummaryFile(new File("test-project/dummy_output.csv"));
+//
+//        for (File file : T.getSummaryFiles()) {
+//            FileWriter myWriter = new FileWriter(file);
+//            myWriter.write("1, 2, 3, testing2");
+//            myWriter.close();
+//        }
+//
+//        saveProject(T, "test-project/prjflowconfig.toml");
+//    }
 }
