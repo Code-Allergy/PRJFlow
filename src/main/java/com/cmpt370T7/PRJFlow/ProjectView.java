@@ -12,6 +12,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import javafx.stage.FileChooser;
@@ -28,21 +29,12 @@ import java.util.ArrayList;
 public class ProjectView extends VBox {
 
     // Temporary variables before code is implemented correctly
-    String[] files = new String[]{"specs.pdf", "WorkPlan.pdf", "Floorplan.pdf", "ShadeCount.xlsx", "Sched.png"};
     String testCSV = "testInfo.csv";
+
     private Project project;
     private MainGUI mainGUI;
-    //private GridPane filesPane = new GridPane();
-
-    //private Project selected;
     private String selected = "";
-    private boolean removeMode = false;
-
     private FlowPane filesPane;
-
-
-
-
 
 
 
@@ -52,7 +44,7 @@ public class ProjectView extends VBox {
         this.selected = null;
         this.filesPane = new FlowPane();
         this.setStyle("-fx-background-color: #f0f0f0");
-        this.setAlignment(Pos.TOP_LEFT);
+
 
 
 
@@ -67,59 +59,50 @@ public class ProjectView extends VBox {
         VBox.setVgrow(menuBar, Priority.ALWAYS);
         */
 
-        GridPane body = new GridPane();
+        BorderPane body = new BorderPane();
         //body.setPrefHeight(800);
         //body.setPrefWidth(800);
         body.setPadding(new Insets(5, 10, 10, 10));
         //body.setMinHeight(20);
         VBox.setVgrow(body, Priority.ALWAYS);
-        body.setAlignment(Pos.CENTER);
-        body.setHgap(10);
+        //body.setAlignment(Pos.CENTER);
+        //body.setHgap(10);
 
 
         VBox projectInfoBox = new VBox();
         projectInfoBox.setStyle("-fx-background-color: #bebeb6");
         projectInfoBox.getChildren().add(new Text("Project Generated Summary info"));
-        body.add(projectInfoBox, 0, 0);
+        body.setLeft(projectInfoBox);
 
         VBox filesBox = new VBox();
         filesBox.setStyle("-fx-background-color: #bebeb6");
-        HBox fileButtonsBox = new HBox();
 
+        HBox fileActionsBox = new HBox();
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
         addFileButton.setOnAction(e -> addFile());
         Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
-        removeFileButton.setOnAction(e -> {
-            if (selected != null) {
-                removeFile();
-                selected = null;
-            }
-        });
+        removeFileButton.setOnAction(e -> removeFile());
+        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton);
 
-        fileButtonsBox.getChildren().addAll(addFileButton, removeFileButton);
         initializeFilesPane();
-        filesBox.getChildren().addAll(fileButtonsBox, filesPane);
-        body.add(filesBox, 1, 0);
+        filesBox.getChildren().addAll(fileActionsBox, filesPane);
+        body.setCenter(filesBox);
 
         VBox fileInfoBox = new VBox();
         fileInfoBox.setStyle("-fx-background-color: #bebeb6");
         fileInfoBox.getChildren().add(new Text("File Generated Summary Info"));
-        body.add(fileInfoBox, 2, 0);
+        body.setRight(fileInfoBox);
 
-        ColumnConstraints projectSummaryCol = new ColumnConstraints();
-        projectSummaryCol.setPercentWidth(15);
-        ColumnConstraints filesCol = new ColumnConstraints();
-        filesCol.setPercentWidth(70);
-        ColumnConstraints fileSummaryCol = new ColumnConstraints();
-        fileSummaryCol.setPercentWidth(15);
-        body.getColumnConstraints().addAll(projectSummaryCol, filesCol, fileSummaryCol);
+        Insets bodyInsets = new Insets(5);
+        BorderPane.setMargin(projectInfoBox, bodyInsets);
+        BorderPane.setMargin(filesBox, bodyInsets);
+        BorderPane.setMargin(fileInfoBox, bodyInsets);
 
-        RowConstraints bodyRow = new RowConstraints();
-        bodyRow.setPercentHeight(90);
-        body.getRowConstraints().addAll(bodyRow);
 
         Text nameText = new Text("Current Project: " + project.getName());
+        nameText.setFont(Font.font("Courier", FontWeight.BOLD, 30));
         VBox.setVgrow(nameText, Priority.NEVER);
+
         this.getChildren().addAll(backButton, nameText, body);
     }
 
@@ -209,71 +192,12 @@ public class ProjectView extends VBox {
     }
 
     private void removeFile() {
-        System.out.println(selected);
-        project.removeFile(selected);
-        filesPane.getChildren().removeIf(f -> (f.getId().equals(selected)));
-        //displayFiles();
-        removeMode = false;
-    }
-
-
-/*
-
-    GridPane displayFiles() {
-        filesPane.getChildren().clear();
-
-        filesPane.setStyle("-fx-background-color: #bebeb6");
-        filesPane.setPadding(new Insets(10, 10, 10, 10));
-        filesPane.setHgap(10);
-        filesPane.setVgap(10);
-
-        for (int col = 0; col < project.getFiles().size(); col++) {
-            File curFile = project.getFiles().get(col);
-
-            Button fileButton = new Button();
-            FontIcon fileIcon = new FontIcon();
-
-            // Determine file extension
-            String extension = "";
-            int i = curFile.toString().lastIndexOf('.');
-            if (i > 0) extension = curFile.toString().substring(i+1);
-            switch (extension) {
-                case "pdf" -> fileIcon.setIconLiteral("mdi-file-pdf");
-                case "xlsx" -> fileIcon.setIconLiteral("mdi-file-excel");
-                case "png", "jpg" -> fileIcon.setIconLiteral("mdi-file-image");
-                default -> fileIcon.setIconLiteral("mdi-file");
-            }
-            fileIcon.setIconSize(30);
-
-            // File name cut off if past 20 characters
-            if (curFile.getName().length() > 20) {
-                fileButton.setText(curFile.getName().substring(0, (20 - extension.length() - 3)) + "..." + extension);
-            } else {
-                fileButton.setText(curFile.getName());
-            }
-
-
-            fileButton.setContentDisplay(ContentDisplay.TOP);
-            fileButton.setGraphic(fileIcon);
-            fileButton.setId(curFile.getName());
-
-            fileButton.setOnMouseClicked(e -> {
-                if (e.getButton().equals(MouseButton.PRIMARY)) {
-                    if (e.getClickCount() == 1) {
-                        selected = fileButton.getId();
-                    } else if (e.getClickCount() == 2) {
-                        PDFViewer pdfViewer = new PDFViewer(curFile, mainGUI, project);
-                        mainGUI.getChildren().setAll(pdfViewer);
-                    }
-                }
-            });
-
-            filesPane.add(fileButton, col, 0);
+        if (selected != null) {
+            project.removeFile(selected);
+            filesPane.getChildren().removeIf(f -> (f.getId().equals(selected)));
+            selected = null;
         }
-        return filesPane;
     }
-*/
-
 
     private File openFileChooser() {
         FileChooser fileChooser = new FileChooser();
@@ -288,14 +212,4 @@ public class ProjectView extends VBox {
         }
     }
 
-    /*
-    private void fileClick(MouseEvent event) {
-        if (event.getButton().equals(MouseButton.PRIMARY)) {
-            if (event.getClickCount() == 1) {
-                selected =
-            } else if (event.getClickCount() == 2) {
-
-            }
-        }
-    }*/
 }
