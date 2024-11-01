@@ -105,7 +105,7 @@ public class ProjectView extends VBox {
     }
 
     private void initializeFilesPane() {
-        System.out.println("Init files pane");
+        logger.debug("Init files pane");
         filesPane.setStyle("-fx-background-color: #bebeb6");
         filesPane.setPadding(new Insets(10, 10, 10, 10));
         filesPane.setHgap(5);
@@ -113,7 +113,7 @@ public class ProjectView extends VBox {
 
 
         for (File f : project.getInputFiles()) {
-            System.out.println("File: " + f.getName());
+            logger.debug("Loaded file: {}", f.getName());
             Button newButton = createFileButton(f);
             filesPane.getChildren().add(newButton);
         }

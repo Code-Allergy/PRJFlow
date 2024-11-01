@@ -4,13 +4,15 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
 public class HomeScreen extends BorderPane {
-
+    private static final Logger logger = LoggerFactory.getLogger(HomeScreen.class);
     private final Map<LocalDate, List<String>> remindersMap = new HashMap<>();
     private final MainGUI mainGUI;
     private final List<Project> projects;
@@ -54,7 +56,7 @@ public class HomeScreen extends BorderPane {
         // Handle project selection
         projectsListView.setOnMouseClicked(event -> {
             selectedProject = projectsListView.getSelectionModel().getSelectedItem();
-            System.out.println("Selection: " + selectedProject);
+            logger.debug("Selection: {}", selectedProject);
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
@@ -91,7 +93,7 @@ public class HomeScreen extends BorderPane {
         // Handle recent project selection
         recentProjectsListView.setOnMouseClicked(event -> {
             selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
-            System.out.println("Recent selection: " + selectedProject);
+            logger.debug("Recent selection: {}", selectedProject);
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
