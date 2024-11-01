@@ -45,9 +45,6 @@ public class ProjectView extends VBox {
         this.filesPane = new FlowPane();
         this.setStyle("-fx-background-color: #f0f0f0");
 
-
-
-
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> mainGUI.switchToHomeScreen());
 
@@ -68,11 +65,15 @@ public class ProjectView extends VBox {
         //body.setAlignment(Pos.CENTER);
         //body.setHgap(10);
 
+       HBox primaryBox = new HBox();
+       primaryBox.setSpacing(5);
+
 
         VBox projectInfoBox = new VBox();
         projectInfoBox.setStyle("-fx-background-color: #bebeb6");
         projectInfoBox.getChildren().add(new Text("Project Generated Summary info"));
-        body.setLeft(projectInfoBox);
+        //body.getChildren().add(projectInfoBox);
+
 
         VBox filesBox = new VBox();
         filesBox.setStyle("-fx-background-color: #bebeb6");
@@ -86,7 +87,12 @@ public class ProjectView extends VBox {
 
         initializeFilesPane();
         filesBox.getChildren().addAll(fileActionsBox, filesPane);
-        body.setCenter(filesBox);
+        //body.setCenter(filesBox);
+
+        primaryBox.getChildren().addAll(projectInfoBox, filesBox);
+        HBox.setHgrow(projectInfoBox, Priority.ALWAYS);
+        HBox.setHgrow(filesBox, Priority.ALWAYS);
+        body.setCenter(primaryBox);
 
         VBox fileInfoBox = new VBox();
         fileInfoBox.setStyle("-fx-background-color: #bebeb6");
@@ -94,9 +100,12 @@ public class ProjectView extends VBox {
         body.setRight(fileInfoBox);
 
         Insets bodyInsets = new Insets(5);
-        BorderPane.setMargin(projectInfoBox, bodyInsets);
-        BorderPane.setMargin(filesBox, bodyInsets);
+        //BorderPane.setMargin(projectInfoBox, bodyInsets);
+        //BorderPane.setMargin(filesBox, bodyInsets);
+        BorderPane.setMargin(primaryBox, bodyInsets);
         BorderPane.setMargin(fileInfoBox, bodyInsets);
+
+
 
 
         Text nameText = new Text("Current Project: " + project.getName());
