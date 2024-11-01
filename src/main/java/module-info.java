@@ -6,6 +6,10 @@ module com.cmpt370T7.PRJFlow {
     // Optional JavaFX
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
+    requires org.apache.pdfbox;
+    requires java.desktop;
+    requires javafx.swing;
+    requires org.kordamp.ikonli.javafx;
 
     // Logging
     requires org.slf4j;
