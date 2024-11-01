@@ -23,7 +23,7 @@ public class ProjectManager {
 
         //Make sure config file has a title, and create a new project file. otherwise, throw an exception
         if (config.contains("PRJFlowTitle")){
-            open = new Project(config.getString("PRJFlowTitle"));
+            open = new Project(config.getString("PRJFlowTitle"), tomlFile.getParentFile());
         } else
             throw new NoSuchFieldException("TOML Config File " + tomlFile.getName() + " missing title field.");
 
@@ -132,7 +132,7 @@ public class ProjectManager {
 
         for (File file : T.getSummaryFiles()) {
             FileWriter myWriter = new FileWriter(file);
-            myWriter.write("1, 2, 3, testing2");
+            myWriter.write("1, 2, 3, testing3");
             myWriter.close();
         }
 

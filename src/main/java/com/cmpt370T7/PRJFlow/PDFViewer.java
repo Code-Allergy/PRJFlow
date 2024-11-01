@@ -39,29 +39,29 @@ public class PDFViewer extends VBox {
         VBox pdfPagesBox = new VBox(10);
         scrollPane.setContent(pdfPagesBox);
 
-        new Thread(() -> {
-            try {
-                PDDocument document = PDDocument.load(pdfFile);
-                PDFRenderer pdfRenderer = new PDFRenderer(document);
-                int pageCount = document.getNumberOfPages();
-                List<ImageView> imageViews = new ArrayList<>();
-
-                for (int page = 0; page < pageCount; ++page) {
-                    Image pageImage = renderPageToImage(pdfRenderer, page);
-                    ImageView imageView = new ImageView(pageImage);
-                    imageView.setPreserveRatio(true);
-                    imageView.setFitWidth(600); // Adjust as needed
-                    imageViews.add(imageView);
-                }
-
-                document.close();
-
-                // Update the UI on the JavaFX Application Thread
-                Platform.runLater(() -> pdfPagesBox.getChildren().addAll(imageViews));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                PDDocument document = PDDocument.load(pdfFile);
+//                PDFRenderer pdfRenderer = new PDFRenderer(document);
+//                int pageCount = document.getNumberOfPages();
+//                List<ImageView> imageViews = new ArrayList<>();
+//
+//                for (int page = 0; page < pageCount; ++page) {
+//                    Image pageImage = renderPageToImage(pdfRenderer, page);
+//                    ImageView imageView = new ImageView(pageImage);
+//                    imageView.setPreserveRatio(true);
+//                    imageView.setFitWidth(600); // Adjust as needed
+//                    imageViews.add(imageView);
+//                }
+//
+//                document.close();
+//
+//                // Update the UI on the JavaFX Application Thread
+//                Platform.runLater(() -> pdfPagesBox.getChildren().addAll(imageViews));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }).start();
 
         this.getChildren().addAll(backButton, scrollPane);
     }

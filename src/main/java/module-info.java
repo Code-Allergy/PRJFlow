@@ -15,7 +15,6 @@ module com.cmpt370T7.PRJFlow {
     requires org.slf4j;
 
     // PDF parsing & OCR
-    requires org.apache.pdfbox;
     requires org.bytedeco.tesseract;
 
     // HTML parsing (used for Tesseract OCR output parsing)
@@ -26,7 +25,6 @@ module com.cmpt370T7.PRJFlow {
 
     // Config
     // Required for imageIO functions
-    requires java.desktop;
     requires toml4j;
 
     opens com.cmpt370T7.PRJFlow to javafx.fxml;

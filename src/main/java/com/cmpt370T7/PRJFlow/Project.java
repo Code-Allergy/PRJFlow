@@ -21,41 +21,6 @@ public class Project {
         addInitialFiles();
     }
 
-    private String owner;
-    private ArrayList<File> inputFiles;
-    private ArrayList<File> summaryFiles;
-
-    public Project(String name) {
-        this.name = name;
-        this.inputFiles = new ArrayList<>();
-        this.summaryFiles = new ArrayList<>();
-    }
-
-    ArrayList<String> getInputFileNames() {
-        ArrayList<String> s = new ArrayList<>();
-        for (File f : inputFiles) {
-            s.add(f.toString());
-        }
-
-        return s;
-    }
-
-    ArrayList<String> getSummaryFileNames() {
-        ArrayList<String> s = new ArrayList<>();
-        for (File f : summaryFiles) {
-            s.add(f.toString());
-        }
-
-        return s;
-    }
-
-    ArrayList<File> getInputFiles(){
-        return inputFiles;
-    }
-
-    ArrayList<File> getSummaryFiles(){
-        return summaryFiles;
-    }
 
     public String getName() {
         return name;
@@ -114,12 +79,6 @@ public class Project {
         for (File f : directoryFiles) {
             inputFiles.add(f);
         }
-    public void removeInputFile(String fileName) {
-        inputFiles = (ArrayList<File>) inputFiles.stream().filter(f -> !f.getName().equals(fileName)).collect(Collectors.toList());
-    }
-
-    void removeSummaryFile(File fileName){
-
     }
 
     @Override
@@ -127,7 +86,4 @@ public class Project {
         return name;
     }
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/frontend-will

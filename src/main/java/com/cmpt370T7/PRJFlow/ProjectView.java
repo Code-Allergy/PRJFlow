@@ -123,11 +123,11 @@ public class ProjectView extends VBox {
         filesPane.setVgap(5);
 
 
-        for (File f : project.getFiles()) {
-            System.out.println("File: " + f.getName());
-            Button newButton = createFileButton(f);
-            filesPane.getChildren().add(newButton);
-        }
+//        for (File f : project.getFiles()) {
+//            System.out.println("File: " + f.getName());
+//            Button newButton = createFileButton(f);
+//            filesPane.getChildren().add(newButton);
+//        }
     }
 
     private Button createFileButton(File file) {
@@ -180,7 +180,7 @@ public class ProjectView extends VBox {
         System.out.println("Add a new file");
         File newFile = openFileChooser();
         if (newFile != null) {
-            project.addFile(newFile);
+            //project.addFile(newFile);
             filesPane.getChildren().add(createFileButton(newFile));
         }
     }
