@@ -3,6 +3,9 @@ package com.cmpt370T7.PRJFlow;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.DirectoryChooser;
+
+import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -97,6 +100,7 @@ public class HomeScreen extends BorderPane {
         return centerPane;
     }
 
+
     private void createNewProject() {
         // Prompt the user for a project name
         TextInputDialog dialog = new TextInputDialog();
@@ -107,11 +111,18 @@ public class HomeScreen extends BorderPane {
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             if (!name.trim().isEmpty()) {
-                Project newProject = new Project(name.trim());
-                projects.add(0, newProject); // Add to the top of the list
-                updateProjectsListView();
-                updateRecentProjectsListView();
-                mainGUI.switchToProjectView(newProject);
+                DirectoryChooser dc = new DirectoryChooser();
+                dc.setTitle("Choose the project directory");
+
+                File selectedFolder =  dc.showDialog(this.getScene().getWindow());
+                if (selectedFolder != null) {
+                    Project newProject = new Project(name.trim());
+                    projects.add(0, newProject); // Add to the top of the list
+                    updateProjectsListView();
+                    updateRecentProjectsListView();
+                    mainGUI.switchToProjectView(newProject);
+                }
+
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Invalid Name");

@@ -14,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
 import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import javax.swing.*;
@@ -120,6 +121,7 @@ public class ProjectView extends VBox {
     // Add files that are in projects directory
     private void initialFiles() {
         System.out.println("Add initial files");
+
     }
 
     private void addFileToProject(File f) {
@@ -143,6 +145,9 @@ public class ProjectView extends VBox {
         displayFiles();
         removeMode = false;
     }
+
+
+
 
     GridPane displayFiles() {
         filesPane.getChildren().clear();
@@ -180,7 +185,6 @@ public class ProjectView extends VBox {
 
             fileButton.setContentDisplay(ContentDisplay.TOP);
             fileButton.setGraphic(fileIcon);
-            //fileButton.setPrefHeight(30);
             fileButton.setId(curFile.getName());
 
             fileButton.setOnMouseClicked(e -> {
