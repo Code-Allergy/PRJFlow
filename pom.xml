@@ -206,6 +206,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
                     <argLine>${argLine} --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
