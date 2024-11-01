@@ -137,9 +137,7 @@ public class ProjectView extends VBox {
         fileButton.setFont(Font.font("Courier",  11));
 
         // Determine file extension
-        String extension = "";
-        int i = file.toString().lastIndexOf('.');
-        if (i > 0) extension = file.toString().substring(i+1);
+        String extension = getFileExtension(file);
         switch (extension) {
             case "pdf" -> fileIcon.setIconLiteral("mdi-file-pdf");
             case "xlsx" -> fileIcon.setIconLiteral("mdi-file-excel");
@@ -167,7 +165,7 @@ public class ProjectView extends VBox {
             if (e.getButton().equals(MouseButton.PRIMARY)) {
                 if (e.getClickCount() == 1) {
                     selected = fileButton.getId();
-                } else if (e.getClickCount() == 2) {
+                } else if (e.getClickCount() == 2 && getFileExtension(selected).equals("pdf")) {
                     PDFViewer pdfViewer = new PDFViewer(file, mainGUI, project);
                     mainGUI.getChildren().setAll(pdfViewer);
                 }
@@ -176,19 +174,6 @@ public class ProjectView extends VBox {
 
         return fileButton;
     }
-
-    // Add files that are in projects directory
-    private void initialFiles() {
-        System.out.println("Add initial files");
-
-    }
-
-    private void addFileToProject(File f) {
-        System.out.println("Add a new file to project");
-        project.addFile(f);
-    }
-
-
 
 
     private void addFile() {
@@ -219,6 +204,19 @@ public class ProjectView extends VBox {
             System.out.println("Error: no file found");
             return null;
         }
+    }
+
+    private String getFileExtension(File file) {
+        return getFileExtension(file.toString());
+    }
+
+    private String getFileExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1);
+        }
+        return extension;
     }
 
 }
