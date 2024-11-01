@@ -11,7 +11,7 @@ public class MainGUI extends StackPane {
     HomeScreen homeScreen;
 
     public MainGUI() {
-        this.setPrefSize(800, 600);
+        //this.setPrefSize(800, 600);
 
         // Initialize the list of projects
         projects = new ArrayList<>();
@@ -23,7 +23,9 @@ public class MainGUI extends StackPane {
 
     // Method to switch to ProjectView
     public void switchToProjectView(Project project) {
-        this.setPrefSize(800, 600);
+        //this.setPrefSize(800, 600);
+        //this.setWidth(800);
+        //this.setHeight(600);
         pView = new ProjectView(project, this);
         this.getChildren().setAll(pView);  // Replace current view with ProjectView
     }

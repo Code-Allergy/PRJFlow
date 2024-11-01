@@ -60,10 +60,10 @@ public class ProjectView extends VBox {
         */
 
         GridPane body = new GridPane();
-        body.setPrefHeight(800);
-        body.setPrefWidth(800);
+        //body.setPrefHeight(800);
+        //body.setPrefWidth(800);
         body.setPadding(new Insets(5, 10, 10, 10));
-        body.setMinHeight(20);
+        //body.setMinHeight(20);
         VBox.setVgrow(body, Priority.ALWAYS);
         body.setAlignment(Pos.CENTER);
         body.setHgap(10);
@@ -134,9 +134,11 @@ public class ProjectView extends VBox {
 
     private void addFile() {
         System.out.println("Add a new file");
-        project.addFile(openFileChooser());
-        System.out.println(project.getFiles());
-        displayFiles();
+        File newFile = openFileChooser();
+        if (newFile != null) {
+            project.addFile(newFile);
+            displayFiles();
+        }
     }
 
     private void removeFile() {

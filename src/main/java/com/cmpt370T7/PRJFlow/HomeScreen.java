@@ -116,7 +116,7 @@ public class HomeScreen extends BorderPane {
 
                 File selectedFolder =  dc.showDialog(this.getScene().getWindow());
                 if (selectedFolder != null) {
-                    Project newProject = new Project(name.trim());
+                    Project newProject = new Project(name.trim(), selectedFolder);
                     projects.add(0, newProject); // Add to the top of the list
                     updateProjectsListView();
                     updateRecentProjectsListView();

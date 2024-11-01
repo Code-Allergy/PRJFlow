@@ -12,6 +12,9 @@ public class PRJFlow extends Application {
         Scene scene = new Scene(root);
         stage.setTitle("PRJFlow");
         stage.setScene(scene);
+
+        stage.setMaximized(true);
+
         stage.show();
         root.requestFocus();
     }
