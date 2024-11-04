@@ -62,6 +62,10 @@ public class PopulateCsv {
     }
 
     public static String promptFromData(String input) {
+        // $env:OLLAMA_HOST="127.0.0.1:8000"
+        // ollama serve
+        // Args to start model 8000 is port num
+
         try {
             // Define your prompt and model
             String prompt = "Generate only the following do not speak or add anything unnesecary.  " +

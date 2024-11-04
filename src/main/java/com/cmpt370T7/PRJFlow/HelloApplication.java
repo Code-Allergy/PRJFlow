@@ -40,6 +40,10 @@ public class HelloApplication extends Application {
                 textExtractor.extractTextHierarchy(image);
             List<TextExtractor.TextElement> filtered =
                 element.getParagraphsWith(query);
+            System.out.println("OUTPUT:");
+            for (TextExtractor.TextElement elem: filtered) {
+                System.out.println(elem.text);
+            }
             for (TextExtractor.TextElement textElement : filtered) {
                 BufferedImage highlighted = ImageDrawer.highlightParagraphText(
                     image,
@@ -62,17 +66,17 @@ public class HelloApplication extends Application {
     public static void main(String[] args) {
         AppDataManager.instantiate();
 
-//        try {
-//            test_parse_pdf(
-//                new File(
-//                    "sample-files/OneDrive_1_2024-10-21/Cree Nations/22039 Addendum No. 4.pdf"
-//                ),
-//                "Window"
-//            );
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            test_parse_pdf(
+                new File(
+                    "sample-files/OneDrive_1_2024-10-21/Cree Nations/22039 Addendum No. 4.pdf"
+                ),
+                "Window"
+            );
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         launch();
     }
