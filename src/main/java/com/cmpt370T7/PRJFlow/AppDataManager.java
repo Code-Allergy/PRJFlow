@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,6 @@ public class AppDataManager {
     /// Singleton instance of AppDataManager
     private static AppDataManager instance;
     private final ConfigManager configManager;
-    private final GlobalTermsDatabase globalTermsDatabase;
 
     private final File appDataDirectory;
     private final File tesseractDataDirectory;
@@ -52,7 +51,6 @@ public class AppDataManager {
         createDirectoryIfNotExists(appDataDirectory);
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         initializeTesseractData();
     }
 
@@ -65,7 +63,6 @@ public class AppDataManager {
         this.appDataDirectory = customDirectory;
         createDirectoryIfNotExists(appDataDirectory);
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         initializeTesseractData();
     }
@@ -140,13 +137,17 @@ public class AppDataManager {
      * Copies the Tesseract data language files to the user app data folder.
      */
     private void initializeTesseractData() {
+        Path tessDataPath;
         try {
-            URI tessDataURL = AppDataManager.class.getResource("tessdata").toURI();
-            if (tessDataURL == null) {
-                throw new IOException("Could not find tessdata resources");
+            try {
+                URI tessDataURL = Objects.requireNonNull(AppDataManager.class.getResource("tessdata")).toURI();
+                String pathStr = Paths.get(tessDataURL).toString();
+                tessDataPath = Paths.get(pathStr);
+            } catch (NullPointerException e) {
+                logger.error("Failed to load tessdata from resources!");
+                logger.error(e.getMessage());
+                throw e;
             }
-            String pathStr = Paths.get(tessDataURL).toString();
-            Path tessDataPath = Paths.get(pathStr);
 
             createDirectoryIfNotExists(tesseractDataDirectory);
 
@@ -174,7 +175,6 @@ public class AppDataManager {
         }
     }
 
-    // TODO should pass exception up to UI, so we can render something
     /**
      * Creates a directory if it does not already exist.
      *
@@ -235,14 +235,5 @@ public class AppDataManager {
      */
     public ConfigManager getConfigManager() {
         return configManager;
-    }
-
-    /**
-     * Gets the global instance of {@link GlobalTermsDatabase}.
-     *
-     * @return the instance of GlobalTermsDatabase associated with the global AppDataManager.
-     */
-    public GlobalTermsDatabase getGlobalTermsDatabase() {
-        return globalTermsDatabase;
     }
 }

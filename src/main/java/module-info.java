@@ -4,8 +4,6 @@ module com.cmpt370T7.PRJFlow {
     requires javafx.fxml;
 
     // Optional JavaFX
-    requires com.dlsc.formsfx;
-    requires net.synedra.validatorfx;
     requires javafx.swing;
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
@@ -20,9 +18,6 @@ module com.cmpt370T7.PRJFlow {
 
     // HTML parsing (used for Tesseract OCR output parsing)
     requires org.jsoup;
-
-    // Global store
-    requires java.sql;
 
     // Config
     requires toml4j;
