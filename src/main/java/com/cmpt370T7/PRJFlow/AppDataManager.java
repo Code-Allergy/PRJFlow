@@ -3,10 +3,7 @@ package com.cmpt370T7.PRJFlow;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,41 +134,30 @@ public class AppDataManager {
      * Copies the Tesseract data language files to the user app data folder.
      */
     private void initializeTesseractData() {
-        Path tessDataPath;
         try {
-            try {
-                URI tessDataURL = Objects.requireNonNull(AppDataManager.class.getResource("tessdata")).toURI();
-                String pathStr = Paths.get(tessDataURL).toString();
-                tessDataPath = Paths.get(pathStr);
-            } catch (NullPointerException e) {
-                logger.error("Failed to load tessdata from resources!");
-                logger.error(e.getMessage());
-                throw e;
-            }
-
             createDirectoryIfNotExists(tesseractDataDirectory);
 
-            // Iterate through each file in the tessdata directory
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tessDataPath)) {
-                for (Path sourceFile : directoryStream) {
-                    Path destFile = tesseractDataDirectory.toPath().resolve(sourceFile.getFileName().toString());
+            // List of files in `tessdata` to be extracted
+            String[] tessdataFiles = {"eng.traineddata", "osd.traineddata"};
+
+            for (String fileName : tessdataFiles) {
+                // Load each file as a stream
+                try (InputStream sourceStream = AppDataManager.class.getResourceAsStream("tessdata/" + fileName)) {
+                    if (sourceStream == null) {
+                        throw new IOException("Resource file not found: " + fileName);
+                    }
+                    Path destFile = tesseractDataDirectory.toPath().resolve(fileName);
 
                     // Only copy if the file doesn't exist or it's newer
-                    if (!Files.exists(destFile) || Files.getLastModifiedTime(sourceFile).toMillis() >
-                            Files.getLastModifiedTime(destFile).toMillis()) {
-                        try (InputStream is = Files.newInputStream(sourceFile)) {
-                            Files.copy(is, destFile, StandardCopyOption.REPLACE_EXISTING);
-                        }
+                    if (!Files.exists(destFile) || Files.getLastModifiedTime(destFile).toMillis() <
+                            System.currentTimeMillis()) {
+                        Files.copy(sourceStream, destFile, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-            logger.error("Tesseract data file could not be loaded. Exiting.");
+        } catch (IOException e) {
+            logger.error("Failed to initialize Tesseract data files.", e);
             System.exit(1);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
     }
 

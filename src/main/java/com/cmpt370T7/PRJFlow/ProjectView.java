@@ -155,7 +155,7 @@ public class ProjectView extends VBox {
                 if (e.getClickCount() == 1) {
                     selected = fileButton.getId();
                 } else if (e.getClickCount() == 2 && getFileExtension(selected).equals("pdf")) {
-                    PDFViewer pdfViewer = new PDFViewer(file, mainGUI, project);
+                    WebPDFViewer pdfViewer = new WebPDFViewer(file, mainGUI, project);
                     mainGUI.getChildren().setAll(pdfViewer);
                 }
             }

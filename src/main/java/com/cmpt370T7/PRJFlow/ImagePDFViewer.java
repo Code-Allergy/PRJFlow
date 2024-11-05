@@ -17,12 +17,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PDFViewer extends VBox {
+public class ImagePDFViewer extends VBox {
 
     private final MainGUI mainGUI;
     private final Project project;
 
-    public PDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
+    public ImagePDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
         this.mainGUI = mainGUI;
         this.project = project;
         this.setPadding(new Insets(10));
