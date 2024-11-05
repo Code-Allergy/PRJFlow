@@ -15,7 +15,7 @@ public class CustomCalendar extends VBox {
     private YearMonth currentYearMonth;
     private GridPane calendarGrid;
     private Label monthYearLabel;
-    private Map<LocalDate, List<String>> remindersMap;
+    private final Map<LocalDate, List<String>> remindersMap;
     private ListView<String> remindersList;
     private LocalDate selectedDate;
 
@@ -69,9 +69,7 @@ public class CustomCalendar extends VBox {
 
         remindersList = new ListView<>();
 
-        addReminderButton.setOnAction(e -> {
-            showAddReminderDialog();
-        });
+        addReminderButton.setOnAction(e -> showAddReminderDialog());
 
         // Allow deletion of reminders
         remindersList.setOnMouseClicked(event -> {
@@ -163,6 +161,7 @@ public class CustomCalendar extends VBox {
     }
 
     private void updateReminders() {
+        System.err.println("Updating reminders for " + selectedDate);
         List<String> reminders = remindersMap.getOrDefault(selectedDate, new ArrayList<>());
         remindersList.getItems().setAll(reminders);
     }
@@ -177,6 +176,7 @@ public class CustomCalendar extends VBox {
         result.ifPresent(reminder -> {
             // Add the reminder to the map
             remindersMap.computeIfAbsent(selectedDate, k -> new ArrayList<>()).add(reminder);
+            AppDataManager.getInstance().getConfigManager().setReminderMap(remindersMap);
             // Update the reminders list
             updateReminders();
             // Update the calendar to reflect the new reminder

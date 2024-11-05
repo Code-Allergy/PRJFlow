@@ -13,8 +13,11 @@ public class MainGUI extends StackPane {
     public MainGUI() {
         //this.setPrefSize(800, 600);
 
-        // Initialize the list of projects
-        projects = new ArrayList<>();
+        // Initialize the list of projects if no config exists
+        projects = AppDataManager.getInstance().getConfigManager().getRecentProjects();
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
 
         // Create HomeScreen and pass the projects list
         homeScreen = new HomeScreen(this, projects);

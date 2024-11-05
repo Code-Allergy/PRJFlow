@@ -8,12 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
 public class HomeScreen extends BorderPane {
+    private final Map<LocalDate, List<String>> remindersMap;
     private static final Logger logger = LoggerFactory.getLogger(HomeScreen.class);
-    private final Map<LocalDate, List<String>> remindersMap = new HashMap<>();
     private final MainGUI mainGUI;
     private final List<Project> projects;
     private ListView<Project> projectsListView;
@@ -24,7 +25,7 @@ public class HomeScreen extends BorderPane {
     public HomeScreen(MainGUI mainGUI, List<Project> projects) {
         this.mainGUI = mainGUI;
         this.projects = projects;
-        this.selectedProject = null;
+        this.remindersMap = AppDataManager.getInstance().getConfigManager().getReminderMap();
 
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
@@ -134,6 +135,12 @@ public class HomeScreen extends BorderPane {
                     projects.addFirst(newProject); // Add to the top of the list
                     updateProjectsListView();
                     updateRecentProjectsListView();
+                    AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                    try {
+                        ProjectManager.saveProject(newProject, new File(selectedFolder, "prjflowconfig.toml").toString());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     mainGUI.switchToProjectView(newProject);
                 }
 
@@ -156,6 +163,7 @@ public class HomeScreen extends BorderPane {
                 projects.remove(selectedProject);
                 updateProjectsListView();
                 updateRecentProjectsListView();
+                AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
             }
         }
 

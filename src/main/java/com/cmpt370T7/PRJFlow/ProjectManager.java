@@ -2,6 +2,8 @@ package com.cmpt370T7.PRJFlow;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
+
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.File;
@@ -16,10 +18,9 @@ public class ProjectManager {
      * @return A new project object, specified by the config file
      * @throws NoSuchFieldException when the required field 'PRJFlowTitle' is not in the config file
      */
-    static Project openProject(File tomlFile) throws NoSuchFieldException{
-
+    static Project openProject(File tomlFile) throws NoSuchFieldException, FileNotFoundException {
         Toml config = new Toml().read(tomlFile);
-        Project open = null;
+        Project open;
 
         //Make sure config file has a title, and create a new project file. otherwise, throw an exception
         if (config.contains("PRJFlowTitle")){
@@ -78,8 +79,8 @@ public class ProjectManager {
             throw new IllegalArgumentException("Config file name must be \"prjflowconfig.toml\"");
         }
 
-        if (!saveFile.exists()){
-            saveFile.createNewFile();
+        if (!saveFile.exists() && !saveFile.createNewFile()){
+            throw new IOException("Could not create config file " + saveFile.getPath());
         }
 
         if (!saveFile.canWrite()){
