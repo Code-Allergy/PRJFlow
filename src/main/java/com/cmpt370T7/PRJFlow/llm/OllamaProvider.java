@@ -42,8 +42,9 @@ public class OllamaProvider implements LlmProvider {
      */
     public OllamaProvider() {
         if (!isOllamaInstalled()) {
+            // TODO
             logger.error("Ollama is not installed. Please download and install Ollama from {}", OLLAMA_INSTALL_URL);
-            throw new RuntimeException("Ollama is not installed, but you are trying to use it.");
+            return;
         }
         logger.debug("Ollama is installed and available on path!");
 
@@ -52,7 +53,7 @@ public class OllamaProvider implements LlmProvider {
 
             // for now, just error.
             logger.error("Ollama is not running. Please start Ollama before using it. Run `ollama serve` to start Ollama.");
-            throw new RuntimeException("Ollama is not running, but you are trying to use it.");
+            return;
         }
 
         List<String> models = getAllModels();
@@ -61,7 +62,7 @@ public class OllamaProvider implements LlmProvider {
 
             // for now, just error.
             logger.error("No models available from Ollama. Please check if Ollama is running and has models available.");
-            throw new RuntimeException("No models available from Ollama. Please check if Ollama is running and has models available.");
+            return;
         }
 
         // use the default model if its available, otherwise use the first model

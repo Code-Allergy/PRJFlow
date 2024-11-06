@@ -11,7 +11,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class Main {
     public static void main(final String[] args) {
         // load .env file in development
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         // DI for LLM
         LlmProvider provider;
