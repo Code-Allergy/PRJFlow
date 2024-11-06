@@ -20,7 +20,7 @@ public class AppDataManager {
     /// The folder within the system appdata folder to store the configuration
     private static final String APPDATA_FOLDER = "PRJFlow";
 
-    private static Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(AppDataManager.class);
 
     /// Singleton instance of AppDataManager
     private static AppDataManager instance;
@@ -43,7 +43,6 @@ public class AppDataManager {
      * @param appName the name of the application, used to create a directory in the app data path.
      */
     private AppDataManager(String appName) throws IOException {
-        logger = LoggerFactory.getLogger(AppDataManager.class);
         appDataDirectory = getAppDataDirectory(appName);
         createDirectoryIfNotExists(appDataDirectory);
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");

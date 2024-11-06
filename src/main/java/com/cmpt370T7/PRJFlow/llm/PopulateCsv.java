@@ -1,4 +1,5 @@
-package com.cmpt370T7.PRJFlow;
+package com.cmpt370T7.PRJFlow.llm;
+
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,10 +9,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
+import com.cmpt370T7.PRJFlow.PdfParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PopulateCsv {
+    private static final Logger logger = LoggerFactory.getLogger(PopulateCsv.class);
 
     public static void appendDataToCsv(int x, int y, String data, String filename) {
         File file = new File(filename);
@@ -63,40 +69,9 @@ public class PopulateCsv {
 
     public static String promptFromData(String input) {
         try {
-            // Define your prompt and model
-            String prompt = "Generate only the following do not speak or add anything unnesecary.  " +
-                    "From the following data I would like you to output in csv format any key info you " +
-                    "deem nessecary from the following parsed data.  Do not speak, generate only one csv " +
-                    "format message surrounded by {}.  You should also try to align the columns and rows in a manner that would make" +
-                    "the best sense to a human.  The pdf is a parsed invoice statement, and the csv is needed for managing financials" + input;
-
-
-            String model = "llama3.1"; // Model can be changed
-
-            // Sets up the requested JSON payload
-            String requestBody = String.format("{\"model\": \"%s\", \"prompt\": \"%s\", \"stream\": false}", model, prompt);
-
-            // Creates the HTTP client
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/api/generate"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            // Sends the request and gets the response
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-
-            // Parses and prints the response
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonResponse = mapper.readTree(response.body());
-            String output = jsonResponse.get("response").asText();
-            System.out.println("Response from Ollama Model:");
-            System.out.println(output);
-
-            // Returns the output of the model
-            return output;
+            String response = AiEngine.getInstance().createCSVSummary(input);
+            logger.info("Response from Ollama Model: {}", response);
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,7 +93,6 @@ public class PopulateCsv {
 
 
     public static void main(String[] args) {
-
         String parsedData = PdfParser.extractDataElementsFromPdf("sample-files/TestFiles/ExampleInvoice.pdf");
         String returnedPrompt = promptFromData(parsedData);
         PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);

@@ -30,8 +30,10 @@ module com.cmpt370T7.PRJFlow {
     requires com.fasterxml.jackson.databind;
     requires java.desktop;
     requires org.apache.pdfbox.io;
+    requires io.github.cdimascio.dotenv.java;
 
     opens com.cmpt370T7.PRJFlow to javafx.fxml;
     exports com.cmpt370T7.PRJFlow.util;
+    exports com.cmpt370T7.PRJFlow.llm;
     exports com.cmpt370T7.PRJFlow;
 }

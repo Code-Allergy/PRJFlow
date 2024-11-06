@@ -42,3 +42,6 @@ build/
 
 ### Testing output files ###
 **/test-img-out
+
+### Env files ###
+.env
