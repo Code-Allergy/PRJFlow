@@ -93,12 +93,12 @@ public class ProjectManager {
 
         ArrayList<String> inputFiles = new ArrayList<>();
         for (File file : save.getInputFiles()) {
-            inputFiles.add(file.getPath());
+            inputFiles.add(file.getPath().replace("\\", "/"));
         }
 
         ArrayList<String> summaryFiles = new ArrayList<>();
         for (File file : save.getSummaryFiles()) {
-            summaryFiles.add(file.getPath());
+            summaryFiles.add(file.getPath().replace("\\", "/"));
         }
 
         //Create map with all info to write
