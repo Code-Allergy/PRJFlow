@@ -81,6 +81,15 @@ public class Project {
         }
     }
 
+    public File getFile(String fileName) {
+        for (File f : inputFiles) {
+            if (f.getName().equals(fileName)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return name;
