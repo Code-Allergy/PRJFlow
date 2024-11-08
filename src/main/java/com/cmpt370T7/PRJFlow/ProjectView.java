@@ -188,7 +188,11 @@ public class ProjectView extends VBox {
     }
 
     private void export() {
-        PdfParser.extractDataElementsFromPdf(selected.getAbsolutePath());
+        if (selected != null && getFileExtension(selected.getName()).equals("pdf")) {
+            String parsedData = PdfParser.extractDataElementsFromPdf(selected.getAbsolutePath());
+            String returnedPrompt = PopulateCsv.promptFromData(parsedData);
+            PopulateCsv.PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);
+        }
     }
 
     private File openFileChooser() {
