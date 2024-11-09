@@ -1,4 +1,4 @@
-package com.cmpt370T7.PRJFlow.llm;
+package com.cmpt370T7.PRJFlow.util.web;
 
 public class WebConnectionBuilder {
     // Default header values

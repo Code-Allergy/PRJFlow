@@ -1,5 +1,8 @@
 package com.cmpt370T7.PRJFlow.llm;
 
+import com.cmpt370T7.PRJFlow.util.web.WebConnection;
+import com.cmpt370T7.PRJFlow.util.web.WebConnectionBuilder;
+import com.cmpt370T7.PRJFlow.util.web.WebConnectionMethod;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.cmpt370T7.PRJFlow.llm;
+package com.cmpt370T7.PRJFlow.util.web;
 
 /**
  * Represents HTTP methods used for web connections.

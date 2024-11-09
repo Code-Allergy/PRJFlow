@@ -36,4 +36,5 @@ module com.cmpt370T7.PRJFlow {
     exports com.cmpt370T7.PRJFlow.util;
     exports com.cmpt370T7.PRJFlow.llm;
     exports com.cmpt370T7.PRJFlow;
+    exports com.cmpt370T7.PRJFlow.util.web;
 }
