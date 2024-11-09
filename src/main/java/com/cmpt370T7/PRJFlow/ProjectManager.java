@@ -39,7 +39,12 @@ public class ProjectManager {
                 File addFile = new File(nextInputFile);
 
                 if (addFile.exists())
-                    open.addInputFile(addFile);
+                    try {
+                        open.addInputFile(addFile);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+
                 else
                     System.err.println(addFile.getPath() + " input file specified in the project config does not exist.");
             }

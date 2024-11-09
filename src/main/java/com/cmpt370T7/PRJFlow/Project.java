@@ -46,7 +46,13 @@ public class Project {
         owner = newOwner;
     }
 
-    void addInputFile(File fileName) {
+    // Dont allow duplicate files
+    void addInputFile(File fileName) throws Exception{
+        for (File f : inputFiles) {
+            if (f.getName().equals(fileName)) {
+                throw new Exception("Cannot add duplicate files to project");
+            }
+        }
         inputFiles.add(fileName);
     }
 
