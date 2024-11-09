@@ -61,6 +61,7 @@ public class HomeScreen extends BorderPane {
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
+                    logger.info("Opening project: {}", selectedProject);
                     mainGUI.switchToProjectView(selectedProject);
                     selectedProject = null;
                 }
@@ -94,10 +95,12 @@ public class HomeScreen extends BorderPane {
         // Handle recent project selection
         recentProjectsListView.setOnMouseClicked(event -> {
             selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
-            logger.debug("Recent selection: {}", selectedProject);
+            logger.debug("Recent Selection: {}", selectedProject);
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
+                    logger.info("Opening recent project: {}", selectedProject);
+                    logger.info("Project path: {}", selectedProject.getDirectory());
                     mainGUI.switchToProjectView(selectedProject);
                     selectedProject = null;
                 }
@@ -137,7 +140,7 @@ public class HomeScreen extends BorderPane {
                     updateRecentProjectsListView();
                     AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
                     try {
-                        ProjectManager.saveProject(newProject, new File(selectedFolder, "prjflowconfig.toml").toString());
+                        ProjectManager.saveProject(newProject, selectedFolder);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

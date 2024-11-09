@@ -2,6 +2,7 @@ package com.cmpt370T7.PRJFlow;
 
 import java.io.IOException;
 
+import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,17 +15,20 @@ public class PRJFlow extends Application {
     
     @Override
     public void start(Stage stage) {
+        logger.info("Starting application...");
+
         try {
             AppDataManager.instantiate();
+            logger.debug("AppDataManager instantiated");
         } catch (IOException e) {
             logger.error("Failed to start appdata manager", e);
             // TODO Display error to user.
         }
+
         MainGUI root = new MainGUI();
         Scene scene = new Scene(root);
         stage.setTitle("PRJFlow");
         stage.setScene(scene);
-
         stage.setMaximized(true);
 
         stage.show();
@@ -35,13 +39,13 @@ public class PRJFlow extends Application {
                 AppDataManager.getInstance().getConfigManager().saveConfig();
             } catch (IOException e1) {
                 logger.error("Failed to save configuration file when exiting", e1);
-                
-                // consume close request
-                e.consume();
+                AlertHelper.showError("Error", "Failed to save configuration file when exiting");
 
-                // TODO display error to user
+                // consume close request, keeping the window open
+                e.consume();
             }
         });
+
         root.requestFocus();
     }
 

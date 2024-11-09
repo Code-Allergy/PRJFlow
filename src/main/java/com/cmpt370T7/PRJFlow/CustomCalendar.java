@@ -5,6 +5,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -12,6 +14,7 @@ import java.util.*;
 
 public class CustomCalendar extends VBox {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomCalendar.class);
     private YearMonth currentYearMonth;
     private GridPane calendarGrid;
     private Label monthYearLabel;
@@ -161,7 +164,7 @@ public class CustomCalendar extends VBox {
     }
 
     private void updateReminders() {
-        System.err.println("Updating reminders for " + selectedDate);
+        logger.info("Loading reminders for {}", selectedDate);
         List<String> reminders = remindersMap.getOrDefault(selectedDate, new ArrayList<>());
         remindersList.getItems().setAll(reminders);
     }
@@ -181,6 +184,7 @@ public class CustomCalendar extends VBox {
             updateReminders();
             // Update the calendar to reflect the new reminder
             updateCalendar();
+            logger.info("Added reminder for {}: {}", selectedDate, reminder);
         });
     }
 }

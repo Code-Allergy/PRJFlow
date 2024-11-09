@@ -2,13 +2,14 @@ package com.cmpt370T7.PRJFlow;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Project {
 
-    private String name;
-    private File directory;
+    private final String name;
+    private final File directory;
     private String owner;
     private List<File> inputFiles;
     private List<File> summaryFiles;
@@ -71,14 +72,15 @@ public class Project {
         for (File f : summaryFiles) {
             s.add(f.toString());
         }
-        return s;
+        return summaryFiles.stream().map(File::toString).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void addInitialFiles() {
         File[] directoryFiles = directory.listFiles();
-        for (File f : directoryFiles) {
-            inputFiles.add(f);
+        if (directoryFiles != null) {
+            Collections.addAll(inputFiles, directoryFiles);
         }
+
     }
 
     @Override

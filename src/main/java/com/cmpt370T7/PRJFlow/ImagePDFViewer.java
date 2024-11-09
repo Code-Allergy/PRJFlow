@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.util.List;
 
 public class ImagePDFViewer extends VBox {
 
+    private static final Logger logger = LoggerFactory.getLogger(ImagePDFViewer.class);
     private final MainGUI mainGUI;
     private final Project project;
 
@@ -31,6 +34,7 @@ public class ImagePDFViewer extends VBox {
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> {
             // Go back to ProjectView
+            logger.info("Returning to ProjectView of project: {}", project.getName());
             mainGUI.switchToProjectView(project);
         });
 

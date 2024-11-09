@@ -1,5 +1,6 @@
 package com.cmpt370T7.PRJFlow;
 
+import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.concurrent.Worker;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -43,6 +44,7 @@ public class WebPDFViewer extends VBox {
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> {
             // Go back to ProjectView
+            logger.info("Returning to ProjectView of project: {}", project.getName());
             mainGUI.switchToProjectView(project);
         });
         WebEngine engine = webView.getEngine();
@@ -71,7 +73,9 @@ public class WebPDFViewer extends VBox {
 
                         } catch (Exception ex) {
                             logger.error("Unable to load file in web viewer: {}", pdfFile.getAbsolutePath(), ex);
-                            // throw exception up stack here
+                            AlertHelper.showError("Error", "Failed to load file in web viewer");
+                            // TODO: throw exception up the stack, for now, just bail out
+                            mainGUI.switchToProjectView(project);
                         }
                     }
                 });
