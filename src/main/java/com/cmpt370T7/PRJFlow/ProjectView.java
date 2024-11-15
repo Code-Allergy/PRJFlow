@@ -173,13 +173,9 @@ public class ProjectView extends VBox {
     private void addFile() {
         System.out.println("Add a new file");
         File newFile = openFileChooser();
-        if (newFile != null) {
-            try {
-                project.addInputFile(newFile);
-                filesPane.getChildren().add(createFileButton(newFile));
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+        if (newFile != null && !project.contains(newFile)) {
+            project.addInputFile(newFile);
+            filesPane.getChildren().add(createFileButton(newFile));
         }
     }
 

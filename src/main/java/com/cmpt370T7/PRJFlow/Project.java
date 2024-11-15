@@ -47,13 +47,17 @@ public class Project {
     }
 
     // Dont allow duplicate files
-    void addInputFile(File fileName) throws Exception{
+    void addInputFile(File file) {
+        inputFiles.add(file);
+    }
+
+    boolean contains(File file) {
         for (File f : inputFiles) {
-            if (f.getName().equals(fileName)) {
-                throw new Exception("Cannot add duplicate files to project");
+            if (f.getName().equals(file.getName())) {
+                return true;
             }
         }
-        inputFiles.add(fileName);
+        return false;
     }
 
     void addSummaryFile(File fileName){
