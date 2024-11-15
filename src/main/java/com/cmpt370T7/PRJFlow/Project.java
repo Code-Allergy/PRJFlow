@@ -51,6 +51,7 @@ public class Project {
         inputFiles.add(file);
     }
 
+    // True if inputFiles contains a file with the same name
     boolean contains(File file) {
         for (File f : inputFiles) {
             if (f.getName().equals(file.getName())) {
