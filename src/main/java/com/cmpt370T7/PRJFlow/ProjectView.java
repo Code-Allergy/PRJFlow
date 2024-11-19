@@ -160,8 +160,8 @@ public class ProjectView extends VBox {
                 if (e.getClickCount() == 1) {
                     selected = project.getFile(fileButton.getId());
                 } else if (e.getClickCount() == 2 && getFileExtension(selected.getName()).equals("pdf")) {
-                    PDFViewer pdfViewer = new PDFViewer(file, mainGUI, project);
-                    mainGUI.getChildren().setAll(pdfViewer);
+                    //PDFViewer pdfViewer = new PDFViewer(file, mainGUI, project);
+                    //mainGUI.getChildren().setAll(pdfViewer);
                 }
             }
         });

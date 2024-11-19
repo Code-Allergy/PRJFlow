@@ -19,20 +19,26 @@ import java.util.List;
 
 public class PDFViewer extends VBox {
 
-    private final MainGUI mainGUI;
-    private final Project project;
+    //private final MainGUI mainGUI;
+    //private final Project project;
 
-    public PDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
-        this.mainGUI = mainGUI;
-        this.project = project;
+    private final GUI gui;
+
+    public PDFViewer(File pdfFile, GUI gui) {
+        //this.mainGUI = mainGUI;
+        //this.project = project;
+        this.gui = gui;
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
         Button backButton = new Button("Back");
+
         backButton.setOnAction(e -> {
             // Go back to ProjectView
-            mainGUI.switchToProjectView(project);
+            //mainGUI.switchToProjectView(project);
+            gui.revertRightPane();
         });
+
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);

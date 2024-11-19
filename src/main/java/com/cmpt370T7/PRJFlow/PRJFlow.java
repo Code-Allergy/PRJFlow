@@ -8,7 +8,8 @@ public class PRJFlow extends Application {
 
     @Override
     public void start(Stage stage) {
-        MainGUI root = new MainGUI();
+        //MainGUI root = new MainGUI();
+        GUI root = new GUI();
         Scene scene = new Scene(root);
         stage.setTitle("PRJFlow");
         stage.setScene(scene);
