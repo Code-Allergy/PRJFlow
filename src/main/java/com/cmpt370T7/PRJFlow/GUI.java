@@ -30,7 +30,8 @@ public class GUI extends BorderPane {
     private FlowPane filesPane;
     private Project selectedProject;
     private Text selectedProjectText;
-    private File selected; // selected file
+    private File selectedFile; // selected file
+    private Text selectedFileText;
 
     private CustomCalendar calendar;
 
@@ -42,12 +43,15 @@ public class GUI extends BorderPane {
         this.setStyle("-fx-background-color: #f0f0f0");
         this.projects = new ArrayList<>();
         this.selectedProject = null;
-        this.selectedProjectText = new Text("No Project Selected");
-        selectedProjectText.setFont(new Font(20));
-        this.selected = null;
+        this.selectedFile = null;
         this.filesPane = new FlowPane();
         this.calendar = new CustomCalendar(remindersMap);
         this.prevRightChild = calendar;
+        this.selectedProjectText = new Text("No Project Selected");
+        selectedProjectText.setFont(new Font(20));
+        this.selectedFileText = new Text("No File Selected");
+        selectedFileText.setFont(new Font(20));
+
 
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
@@ -94,8 +98,12 @@ public class GUI extends BorderPane {
         centerPane.setPadding(new Insets(10));
         centerPane.setStyle("-fx-background-color: #f0f0f0;");
 
-        VBox filesBox = createFilesBox();
-        centerPane.getChildren().addAll(filesBox);
+        HBox curInfoBox = new HBox(10);
+        curInfoBox.getChildren().addAll(selectedProjectText, selectedFileText);
+        HBox fileActionsBox = createFileActionsBox();
+        createFilesPane();
+
+        centerPane.getChildren().addAll(curInfoBox, fileActionsBox, filesPane);
 
         return centerPane;
     }
@@ -112,19 +120,6 @@ public class GUI extends BorderPane {
         System.out.println("Revert: " + prevRightChild);
         rightPane.getChildren().clear();
         rightPane.getChildren().addAll(prevRightChild);
-    }
-
-
-
-    private VBox createFilesBox() {
-        VBox filesBox = new VBox();
-        filesBox.setSpacing(5);
-        HBox fileActionsBox = createFileActionsBox();
-        //FlowPane filePane = createFilesPane();
-        createFilesPane();
-        filesBox.getChildren().addAll(selectedProjectText,fileActionsBox, this.filesPane);
-
-        return filesBox;
     }
 
     private void createFilesPane() {
@@ -155,7 +150,10 @@ public class GUI extends BorderPane {
         removeFileButton.setOnAction(e -> removeFile());
         Button exportButton = new Button("Export", new FontIcon("mdi-export"));
         exportButton.setOnAction(e -> export());
-        fileActionsBox.getChildren().addAll(selectedProjectText, addFileButton, removeFileButton, exportButton);
+        Button summarizeButton = new Button("Summarize", new FontIcon("mdi-creation"));
+        summarizeButton.setOnAction(e -> summarize());
+
+        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton);
         return fileActionsBox;
     }
 
@@ -248,8 +246,9 @@ public class GUI extends BorderPane {
         fileButton.setOnMouseClicked(e -> {
             if (e.getButton().equals(MouseButton.PRIMARY) && selectedProject != null) {
                 if (e.getClickCount() == 1) {
-                    selected = selectedProject.getFile(fileButton.getId());
-                } else if (e.getClickCount() == 2 && getFileExtension(selected.getName()).equals("pdf")) {
+                    selectedFile = selectedProject.getFile(fileButton.getId());
+                    selectedFileText.setText(selectedFile.getName());
+                } else if (e.getClickCount() == 2 && getFileExtension(selectedFile.getName()).equals("pdf")) {
                     PDFViewer pdfViewer = new PDFViewer(file, this);
                     //this.setRight(pdfViewer);
                     this.rightPane.getChildren().setAll(pdfViewer);
@@ -283,11 +282,12 @@ public class GUI extends BorderPane {
         if (selectedProject == null) {
             return;
         }
-        if (selected != null) {
-            System.out.println("remove: " + selected.getName());
-            selectedProject.removeFile(selected.getName());
-            filesPane.getChildren().removeIf(f -> (f.getId().equals(selected.getName())));
-            selected = null;
+        if (selectedFile != null) {
+            System.out.println("remove: " + selectedFile.getName());
+            selectedProject.removeFile(selectedFile.getName());
+            filesPane.getChildren().removeIf(f -> (f.getId().equals(selectedFile.getName())));
+            selectedFile = null;
+            selectedFileText.setText("No File Selected");
         }
     }
     private void updateProjectsListView() {
@@ -298,7 +298,7 @@ public class GUI extends BorderPane {
         if (selectedProject == null) {
             return;
         }
-        if (selected != null && getFileExtension(selected.getName()).equals("pdf")) {
+        if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
             TextInputDialog exportDialog = new TextInputDialog();
             exportDialog.setTitle("Export");
             exportDialog.setHeaderText("Output file");
@@ -307,7 +307,7 @@ public class GUI extends BorderPane {
             Optional<String> result = exportDialog.showAndWait();
             result.ifPresent(exportFileName -> {
                 if (!exportFileName.trim().isEmpty()) {
-                    String parsedData = PdfParser.extractDataElementsFromPdf(selected.getAbsolutePath());
+                    String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
                     String returnedPrompt = PopulateCsv.promptFromData(parsedData);
                     // TODO EXPORT PATH
                     String exportPath = "sample-files/TestFiles/" + exportFileName;
@@ -334,10 +334,10 @@ public class GUI extends BorderPane {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Add a new file");
         // Open the file chooser dialog
-        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+        File chosenFile = fileChooser.showOpenDialog(this.getScene().getWindow());
 
         // May be null
-        return selectedFile;
+        return chosenFile;
     }
 
     private void projectSelection() {
@@ -347,6 +347,25 @@ public class GUI extends BorderPane {
             selectedProjectText.setText("No Project Selected");
         }
         createFilesPane();
+    }
+
+    private void summarize() {
+        if (selectedProject == null) {
+            return;
+        }
+        if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
+            TextInputDialog  summarizeDialog = new TextInputDialog();
+            summarizeDialog.setTitle("Summarize");
+            summarizeDialog.setHeaderText("Output file");
+            summarizeDialog.setContentText("Enter the name of the output file:");
+
+            Optional<String> result =  summarizeDialog.showAndWait();
+            result.ifPresent(summarizeFileName -> {
+                if (!summarizeFileName.trim().isEmpty()) {
+                    String exportPath = "sample-files/TestFiles/" + summarizeFileName;
+                }
+            });
+        }
     }
 
 
