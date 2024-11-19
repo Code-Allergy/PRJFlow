@@ -27,13 +27,19 @@ public class ProviderHelper {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
-        dialog.setTitle("AI Provider Selection");
+        dialog.setTitle("First Time Setup");
 
-        Label titleLabel = new Label("Choose Your AI Provider");
+        Label titleLabel = new Label("Select a Provider.");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Button localAiButton = new Button("Local AI (Slower, More Private)");
         localAiButton.setOnAction(e -> {
+            if (OllamaProvider.isOllamaInstalled()) {
+                dialog.close();
+                showSuccessDialog();
+                // write to config here.
+                return;
+            }
             dialog.close();
             openLocalAiSetup();
         });
@@ -76,5 +82,27 @@ public class ProviderHelper {
 
     // TODO
     private void openWebUiSetup() {
+    }
+
+    private void showSuccessDialog() {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+        dialog.setTitle("Setup Complete");
+
+        Label titleLabel = new Label("Setup Complete! You are now ready to generate text.");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Button okButton = new Button("OK");
+        okButton.setOnAction(e -> dialog.close());
+
+        VBox layout = new VBox(20);
+        layout.getChildren().addAll(titleLabel, okButton);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(20));
+
+        Scene scene = new Scene(layout, 350, 250);
+        dialog.setScene(scene);
+        dialog.showAndWait();
     }
 }

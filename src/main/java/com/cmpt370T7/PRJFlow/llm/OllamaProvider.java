@@ -169,7 +169,7 @@ public class OllamaProvider implements LlmProvider {
      *
      * @return true if Ollama is installed, false otherwise
      */
-    private boolean isOllamaInstalled() {
+    static boolean isOllamaInstalled() {
         return executeCommand("ollama --version") == 0;
     }
 
@@ -178,7 +178,7 @@ public class OllamaProvider implements LlmProvider {
      *
      * @return true if Ollama is running and responding, false otherwise
      */
-    private boolean isOllamaRunning() {
+    private static boolean isOllamaRunning() {
         try {
             URL url = URI.create(provider_baseurl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -197,7 +197,7 @@ public class OllamaProvider implements LlmProvider {
      * @param command the command to execute
      * @return int representing the exit code (0 for success, negative for errors)
      */
-    private int executeCommand(String command) {
+    private static int executeCommand(String command) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(isWindows() ? "cmd.exe" : "sh",
                     isWindows() ? "/c" : "-c",
@@ -215,7 +215,7 @@ public class OllamaProvider implements LlmProvider {
      *
      * @return true if running on Windows, false otherwise
      */
-    private boolean isWindows() {
+    private static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
