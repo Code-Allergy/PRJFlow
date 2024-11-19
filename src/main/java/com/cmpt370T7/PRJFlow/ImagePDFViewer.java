@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated // Use WebPDFViewer instead
 public class ImagePDFViewer extends VBox {
 
     private static final Logger logger = LoggerFactory.getLogger(ImagePDFViewer.class);

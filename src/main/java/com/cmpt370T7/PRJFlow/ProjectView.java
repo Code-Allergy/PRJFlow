@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Optional;
 
+@Deprecated // Combined into GUI
 public class ProjectView extends VBox {
     private final Logger logger = LoggerFactory.getLogger(ProjectView.class);
     // Temporary variables before code is implemented correctly
