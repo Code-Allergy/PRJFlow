@@ -1,5 +1,6 @@
 package com.cmpt370T7.PRJFlow;
 
+import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -190,7 +191,7 @@ public class ProjectView extends VBox {
         }
     }
 
-    // TODO llm provider
+    // TODO this is problematic, we don't moderate how much data is being sent, and extractDataElementsFromPdf often returns an empty string.
     private void export() {
         if (selected != null && getFileExtension(selected.getName()).equals("pdf")) {
             String parsedData = PdfParser.extractDataElementsFromPdf(selected.getAbsolutePath());

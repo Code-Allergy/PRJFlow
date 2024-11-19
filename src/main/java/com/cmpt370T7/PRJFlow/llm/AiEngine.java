@@ -104,6 +104,7 @@ public class AiEngine {
      */
     public String createTextSummary(String body) {
         String prompt = TEXT_GENERATOR_PROMPT + body;
+        logger.info("Prompting LLM for Text summary: \nSystem: {}\nBody: {}", TEXT_GENERATOR_PROMPT, body);
         return provider.queryProvider(prompt, false);
     }
 
@@ -118,6 +119,7 @@ public class AiEngine {
      */
     public String createCSVSummary(String body) {
         String prompt = CSV_GENERATOR_PROMPT + body;
+        logger.info("Prompting LLM for CSV summary: \nSystem: {}\nBody: {}", CSV_GENERATOR_PROMPT, body);
         return provider.queryProvider(prompt, false);
     }
 }

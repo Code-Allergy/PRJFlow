@@ -13,6 +13,8 @@ public class Main {
         // load .env file in development
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
+
+        // TODO move this into application start, so we can have the user setup the provider if needed.
         // DI for LLM
         LlmProvider provider;
         if (dotenv.get("GROQAI_KEY") != null) {
