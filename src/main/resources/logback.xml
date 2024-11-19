@@ -1,13 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <root level="DEBUG">
-        <appender-ref ref="CONSOLE" />
-    </root>
+<!DOCTYPE configuration>
 
+<configuration>
+    <!-- Define the log directory based on the OS -->
+    <if condition='property("os.name").toLowerCase().contains("win")'>
+        <then>
+            <property name="LOG_DIR" value="${user.home}/AppData/Roaming/PRJFlow" />
+        </then>
+        <else>
+            <if condition='property("os.name").toLowerCase().contains("mac")'>
+                <then>
+                    <property name="LOG_DIR" value="${user.home}/Library/Application Support/PRJFlow" />
+                </then>
+                <else>
+                    <!-- Linux/Unix default -->
+                    <property name="LOG_DIR" value="${user.home}/.config/PRJFlow" />
+                </else>
+            </if>
+        </else>
+    </if>
+
+    <!-- Console Logging -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <!-- File Logging -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <!-- File path -->
+        <file>${LOG_DIR}${file.separator}latest.log</file>
+
+        <!-- Append false means it will overwrite the file each time -->
+        <append>false</append>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger -->
+    <!-- Set the root level to DEBUG -->
+    <!-- TODO Change this to INFO for production -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
 
 </configuration>

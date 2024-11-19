@@ -4,14 +4,17 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
 public class HomeScreen extends BorderPane {
-
-    private final Map<LocalDate, List<String>> remindersMap = new HashMap<>();
+    private final Map<LocalDate, List<String>> remindersMap;
+    private static final Logger logger = LoggerFactory.getLogger(HomeScreen.class);
     private final MainGUI mainGUI;
     private final List<Project> projects;
     private ListView<Project> projectsListView;
@@ -22,7 +25,7 @@ public class HomeScreen extends BorderPane {
     public HomeScreen(MainGUI mainGUI, List<Project> projects) {
         this.mainGUI = mainGUI;
         this.projects = projects;
-        this.selectedProject = null;
+        this.remindersMap = AppDataManager.getInstance().getConfigManager().getReminderMap();
 
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
@@ -54,10 +57,11 @@ public class HomeScreen extends BorderPane {
         // Handle project selection
         projectsListView.setOnMouseClicked(event -> {
             selectedProject = projectsListView.getSelectionModel().getSelectedItem();
-            System.out.println("Selection: " + selectedProject);
+            logger.debug("Selection: {}", selectedProject);
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
+                    logger.info("Opening project: {}", selectedProject);
                     mainGUI.switchToProjectView(selectedProject);
                     selectedProject = null;
                 }
@@ -91,10 +95,12 @@ public class HomeScreen extends BorderPane {
         // Handle recent project selection
         recentProjectsListView.setOnMouseClicked(event -> {
             selectedProject = recentProjectsListView.getSelectionModel().getSelectedItem();
-            System.out.println("Recent selection: " + selectedProject);
+            logger.debug("Recent Selection: {}", selectedProject);
 
             if (selectedProject != null) {
                 if (event.getClickCount() == 2) { // Double-click
+                    logger.info("Opening recent project: {}", selectedProject);
+                    logger.info("Project path: {}", selectedProject.getDirectory());
                     mainGUI.switchToProjectView(selectedProject);
                     selectedProject = null;
                 }
@@ -144,6 +150,12 @@ public class HomeScreen extends BorderPane {
                         projects.addFirst(newProject); // Add to the top of the list
                         updateProjectsListView();
                         updateRecentProjectsListView();
+                        AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                        try {
+                            ProjectManager.saveProject(newProject, selectedFolder);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         mainGUI.switchToProjectView(newProject);
                     }
                 } else {
@@ -166,6 +178,7 @@ public class HomeScreen extends BorderPane {
                 projects.remove(selectedProject);
                 updateProjectsListView();
                 updateRecentProjectsListView();
+                AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
             }
         }
 

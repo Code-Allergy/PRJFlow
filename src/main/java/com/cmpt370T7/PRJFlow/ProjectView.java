@@ -14,17 +14,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Optional;
 
 public class ProjectView extends VBox {
     private final Logger logger = LoggerFactory.getLogger(ProjectView.class);
     // Temporary variables before code is implemented correctly
     String testCSV = "testInfo.csv";
 
-    private Project project;
-    private MainGUI mainGUI;
-    //private String selected = "";
+    private final Project project;
+    private final MainGUI mainGUI;
+    private final FlowPane filesPane;
     private File selected;
-    private FlowPane filesPane;
 
 
 
@@ -110,7 +110,7 @@ public class ProjectView extends VBox {
     }
 
     private void initializeFilesPane() {
-        System.out.println("Init files pane");
+        logger.debug("Init files pane");
         filesPane.setStyle("-fx-background-color: #bebeb6");
         filesPane.setPadding(new Insets(10, 10, 10, 10));
         filesPane.setHgap(5);
@@ -118,12 +118,14 @@ public class ProjectView extends VBox {
 
 
         for (File f : project.getInputFiles()) {
-            System.out.println("File: " + f.getName());
+            if (f.getName().equals("prjflowconfig.toml")) { continue; }
+            logger.debug("Loaded file: {}", f.getName());
             Button newButton = createFileButton(f);
             filesPane.getChildren().add(newButton);
         }
     }
 
+    // TODO refactor this to a separate classes w/ strategy + with MIME type detection rather than extension
     private Button createFileButton(File file) {
         Button fileButton = new Button();
         FontIcon fileIcon = new FontIcon();
@@ -160,8 +162,9 @@ public class ProjectView extends VBox {
                 if (e.getClickCount() == 1) {
                     selected = project.getFile(fileButton.getId());
                 } else if (e.getClickCount() == 2 && getFileExtension(selected.getName()).equals("pdf")) {
-                    //PDFViewer pdfViewer = new PDFViewer(file, mainGUI, project);
-                    //mainGUI.getChildren().setAll(pdfViewer);
+//                    logger.info("Opening PDF file: {}", file);
+//                    WebPDFViewer pdfViewer = new WebPDFViewer(file, mainGUI, project);
+//                    mainGUI.getChildren().setAll(pdfViewer);
                 }
             }
         });
@@ -171,12 +174,14 @@ public class ProjectView extends VBox {
 
 
     private void addFile() {
-        System.out.println("Add a new file");
-        File newFile = openFileChooser();
-        if (newFile != null && !project.contains(newFile)) {
-            project.addInputFile(newFile);
-            filesPane.getChildren().add(createFileButton(newFile));
-        }
+        logger.debug("Opening file chooser to add a new file");
+        openFileChooser().ifPresent(
+            file -> {
+                logger.debug("Adding selected file: {}", file);
+                project.addInputFile(file);
+                filesPane.getChildren().add(createFileButton(file));
+            }
+        );
     }
 
     private void removeFile() {
@@ -195,23 +200,26 @@ public class ProjectView extends VBox {
         }
     }
 
-    private File openFileChooser() {
+    private Optional<File> openFileChooser() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Add a new File");
         // Open the file chooser dialog
         File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-        if (selectedFile != null) {
-            return selectedFile;
+
+        if (selectedFile == null) {
+            logger.info("File selection cancelled by user.");
+            return Optional.empty();
         } else {
-            System.out.println("Error: no file found");
-            return null;
+            return Optional.of(selectedFile);
         }
     }
 
+    // TODO remove
     private String getFileExtension(File file) {
         return getFileExtension(file.toString());
     }
 
+    // TODO remove
     private String getFileExtension(String fileName) {
         String extension = "";
         int i = fileName.lastIndexOf('.');

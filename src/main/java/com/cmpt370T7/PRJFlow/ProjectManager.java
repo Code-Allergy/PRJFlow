@@ -2,12 +2,18 @@ package com.cmpt370T7.PRJFlow;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.File;
 import java.util.*;
 
 public class ProjectManager {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectManager.class);
+
 
     /**
      * Opens a previously saved PRJFlow project
@@ -16,10 +22,9 @@ public class ProjectManager {
      * @return A new project object, specified by the config file
      * @throws NoSuchFieldException when the required field 'PRJFlowTitle' is not in the config file
      */
-    static Project openProject(File tomlFile) throws NoSuchFieldException{
-
+    static Project openProject(File tomlFile) throws NoSuchFieldException, FileNotFoundException {
         Toml config = new Toml().read(tomlFile);
-        Project open = null;
+        Project open;
 
         //Make sure config file has a title, and create a new project file. otherwise, throw an exception
         if (config.contains("PRJFlowTitle")){
@@ -42,21 +47,21 @@ public class ProjectManager {
                     open.addInputFile(addFile);
 
                 else
-                    System.err.println(addFile.getPath() + " input file specified in the project config does not exist.");
+                    logger.warn("Input file specified in the project config does not exist: {}", addFile.getPath());
             }
         }
 
         //Populate the list of generated summary files from the config TOML
         if (config.containsTableArray("summaryFiles")){
             List<String> ConfigSummaryList = config.getList("summaryFiles");
-            for (String NextSummaryFile : ConfigSummaryList) {
-                if (NextSummaryFile == null) break;
-                File addFile = new File(NextSummaryFile);
+            for (String nextSummaryFile : ConfigSummaryList) {
+                if (nextSummaryFile == null) break;
+                File addFile = new File(nextSummaryFile);
 
                 if (addFile.exists())
                     open.addSummaryFile(addFile);
                 else
-                    System.err.println(addFile.getPath() + " summary file specified in the project config does not exist.");
+                    logger.warn("Summary file specified in the project config does not exist: {}", addFile.getPath());
             }
         }
 
@@ -71,21 +76,9 @@ public class ProjectManager {
      * @throws IllegalArgumentException when supplied with a null project or an incorrect filename
      * @throws IOException if the prjflowconfig.toml file exists but is not writable
      */
-    static void saveProject(Project save, String pathname) throws IllegalArgumentException, IOException {
+    static void saveProject(Project save, File pathname) throws IllegalArgumentException, IOException {
         if (save == null) throw new IllegalArgumentException("Cannot save null project.");
-        File saveFile = new File(pathname);
-
-        if (!saveFile.getName().equals("prjflowconfig.toml")){
-            throw new IllegalArgumentException("Config file name must be \"prjflowconfig.toml\"");
-        }
-
-        if (!saveFile.exists()){
-            saveFile.createNewFile();
-        }
-
-        if (!saveFile.canWrite()){
-            throw new IOException("Save file is not writable");
-        }
+        File saveFile = getConfigFile(pathname);
 
         Toml config = new Toml().read(saveFile);
         TomlWriter writer = new TomlWriter();
@@ -93,12 +86,12 @@ public class ProjectManager {
 
         ArrayList<String> inputFiles = new ArrayList<>();
         for (File file : save.getInputFiles()) {
-            inputFiles.add(file.getPath());
+            inputFiles.add(file.getPath().replace("\\", "/"));
         }
 
         ArrayList<String> summaryFiles = new ArrayList<>();
         for (File file : save.getSummaryFiles()) {
-            summaryFiles.add(file.getPath());
+            summaryFiles.add(file.getPath().replace("\\", "/"));
         }
 
         //Create map with all info to write
@@ -112,6 +105,24 @@ public class ProjectManager {
 
     }
 
+    private static File getConfigFile(File pathname) throws IOException {
+        File saveFile = new File(pathname, "prjflowconfig.toml");
+
+        if (!saveFile.getName().equals("prjflowconfig.toml")){
+            throw new IllegalArgumentException("Config file name must be \"prjflowconfig.toml\"");
+        }
+
+        if (!saveFile.exists() && !saveFile.createNewFile()){
+            throw new IOException("Could not create config file " + saveFile.getPath());
+        }
+
+        if (!saveFile.canWrite()){
+            throw new IOException("Save file is not writable");
+        }
+        return saveFile;
+    }
+
+    // TODO real testing of this class
     public static void main(String[] args) throws IOException {
 
         //File settings = new File("test.tomlaaa");
@@ -136,7 +147,5 @@ public class ProjectManager {
             myWriter.write("1, 2, 3, testing3");
             myWriter.close();
         }
-
-        saveProject(T, "test-project/prjflowconfig.toml");
     }
 }

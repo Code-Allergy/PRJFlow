@@ -1,20 +1,27 @@
 package com.cmpt370T7.PRJFlow;
 
 import javafx.scene.layout.StackPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainGUI extends StackPane {
 
+    private static final Logger logger = LoggerFactory.getLogger(MainGUI.class);
     private List<Project> projects;
-    ProjectView pView;
-    HomeScreen homeScreen;
+    private ProjectView pView;
+    private HomeScreen homeScreen;
 
     public MainGUI() {
         //this.setPrefSize(800, 600);
 
-        // Initialize the list of projects
-        projects = new ArrayList<>();
+        // Initialize the list of projects if no config exists
+        projects = AppDataManager.getInstance().getConfigManager().getRecentProjects();
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
 
         // Create HomeScreen and pass the projects list
         homeScreen = new HomeScreen(this, projects);

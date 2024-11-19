@@ -23,9 +23,9 @@ import java.util.*;
 public class GUI extends BorderPane {
 
     // TODO FIX LOGGER
-    //private final Logger logger = LoggerFactory.getLogger(ProjectView.class);
+    private final Logger logger = LoggerFactory.getLogger(GUI.class);
     private List<Project> projects;
-    private final Map<LocalDate, List<String>> remindersMap = new HashMap<>();
+    private final Map<LocalDate, List<String>> remindersMap;
     private ListView<Project> projectsListView;
     private FlowPane filesPane;
     private Project selectedProject;
@@ -41,7 +41,12 @@ public class GUI extends BorderPane {
 
     public GUI() {
         this.setStyle("-fx-background-color: #f0f0f0");
-        this.projects = new ArrayList<>();
+        this.projects = AppDataManager.getInstance().getConfigManager().getRecentProjects();
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
+        this.remindersMap = AppDataManager.getInstance().getConfigManager().getReminderMap();
+
         this.selectedProject = null;
         this.selectedFile = null;
         this.filesPane = new FlowPane();
@@ -249,7 +254,7 @@ public class GUI extends BorderPane {
                     selectedFile = selectedProject.getFile(fileButton.getId());
                     selectedFileText.setText(selectedFile.getName());
                 } else if (e.getClickCount() == 2 && getFileExtension(selectedFile.getName()).equals("pdf")) {
-                    PDFViewer pdfViewer = new PDFViewer(file, this);
+                    WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
                     //this.setRight(pdfViewer);
                     this.rightPane.getChildren().setAll(pdfViewer);
                 }

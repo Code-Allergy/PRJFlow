@@ -3,9 +3,6 @@ package com.cmpt370T7.PRJFlow;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 
 import org.slf4j.Logger;
@@ -28,7 +25,6 @@ public class AppDataManager {
     /// Singleton instance of AppDataManager
     private static AppDataManager instance;
     private final ConfigManager configManager;
-    private final GlobalTermsDatabase globalTermsDatabase;
 
     private final File appDataDirectory;
     private final File tesseractDataDirectory;
@@ -52,7 +48,6 @@ public class AppDataManager {
         createDirectoryIfNotExists(appDataDirectory);
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         initializeTesseractData();
     }
 
@@ -65,7 +60,6 @@ public class AppDataManager {
         this.appDataDirectory = customDirectory;
         createDirectoryIfNotExists(appDataDirectory);
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         initializeTesseractData();
     }
@@ -141,40 +135,32 @@ public class AppDataManager {
      */
     private void initializeTesseractData() {
         try {
-            URI tessDataURL = AppDataManager.class.getResource("tessdata").toURI();
-            if (tessDataURL == null) {
-                throw new IOException("Could not find tessdata resources");
-            }
-            String pathStr = Paths.get(tessDataURL).toString();
-            Path tessDataPath = Paths.get(pathStr);
-
             createDirectoryIfNotExists(tesseractDataDirectory);
 
-            // Iterate through each file in the tessdata directory
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tessDataPath)) {
-                for (Path sourceFile : directoryStream) {
-                    Path destFile = tesseractDataDirectory.toPath().resolve(sourceFile.getFileName().toString());
+            // List of files in `tessdata` to be extracted
+            String[] tessdataFiles = {"eng.traineddata", "osd.traineddata"};
+
+            for (String fileName : tessdataFiles) {
+                // Load each file as a stream
+                try (InputStream sourceStream = AppDataManager.class.getResourceAsStream("tessdata/" + fileName)) {
+                    if (sourceStream == null) {
+                        throw new IOException("Resource file not found: " + fileName);
+                    }
+                    Path destFile = tesseractDataDirectory.toPath().resolve(fileName);
 
                     // Only copy if the file doesn't exist or it's newer
-                    if (!Files.exists(destFile) || Files.getLastModifiedTime(sourceFile).toMillis() >
-                            Files.getLastModifiedTime(destFile).toMillis()) {
-                        try (InputStream is = Files.newInputStream(sourceFile)) {
-                            Files.copy(is, destFile, StandardCopyOption.REPLACE_EXISTING);
-                        }
+                    if (!Files.exists(destFile) || Files.getLastModifiedTime(destFile).toMillis() <
+                            System.currentTimeMillis()) {
+                        Files.copy(sourceStream, destFile, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-            logger.error("Tesseract data file could not be loaded. Exiting.");
+        } catch (IOException e) {
+            logger.error("Failed to initialize Tesseract data files.", e);
             System.exit(1);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    // TODO should pass exception up to UI, so we can render something
     /**
      * Creates a directory if it does not already exist.
      *
@@ -235,14 +221,5 @@ public class AppDataManager {
      */
     public ConfigManager getConfigManager() {
         return configManager;
-    }
-
-    /**
-     * Gets the global instance of {@link GlobalTermsDatabase}.
-     *
-     * @return the instance of GlobalTermsDatabase associated with the global AppDataManager.
-     */
-    public GlobalTermsDatabase getGlobalTermsDatabase() {
-        return globalTermsDatabase;
     }
 }

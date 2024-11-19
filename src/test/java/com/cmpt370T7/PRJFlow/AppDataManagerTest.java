@@ -78,6 +78,5 @@ public class AppDataManagerTest {
         AppDataManager appDataManager = AppDataManager.getInstance();
 
         assertThat(appDataManager.getConfigManager()).isNotNull();
-        assertThat(appDataManager.getGlobalTermsDatabase()).isNotNull();
     }
 }
