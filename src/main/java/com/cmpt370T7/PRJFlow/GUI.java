@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -193,7 +194,15 @@ public class GUI extends BorderPane {
                         projects.addFirst(newProject); // Add to the top of the list
                         updateProjectsListView();
                         selectedProject = newProject;
-                        System.out.println(selectedProject.getName());
+                        logger.info("New project created: {}", selectedProject.getName());
+                        AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                        try {
+                            ProjectManager.saveProject(newProject, selectedFolder);
+                        } catch (IOException e) {
+                            // TODO handle error on project config file creation
+                            throw new RuntimeException(e);
+                        }
+
                         projectSelection();
                     }
                 } else {
