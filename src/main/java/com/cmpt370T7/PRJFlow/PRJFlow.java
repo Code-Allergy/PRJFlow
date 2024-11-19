@@ -2,6 +2,8 @@ package com.cmpt370T7.PRJFlow;
 
 import java.io.IOException;
 
+import com.cmpt370T7.PRJFlow.llm.OllamaDownloader;
+import com.cmpt370T7.PRJFlow.llm.ProviderHelper;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class PRJFlow extends Application {
             // TODO Display error to user.
         }
 
+//        OllamaDownloader root = new OllamaDownloader();
         MainGUI root = new MainGUI();
         Scene scene = new Scene(root);
         stage.setTitle("PRJFlow");
@@ -32,6 +35,9 @@ public class PRJFlow extends Application {
         stage.setMaximized(true);
 
         stage.show();
+
+        ProviderHelper helper = new ProviderHelper(stage);
+        helper.showProviderSelectionDialog();
 
         stage.setOnCloseRequest(e -> {
             logger.info("Closing application...");
