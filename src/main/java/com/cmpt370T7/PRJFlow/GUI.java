@@ -123,7 +123,7 @@ public class GUI extends BorderPane {
     }
 
     public void revertRightPane() {
-        System.out.println("Revert: " + prevRightChild);
+        logger.info("Reverting right pane back to previous: {}", prevRightChild);
         rightPane.getChildren().clear();
         rightPane.getChildren().addAll(prevRightChild);
     }
@@ -136,9 +136,10 @@ public class GUI extends BorderPane {
         filesPane.setVgap(5);
 
         if (selectedProject != null) {
-            System.out.println(selectedProject.getName());
+            logger.info("Loading files for project: {}", selectedProject.getName());
             for (File f : selectedProject.getInputFiles()) {
-                System.out.println("File: " + f.getName());
+                if (f.getName().equals("prjflowconfig.toml")) { continue; }
+                logger.debug("Loaded file: {}", f.getName());
                 Button newButton = createFileButton(f);
                 filesPane.getChildren().add(newButton);
             }
@@ -276,20 +277,22 @@ public class GUI extends BorderPane {
         if (selectedProject == null) {
             return;
         }
-        System.out.println("Add a new file");
-        File newFile = openFileChooser();
-        if (newFile != null) {
-            if (selectedProject.contains(newFile)) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Invalid File");
-                alert.setHeaderText(null);
-                alert.setContentText("A file with that name is already in the project.");
-                alert.showAndWait();
-            } else {
-                selectedProject.addInputFile(newFile);
-                filesPane.getChildren().add(createFileButton(newFile));
-            }
-        }
+        logger.debug("Opening file chooser to add a new file");
+        openFileChooser().ifPresent(
+                file -> {
+                    logger.debug("Adding selected file: {}", file);
+                    if (selectedProject.contains(file)) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Invalid File");
+                        alert.setHeaderText(null);
+                        alert.setContentText("A file with that name is already in the project.");
+                        alert.showAndWait();
+                    } else {
+                        selectedProject.addInputFile(file);
+                        filesPane.getChildren().add(createFileButton(file));
+                    }
+                }
+        );
     }
 
     private void removeFile() {
@@ -297,7 +300,7 @@ public class GUI extends BorderPane {
             return;
         }
         if (selectedFile != null) {
-            System.out.println("remove: " + selectedFile.getName());
+            logger.info("Removing file from project: {}", selectedFile.getName());
             selectedProject.removeFile(selectedFile.getName());
             filesPane.getChildren().removeIf(f -> (f.getId().equals(selectedFile.getName())));
             selectedFile = null;
@@ -344,14 +347,18 @@ public class GUI extends BorderPane {
         return extension;
     }
 
-    private File openFileChooser() {
+    private Optional<File> openFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Add a new file");
+        fileChooser.setTitle("Add a new File");
         // Open the file chooser dialog
-        File chosenFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
 
-        // May be null
-        return chosenFile;
+        if (selectedFile == null) {
+            logger.info("File selection cancelled by user.");
+            return Optional.empty();
+        } else {
+            return Optional.of(selectedFile);
+        }
     }
 
     private void projectSelection() {

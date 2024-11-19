@@ -33,8 +33,6 @@ public class ImagePDFViewer extends VBox {
         Button backButton = new Button("Back");
 
         backButton.setOnAction(e -> {
-            // Go back to ProjectView
-            logger.info("Returning to default right pane.");
             gui.revertRightPane();
         });
 
