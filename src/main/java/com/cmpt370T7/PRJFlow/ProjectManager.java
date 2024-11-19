@@ -45,6 +45,7 @@ public class ProjectManager {
 
                 if (addFile.exists())
                     open.addInputFile(addFile);
+
                 else
                     logger.warn("Input file specified in the project config does not exist: {}", addFile.getPath());
             }

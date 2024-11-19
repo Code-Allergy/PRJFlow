@@ -47,8 +47,19 @@ public class Project {
         owner = newOwner;
     }
 
-    void addInputFile(File fileName) {
-        inputFiles.add(fileName);
+    // Dont allow duplicate files
+    void addInputFile(File file) {
+        inputFiles.add(file);
+    }
+
+    // True if inputFiles contains a file with the same name
+    boolean contains(File file) {
+        for (File f : inputFiles) {
+            if (f.getName().equals(file.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void addSummaryFile(File fileName){
@@ -81,6 +92,15 @@ public class Project {
             Collections.addAll(inputFiles, directoryFiles);
         }
 
+    }
+
+    public File getFile(String fileName) {
+        for (File f : inputFiles) {
+            if (f.getName().equals(fileName)) {
+                return f;
+            }
+        }
+        return null;
     }
 
     @Override

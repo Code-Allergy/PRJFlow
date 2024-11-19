@@ -21,8 +21,8 @@ public class ProjectView extends VBox {
 
     private final Project project;
     private final MainGUI mainGUI;
-    private String selected = "";
     private final FlowPane filesPane;
+    private File selected;
 
 
 
@@ -71,7 +71,11 @@ public class ProjectView extends VBox {
         addFileButton.setOnAction(e -> addFile());
         Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
         removeFileButton.setOnAction(e -> removeFile());
-        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton);
+        Button exportButton = new Button("Export", new FontIcon("mdi-export"));
+        exportButton.setOnAction(e -> export());
+
+
+        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton);
 
         initializeFilesPane();
         filesBox.getChildren().addAll(fileActionsBox, filesPane);
@@ -154,8 +158,8 @@ public class ProjectView extends VBox {
         fileButton.setOnMouseClicked(e -> {
             if (e.getButton().equals(MouseButton.PRIMARY)) {
                 if (e.getClickCount() == 1) {
-                    selected = fileButton.getId();
-                } else if (e.getClickCount() == 2 && extension.equals("pdf")) {
+                    selected = project.getFile(fileButton.getId());
+                } else if (e.getClickCount() == 2 && getFileExtension(selected.getName()).equals("pdf")) {
                     logger.info("Opening PDF file: {}", file);
                     WebPDFViewer pdfViewer = new WebPDFViewer(file, mainGUI, project);
                     mainGUI.getChildren().setAll(pdfViewer);
@@ -180,9 +184,18 @@ public class ProjectView extends VBox {
 
     private void removeFile() {
         if (selected != null) {
-            project.removeFile(selected);
-            filesPane.getChildren().removeIf(f -> (f.getId().equals(selected)));
+            project.removeFile(selected.getName());
+            filesPane.getChildren().removeIf(f -> (f.getId().equals(selected.getName())));
             selected = null;
+        }
+    }
+
+    // TODO llm provider
+    private void export() {
+        if (selected != null && getFileExtension(selected.getName()).equals("pdf")) {
+            String parsedData = PdfParser.extractDataElementsFromPdf(selected.getAbsolutePath());
+            String returnedPrompt = PopulateCsv.promptFromData(parsedData);
+            PopulateCsv.PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);
         }
     }
 

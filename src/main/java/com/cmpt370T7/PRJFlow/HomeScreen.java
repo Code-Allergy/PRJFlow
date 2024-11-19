@@ -126,31 +126,43 @@ public class HomeScreen extends BorderPane {
         dialog.setHeaderText("Create a New Project");
         dialog.setContentText("Project Name:");
 
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Invalid Name");
+        alert.setHeaderText(null);
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             if (!name.trim().isEmpty()) {
-                DirectoryChooser dc = new DirectoryChooser();
-                dc.setTitle("Choose the project directory");
-
-                File selectedFolder =  dc.showDialog(this.getScene().getWindow());
-                if (selectedFolder != null) {
-                    Project newProject = new Project(name.trim(), selectedFolder);
-                    projects.addFirst(newProject); // Add to the top of the list
-                    updateProjectsListView();
-                    updateRecentProjectsListView();
-                    AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
-                    try {
-                        ProjectManager.saveProject(newProject, selectedFolder);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                boolean duplicateProject = false;
+                for (Project p : projects) {
+                    if (p.getName().equals(name)) {
+                        duplicateProject = true;
+                        break;
                     }
-                    mainGUI.switchToProjectView(newProject);
                 }
+                if (!duplicateProject) {
+                    DirectoryChooser dc = new DirectoryChooser();
+                    dc.setTitle("Choose the project directory");
 
+                    File selectedFolder =  dc.showDialog(this.getScene().getWindow());
+                    if (selectedFolder != null) {
+                        Project newProject = new Project(name.trim(), selectedFolder);
+                        projects.addFirst(newProject); // Add to the top of the list
+                        updateProjectsListView();
+                        updateRecentProjectsListView();
+                        AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                        try {
+                            ProjectManager.saveProject(newProject, selectedFolder);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        mainGUI.switchToProjectView(newProject);
+                    }
+                } else {
+                    alert.setContentText("A project with that name is already created.");
+                    alert.showAndWait();
+                }
             } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Invalid Name");
-                alert.setHeaderText(null);
                 alert.setContentText("Project name cannot be empty.");
                 alert.showAndWait();
             }
