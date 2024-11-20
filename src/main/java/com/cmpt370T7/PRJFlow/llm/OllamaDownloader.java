@@ -4,7 +4,6 @@ import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.StackPane;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,13 +15,11 @@ import java.net.URI;
  */
 public class OllamaDownloader extends StackPane {
     private final String url = "https://ollama.com/download/OllamaSetup.exe";
-    private final String installerPath = "./ollama.exe";
-    private final Label label;
+    private final String installerPath = "./OllamaSetup.exe";
     private final ProgressBar progressBar;
 
     public OllamaDownloader() {
         progressBar = new ProgressBar(0);
-        label = new Label("Downloading Ollama...");
         getChildren().add(progressBar);
         downloadFile(installerPath);
     }
