@@ -106,7 +106,7 @@ public class ProviderHelper {
         localAiStage.initModality(Modality.APPLICATION_MODAL);
         localAiStage.setTitle("Local AI Setup");
 
-        OllamaDownloader ollamaDownloader = new OllamaDownloader();
+        OllamaDownloader ollamaDownloader = new OllamaDownloader(complete);
 
         StackPane layout = new StackPane();
         layout.getChildren().addAll(
