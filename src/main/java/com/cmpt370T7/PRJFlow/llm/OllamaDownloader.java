@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ public class OllamaDownloader extends VBox {
     private final String installerPath = "./OllamaSetup.exe";
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar;
+    private final Stage popUpStage;
 
     CompletableFuture<Void> completed;
 
@@ -32,9 +34,10 @@ public class OllamaDownloader extends VBox {
      * Constructor for OllamaDownloader.
      * Initializes the progress bar and starts the download process.
      */
-    public OllamaDownloader(CompletableFuture<Void> completed) {
+    public OllamaDownloader(CompletableFuture<Void> completed, Stage popUpStage) {
         this.progressBar = new ProgressBar(0);
         this.completed = completed;
+        this.popUpStage = popUpStage;
         getChildren().addAll(progressLabel, progressBar);
         downloadFile();
     }
@@ -76,9 +79,10 @@ public class OllamaDownloader extends VBox {
         new Thread(task).start();
         task.setOnSucceeded(event -> {
             logger.info("Download complete");
-            this.progressLabel.setText("Download complete! Exit to continue.");
+            this.progressLabel.setText("Setup complete! You can close this window now.");
             this.getChildren().remove(progressBar);
             this.completed.complete(null);
+            popUpStage.close(); // For some reason, this call isn't working. TODO: Fix this.
         });
         task.setOnFailed(e -> {
             progressBar.progressProperty().unbind();
@@ -150,7 +154,7 @@ public class OllamaDownloader extends VBox {
     /**
      * Removes the installer file after installation.
      * Updates the progress label during the removal process.
-     * TODO appears to be non-functional, and fail silently. Look into this if time permits, if we can't get this working maybe we should store in ~/AppData/Local/Temp
+     * TODO appears to be non-functional, and fail silently. Look into this if time permits, if we can't get this working maybe we should store downloaded binary in ~/AppData/Local/Temp
      *
      */
     private void removeInstaller() {
