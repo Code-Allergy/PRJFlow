@@ -6,14 +6,19 @@ import com.cmpt370T7.PRJFlow.util.web.WebConnectionMethod;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -169,7 +174,19 @@ public class OllamaProvider implements LlmProvider {
      * @return true if Ollama is installed, false otherwise
      */
     static boolean isOllamaInstalled() {
-        return executeCommand("ollama --version") == 0;
+        logger.debug("Checking if Ollama is installed...");
+        AtomicBoolean versionFound = new AtomicBoolean(false);
+
+        int exitCode = executeCommand("ollama --version", output -> {
+            if (!output.isEmpty()) {
+                logger.info("Ollama version: {}", output);
+                versionFound.set(true);
+            }
+        });
+
+        boolean isInstalled = exitCode == 0 && versionFound.get();
+        logger.info("Ollama installed: {}", isInstalled);
+        return isInstalled;
     }
 
     /**
@@ -195,7 +212,22 @@ public class OllamaProvider implements LlmProvider {
     }
 
     public static void pullModel(String model) {
-        executeCommand("ollama pull " + model);
+        logger.info("Starting to pull model: {}", model);
+        executeCommand("ollama pull " + model, output -> {
+            if (output.contains("downloading:")) {
+                try {
+                    String percentStr = output.split("%")[0];
+                    percentStr = percentStr.substring(percentStr.lastIndexOf(" ")).trim();
+                    double percent = Double.parseDouble(percentStr);
+                    Platform.runLater(() -> {
+                        // TODO update progress bar
+                    });
+                } catch (Exception e) {
+                    logger.error("Error parsing progress", e);
+                }
+            }
+        });
+        logger.info("Finished pulling model: {}", model);
     }
 
     /**
@@ -204,13 +236,36 @@ public class OllamaProvider implements LlmProvider {
      * @param command the command to execute
      * @return int representing the exit code (0 for success, negative for errors)
      */
-    private static int executeCommand(String command) {
+    private static int executeCommand(String command, Consumer<String> outputHandler) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(isWindows() ? "cmd.exe" : "sh",
                     isWindows() ? "/c" : "-c",
                     command);
+            processBuilder.redirectErrorStream(true);
+
+            logger.debug("Executing command: {}", command);
             Process process = processBuilder.start();
-            return process.waitFor(); // Returns the exit code
+
+            Thread outputReader = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        logger.info("Command output: {}", line);
+                        if (outputHandler != null) {
+                            outputHandler.accept(line);
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.error("Error reading process output", e);
+                }
+            });
+            outputReader.start();
+
+            int exitCode = process.waitFor();
+            logger.debug("Command completed with exit code: {}", exitCode);
+            return exitCode;
+
         } catch (IOException | InterruptedException e) {
             logger.error("Failed to execute command: {}", command, e);
             return -1;
