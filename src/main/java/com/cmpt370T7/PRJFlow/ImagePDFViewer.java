@@ -19,24 +19,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated // Use WebPDFViewer instead
 public class ImagePDFViewer extends VBox {
 
     private static final Logger logger = LoggerFactory.getLogger(ImagePDFViewer.class);
-    private final MainGUI mainGUI;
-    private final Project project;
 
-    public ImagePDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
-        this.mainGUI = mainGUI;
-        this.project = project;
+    private final GUI gui;
+
+    public ImagePDFViewer(File pdfFile, GUI gui) {
+        this.gui = gui;
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
         Button backButton = new Button("Back");
+
         backButton.setOnAction(e -> {
-            // Go back to ProjectView
-            logger.info("Returning to ProjectView of project: {}", project.getName());
-            mainGUI.switchToProjectView(project);
+            gui.revertRightPane();
         });
+
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);

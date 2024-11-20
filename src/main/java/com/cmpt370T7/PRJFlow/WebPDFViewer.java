@@ -33,19 +33,16 @@ public class WebPDFViewer extends VBox {
      * Constructs a WebPDFViewer component that displays the specified PDF file.
      *
      * @param pdfFile The PDF file to be viewed in the WebPDFViewer.
-     * @param mainGUI The main GUI instance, used to navigate back to the ProjectView.
-     * @param project The current project, to be shown when navigating back.
+     * @param gui The GUI object that manages the application's views.
      */
-    public WebPDFViewer(File pdfFile, MainGUI mainGUI, Project project) {
+    public WebPDFViewer(File pdfFile, GUI gui) {
         WebView webView = new WebView();
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
         Button backButton = new Button("Back");
         backButton.setOnAction(e -> {
-            // Go back to ProjectView
-            logger.info("Returning to ProjectView of project: {}", project.getName());
-            mainGUI.switchToProjectView(project);
+            gui.revertRightPane();
         });
         WebEngine engine = webView.getEngine();
         try {
@@ -75,7 +72,7 @@ public class WebPDFViewer extends VBox {
                             logger.error("Unable to load file in web viewer: {}", pdfFile.getAbsolutePath(), ex);
                             AlertHelper.showError("Error", "Failed to load file in web viewer");
                             // TODO: throw exception up the stack, for now, just bail out
-                            mainGUI.switchToProjectView(project);
+                            gui.revertRightPane();
                         }
                     }
                 });
