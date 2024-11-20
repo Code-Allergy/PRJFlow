@@ -59,6 +59,16 @@ public class OllamaDownloader extends VBox {
 
         progressBar.progressProperty().bind(task.progressProperty());
         new Thread(task).start();
+        task.setOnSucceeded(event -> {
+            logger.info("Download complete");
+            this.progressLabel.setText("Download complete! Exit to continue.");
+            this.getChildren().remove(progressBar);
+        });
+        task.setOnFailed(e -> {
+            progressBar.progressProperty().unbind();
+            progressLabel.textProperty().unbind();
+            progressLabel.setText("Download failed: " + task.getException().getMessage());
+        });
     }
 
     private void downloadModel() {
