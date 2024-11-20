@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 public class PRJFlow extends Application {
     private static final Logger logger = LoggerFactory.getLogger(PRJFlow.class);
-    
+
     @Override
     public void start(Stage stage) {
         logger.info("Starting application...");
@@ -25,7 +25,7 @@ public class PRJFlow extends Application {
             // TODO Display error to user.
         }
 
-        MainGUI root = new MainGUI();
+        GUI root = new GUI();
         Scene scene = new Scene(root);
         stage.setTitle("PRJFlow");
         stage.setScene(scene);

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated // Combined into GUI
 public class MainGUI extends StackPane {
 
     private static final Logger logger = LoggerFactory.getLogger(MainGUI.class);

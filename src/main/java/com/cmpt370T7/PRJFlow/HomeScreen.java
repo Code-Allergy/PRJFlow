@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
+@Deprecated // Combined into GUI
 public class HomeScreen extends BorderPane {
     private final Map<LocalDate, List<String>> remindersMap;
     private static final Logger logger = LoggerFactory.getLogger(HomeScreen.class);

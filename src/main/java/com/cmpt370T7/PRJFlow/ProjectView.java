@@ -17,8 +17,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Optional;
 
+@Deprecated // Combined into GUI
 public class ProjectView extends VBox {
     private final Logger logger = LoggerFactory.getLogger(ProjectView.class);
+    // Temporary variables before code is implemented correctly
+    String testCSV = "testInfo.csv";
 
     private final Project project;
     private final MainGUI mainGUI;
@@ -161,9 +164,9 @@ public class ProjectView extends VBox {
                 if (e.getClickCount() == 1) {
                     selected = project.getFile(fileButton.getId());
                 } else if (e.getClickCount() == 2 && getFileExtension(selected.getName()).equals("pdf")) {
-                    logger.info("Opening PDF file: {}", file);
-                    WebPDFViewer pdfViewer = new WebPDFViewer(file, mainGUI, project);
-                    mainGUI.getChildren().setAll(pdfViewer);
+//                    logger.info("Opening PDF file: {}", file);
+//                    WebPDFViewer pdfViewer = new WebPDFViewer(file, mainGUI, project);
+//                    mainGUI.getChildren().setAll(pdfViewer);
                 }
             }
         });
