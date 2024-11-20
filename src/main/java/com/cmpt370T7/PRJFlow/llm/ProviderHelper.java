@@ -67,8 +67,10 @@ public class ProviderHelper {
                 return;
             }
             dialog.close();
-            openLocalAiSetup().thenRun(() -> {
+            openLocalAiSetup(dialog).thenRun(() -> {
                 showSuccessDialog();
+                AppDataManager.getInstance().getConfigManager()
+                        .setLlmProviderConfig(ConfigManager.LlmProviderConfig.createOllamaProvider());
                 setupComplete.complete(null);
             });
         });
@@ -100,13 +102,13 @@ public class ProviderHelper {
      *
      * @return a CompletableFuture that completes when the setup is done
      */
-    private CompletableFuture<Void> openLocalAiSetup() {
+    private CompletableFuture<Void> openLocalAiSetup(Stage dialog) {
         CompletableFuture<Void> complete = new CompletableFuture<>();
         Stage localAiStage = new Stage();
         localAiStage.initModality(Modality.APPLICATION_MODAL);
         localAiStage.setTitle("Local AI Setup");
 
-        OllamaDownloader ollamaDownloader = new OllamaDownloader(complete);
+        OllamaDownloader ollamaDownloader = new OllamaDownloader(complete, dialog);
 
         StackPane layout = new StackPane();
         layout.getChildren().addAll(
