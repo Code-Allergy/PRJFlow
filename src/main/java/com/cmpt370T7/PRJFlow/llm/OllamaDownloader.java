@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,12 +26,15 @@ public class OllamaDownloader extends VBox {
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar;
 
+    CompletableFuture<Void> completed;
+
     /**
      * Constructor for OllamaDownloader.
      * Initializes the progress bar and starts the download process.
      */
-    public OllamaDownloader() {
-        progressBar = new ProgressBar(0);
+    public OllamaDownloader(CompletableFuture<Void> completed) {
+        this.progressBar = new ProgressBar(0);
+        this.completed = completed;
         getChildren().addAll(progressLabel, progressBar);
         downloadFile();
     }
@@ -74,6 +78,7 @@ public class OllamaDownloader extends VBox {
             logger.info("Download complete");
             this.progressLabel.setText("Download complete! Exit to continue.");
             this.getChildren().remove(progressBar);
+            this.completed.complete(null);
         });
         task.setOnFailed(e -> {
             progressBar.progressProperty().unbind();
@@ -154,7 +159,7 @@ public class OllamaDownloader extends VBox {
         try {
             new ProcessBuilder("cmd", "/c", "del", installerPath).start();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug("Failed to remove installer: {}", e.getMessage());
         }
     }
 }
