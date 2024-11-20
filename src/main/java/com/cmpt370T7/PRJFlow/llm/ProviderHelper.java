@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 // TODO feel free to refactor this class.
 public class ProviderHelper {
     private static final Logger logger = LoggerFactory.getLogger(ProviderHelper.class);
-    private Stage primaryStage;
+    private final Stage primaryStage;
 
     public ProviderHelper(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -278,4 +278,6 @@ public class ProviderHelper {
         dialog.setScene(scene);
         dialog.showAndWait();
     }
+
+    // TODO failure dialog, or show AlertHelper.showError
 }
