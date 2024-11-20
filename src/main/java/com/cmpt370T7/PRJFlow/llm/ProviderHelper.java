@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,16 +22,28 @@ import java.awt.*;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
-// UI Helper class for setting the user up with the provider
-// TODO feel free to refactor this class.
+/**
+ * UI Helper class for setting the user up with the provider.
+ * TODO feel free to refactor this class
+ */
 public class ProviderHelper {
     private static final Logger logger = LoggerFactory.getLogger(ProviderHelper.class);
     private final Stage primaryStage;
 
+    /**
+     * Constructor for ProviderHelper.
+     *
+     * @param primaryStage the primary stage of the application, used to spawn modal dialogs
+     */
     public ProviderHelper(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
 
+    /**
+     * Shows the provider selection dialog.
+     *
+     * @return a CompletableFuture that completes when the setup is done
+     */
     public CompletableFuture<Void> showProviderSelectionDialog() {
         CompletableFuture<Void> setupComplete = new CompletableFuture<>();
 
@@ -82,6 +95,11 @@ public class ProviderHelper {
         return setupComplete;
     }
 
+    /**
+     * Opens the local AI setup dialog.
+     *
+     * @return a CompletableFuture that completes when the setup is done
+     */
     private CompletableFuture<Void> openLocalAiSetup() {
         CompletableFuture<Void> complete = new CompletableFuture<>();
         Stage localAiStage = new Stage();
@@ -90,7 +108,7 @@ public class ProviderHelper {
 
         OllamaDownloader ollamaDownloader = new OllamaDownloader();
 
-        VBox layout = new VBox(20);
+        StackPane layout = new StackPane();
         layout.getChildren().addAll(
                 ollamaDownloader
         );
@@ -104,6 +122,11 @@ public class ProviderHelper {
         return complete;
     }
 
+    /**
+     * Opens the web UI setup dialog.
+     *
+     * @return a CompletableFuture that completes when the setup is done
+     */
     private CompletableFuture<Void> openWebUiSetup() {
         CompletableFuture<Void> complete = new CompletableFuture<>();
         Stage webUiStage = new Stage();
@@ -255,6 +278,9 @@ public class ProviderHelper {
         return complete;
     }
 
+    /**
+     * Shows a success dialog indicating the setup is complete.
+     */
     private void showSuccessDialog() {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
