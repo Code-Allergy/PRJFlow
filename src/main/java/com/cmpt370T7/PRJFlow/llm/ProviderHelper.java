@@ -92,7 +92,6 @@ public class ProviderHelper {
 
         VBox layout = new VBox(20);
         layout.getChildren().addAll(
-                new Label("Downloading and Installing Ollama"),
                 ollamaDownloader
         );
         layout.setAlignment(Pos.CENTER);

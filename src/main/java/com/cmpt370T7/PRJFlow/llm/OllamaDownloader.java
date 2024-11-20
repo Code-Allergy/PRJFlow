@@ -1,30 +1,36 @@
 package com.cmpt370T7.PRJFlow.llm;
 
 import javafx.concurrent.Task;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is responsible for downloading the Ollama installer and running it.
  */
-public class OllamaDownloader extends StackPane {
+public class OllamaDownloader extends VBox {
+    private static final Logger logger = LoggerFactory.getLogger(OllamaDownloader.class);
+
     private final String url = "https://ollama.com/download/OllamaSetup.exe";
     private final String installerPath = "./OllamaSetup.exe";
+    private final Label progressLabel = new Label();
     private final ProgressBar progressBar;
 
     public OllamaDownloader() {
         progressBar = new ProgressBar(0);
-        getChildren().add(progressBar);
+        getChildren().addAll(progressLabel, progressBar);
         downloadFile(installerPath);
     }
 
     private void downloadFile(String destination) {
+        this.progressLabel.setText("Downloading Installer...");
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws IOException {
@@ -45,6 +51,7 @@ public class OllamaDownloader extends StackPane {
                     }
                 }
                 runInstaller();
+                downloadModel();
                 return null;
             }
         };
@@ -53,19 +60,75 @@ public class OllamaDownloader extends StackPane {
         new Thread(task).start();
     }
 
+    private void downloadModel() {
+        logger.debug("Downloading model...");
+        this.progressLabel.setText("Downloading model...");
+        // could reset the progress bar here, but don't know how to get the status of our pull..
+        OllamaProvider.pullModel(OllamaProvider.getOllamaDefaultModel());
+    }
+
+//    private void runInstaller() {
+//        this.progressLabel.setText("Running installer...");
+//        logger.debug("Running installer...");
+//        try {
+//            Process installerProcess = new ProcessBuilder(installerPath).start();
+//            installerProcess.waitFor();
+//            removeInstaller();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
     private void runInstaller() {
+        this.progressLabel.setText("Running installer...");
         try {
-            Process installerProcess = new ProcessBuilder(installerPath).start();
-            installerProcess.waitFor();
+            // Start the installer with elevated privileges if needed
+            ProcessBuilder processBuilder = new ProcessBuilder(installerPath);
+            processBuilder.redirectErrorStream(true); // Merge stderr into stdout
+            Process installerProcess = processBuilder.start();
+
+            // Read the output stream to prevent potential deadlock
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(installerProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    logger.info("Installer output: {}", line);
+                }
+            }
+
+            // Wait for the process with a timeout
+            if (!installerProcess.waitFor(5, TimeUnit.MINUTES)) {
+                logger.error("Installer process timed out");
+                installerProcess.destroyForcibly();
+                throw new RuntimeException("Installer timed out");
+            }
+
+            // Check exit code
+            int exitCode = installerProcess.exitValue();
+            if (exitCode != 0) {
+                logger.error("Installer failed with exit code: {}", exitCode);
+                throw new RuntimeException("Installer failed with exit code: " + exitCode);
+            }
+
+            // Add a small delay to ensure file handles are released
+            Thread.sleep(2000);
+
             removeInstaller();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IO error during installation", e);
+            throw new RuntimeException("Installation failed", e);
         } catch (InterruptedException e) {
+            logger.error("Installation was interrupted", e);
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
 
     private void removeInstaller() {
+        logger.debug("Removing installer...");
+        this.progressLabel.setText("Removing installer...");
         try {
             new ProcessBuilder("cmd", "/c", "del", installerPath).start();
         } catch (IOException e) {

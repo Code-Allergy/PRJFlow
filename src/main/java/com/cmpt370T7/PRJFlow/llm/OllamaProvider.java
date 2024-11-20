@@ -29,14 +29,13 @@ import java.util.stream.StreamSupport;
 public class OllamaProvider implements LlmProvider {
     private static final Logger logger = LoggerFactory.getLogger(OllamaProvider.class);
 
+    private static final String OLLAMA_DEFAULT_MODEL = "mistral";
     private static final String OLLAMA_INSTALL_URL = "https://ollama.com/download";
     private static final String provider_baseurl = "http://localhost:11434";
     private static final String provider = "Ollama";
     private static final String provider_endpoint = provider_baseurl + "/api/generate";
 
-    /// Default model
-    private String model = "mistral";
-
+    private String model;
     /**
      * Initializes a new OllamaProvider instance.
      * Verifies that Ollama is installed and running, and initializes the default model.
@@ -69,7 +68,7 @@ public class OllamaProvider implements LlmProvider {
         }
 
         // use the default model if its available, otherwise use the first model
-        model = models.contains(model) ? model : models.getFirst();
+        model = models.contains(OLLAMA_DEFAULT_MODEL) ? OLLAMA_DEFAULT_MODEL : models.getFirst();
     }
 
     @Override
@@ -139,7 +138,7 @@ public class OllamaProvider implements LlmProvider {
 
     @Override
     public boolean isAvailable() {
-        return isOllamaInstalled() && isOllamaRunning();
+        return isOllamaInstalled() && isOllamaRunning() && model != null;
     }
 
     /**
@@ -189,6 +188,14 @@ public class OllamaProvider implements LlmProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static String getOllamaDefaultModel() {
+        return OLLAMA_DEFAULT_MODEL;
+    }
+
+    public static void pullModel(String model) {
+        executeCommand("ollama pull " + model);
     }
 
     /**
