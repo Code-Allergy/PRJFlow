@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class is responsible for downloading the Ollama installer and running it.
+ * It extends VBox to provide a UI component that shows the download progress.
  */
 public class OllamaDownloader extends VBox {
     private static final Logger logger = LoggerFactory.getLogger(OllamaDownloader.class);
@@ -24,13 +25,23 @@ public class OllamaDownloader extends VBox {
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar;
 
+    /**
+     * Constructor for OllamaDownloader.
+     * Initializes the progress bar and starts the download process.
+     */
     public OllamaDownloader() {
         progressBar = new ProgressBar(0);
         getChildren().addAll(progressLabel, progressBar);
-        downloadFile(installerPath);
+        downloadFile();
     }
 
-    private void downloadFile(String destination) {
+
+    /**
+     * Downloads the installer file from the specified URL.
+     * Updates the progress bar and label during the download.
+     * Runs the installer and downloads models after the download is complete.
+     */
+    private void downloadFile() {
         Platform.runLater(() -> this.progressLabel.setText("Downloading installer..."));
         Task<Void> task = new Task<>() {
             @Override
@@ -39,7 +50,7 @@ public class OllamaDownloader extends VBox {
                 int totalSize = httpConnection.getContentLength();
 
                 try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-                     FileOutputStream fileOutputStream = new FileOutputStream(destination)) {
+                     FileOutputStream fileOutputStream = new FileOutputStream(installerPath)) {
 
                     byte[] dataBuffer = new byte[1024];
                     int bytesRead;
@@ -71,6 +82,10 @@ public class OllamaDownloader extends VBox {
         });
     }
 
+    /**
+     * Downloads the model required for the Ollama provider.
+     * TODO Updates the progress label during the download.
+     */
     private void downloadModel() {
         Platform.runLater(() -> this.progressLabel.setText("Downloading model..."));
         logger.debug("Downloading model...");
@@ -78,20 +93,10 @@ public class OllamaDownloader extends VBox {
         OllamaProvider.pullModel(OllamaProvider.getOllamaDefaultModel());
     }
 
-//    private void runInstaller() {
-//        this.progressLabel.setText("Running installer...");
-//        logger.debug("Running installer...");
-//        try {
-//            Process installerProcess = new ProcessBuilder(installerPath).start();
-//            installerProcess.waitFor();
-//            removeInstaller();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
+    /**
+     * Runs the downloaded installer.
+     * Removes the installer file after installation.
+     */
     private void runInstaller() {
         Platform.runLater(() -> this.progressLabel.setText("Running installer..."));
         try {
@@ -137,6 +142,12 @@ public class OllamaDownloader extends VBox {
         }
     }
 
+    /**
+     * Removes the installer file after installation.
+     * Updates the progress label during the removal process.
+     * TODO appears to be non-functional, and fail silently. Look into this if time permits, if we can't get this working maybe we should store in ~/AppData/Local/Temp
+     *
+     */
     private void removeInstaller() {
         logger.debug("Removing installer...");
         Platform.runLater(() -> this.progressLabel.setText("Removing installer..."));
