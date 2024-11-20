@@ -251,7 +251,7 @@ public class OllamaProvider implements LlmProvider {
                         new InputStreamReader(process.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        logger.info("Command output: {}", line);
+//                        logger.info("Command output: {}", line);
                         if (outputHandler != null) {
                             outputHandler.accept(line);
                         }
