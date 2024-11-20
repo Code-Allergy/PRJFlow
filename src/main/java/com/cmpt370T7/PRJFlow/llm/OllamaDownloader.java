@@ -1,5 +1,6 @@
 package com.cmpt370T7.PRJFlow.llm;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -30,7 +31,7 @@ public class OllamaDownloader extends VBox {
     }
 
     private void downloadFile(String destination) {
-        this.progressLabel.setText("Downloading Installer...");
+        Platform.runLater(() -> this.progressLabel.setText("Downloading installer..."));
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws IOException {
@@ -61,8 +62,8 @@ public class OllamaDownloader extends VBox {
     }
 
     private void downloadModel() {
+        Platform.runLater(() -> this.progressLabel.setText("Downloading model..."));
         logger.debug("Downloading model...");
-        this.progressLabel.setText("Downloading model...");
         // could reset the progress bar here, but don't know how to get the status of our pull..
         OllamaProvider.pullModel(OllamaProvider.getOllamaDefaultModel());
     }
@@ -82,7 +83,7 @@ public class OllamaDownloader extends VBox {
 //    }
 
     private void runInstaller() {
-        this.progressLabel.setText("Running installer...");
+        Platform.runLater(() -> this.progressLabel.setText("Running installer..."));
         try {
             // Start the installer with elevated privileges if needed
             ProcessBuilder processBuilder = new ProcessBuilder(installerPath);
@@ -128,7 +129,7 @@ public class OllamaDownloader extends VBox {
 
     private void removeInstaller() {
         logger.debug("Removing installer...");
-        this.progressLabel.setText("Removing installer...");
+        Platform.runLater(() -> this.progressLabel.setText("Removing installer..."));
         try {
             new ProcessBuilder("cmd", "/c", "del", installerPath).start();
         } catch (IOException e) {
