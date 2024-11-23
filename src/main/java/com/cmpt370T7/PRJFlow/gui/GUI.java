@@ -42,6 +42,7 @@ public class GUI extends BorderPane {
     private javafx.scene.Node prevRightChild;
 
     private FileActionsBox fileActionsBox;
+    private RecentProjects recentProjects;
 
     public GUI() {
         this.setStyle("-fx-background-color: #f0f0f0");
@@ -65,7 +66,7 @@ public class GUI extends BorderPane {
         // Set padding for the entire BorderPane
         this.setPadding(new Insets(10));
         // Left pane: Project list
-        leftPane = createLeftPane();
+        leftPane = createRecentProjectsPane();
         // Right pane: Calendar and reminders
         rightPane = createRightPane();
         // Center pane: Recent projects and new project button
@@ -76,30 +77,13 @@ public class GUI extends BorderPane {
         this.setCenter(centerPane);
     }
 
-    private VBox createLeftPane() {
-        leftPane = new VBox(10);
-        leftPane.setPadding(new Insets(10));
-        leftPane.setStyle("-fx-background-color: #f0f0f0;");
+    private VBox createRecentProjectsPane() {
+        recentProjects = new RecentProjects(projects);
+        recentProjects.setOnProjectSelected(this::projectSelection);
+        recentProjects.setOnNewProject(this::createNewProject);
+        recentProjects.setOnDeleteProject(this::deleteProject);
 
-        Label projectsLabel = new Label("Projects");
-        projectsListView = new ListView<>();
-        updateProjectsListView();
-
-        // Handle project selection
-        projectsListView.setOnMouseClicked(event -> {
-            setSelectedProject(projectsListView.getSelectionModel().getSelectedItem());
-            projectSelection();
-        });
-
-        Button newProjectButton = new Button("New Project");
-        // Set action for new project button to create a new project
-        newProjectButton.setOnAction(e -> createNewProject());
-
-        Button deleteProjectButton = new Button("Delete Project");
-        deleteProjectButton.setOnAction(e -> deleteProject());
-
-        leftPane.getChildren().addAll(projectsLabel, projectsListView, newProjectButton, deleteProjectButton);
-        return leftPane;
+        return recentProjects;
     }
 
     private VBox createCenterPane() {
@@ -303,32 +287,12 @@ public class GUI extends BorderPane {
             selectedFileText.setText("No File Selected");
         }
     }
+
     private void updateProjectsListView() {
-        projectsListView.getItems().setAll(projects);
+        recentProjects.getProjectsListView().getItems().setAll(projects);
     }
 
-    private void export() {
-        if (selectedProject == null) {
-            return;
-        }
-        if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
-            TextInputDialog exportDialog = new TextInputDialog();
-            exportDialog.setTitle("Export");
-            exportDialog.setHeaderText("Output file");
-            exportDialog.setContentText("Enter the name of the output file:");
 
-            Optional<String> result = exportDialog.showAndWait();
-            result.ifPresent(exportFileName -> {
-                if (!exportFileName.trim().isEmpty()) {
-                    String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
-                    String returnedPrompt = PopulateCsv.promptFromData(parsedData);
-                    // TODO EXPORT PATH
-                    String exportPath = "sample-files/TestFiles/" + exportFileName;
-                    PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
-                }
-            });
-        }
-    }
 
     private String getFileExtension(File file) {
         return getFileExtension(file.toString());
@@ -358,12 +322,47 @@ public class GUI extends BorderPane {
     }
 
     private void projectSelection() {
+        setSelectedProject(recentProjects.getSelectedProject());
         if (selectedProject != null) {
             selectedProjectText.setText(selectedProject.getName());
         } else {
             selectedProjectText.setText("No Project Selected");
         }
         createFilesPane();
+    }
+
+    private void setSelectedFile(File file) {
+        this.selectedFile = file;
+        fileActionsBox.hasSelectedFilesProperty().set(file != null);
+    }
+
+    private void setSelectedProject(Project project) {
+        this.selectedProject = project;
+        fileActionsBox.hasSelectedProjectProperty().set(project != null);
+    }
+
+    /* LLM Bullshit */
+    private void export() {
+        if (selectedProject == null) {
+            return;
+        }
+        if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
+            TextInputDialog exportDialog = new TextInputDialog();
+            exportDialog.setTitle("Export");
+            exportDialog.setHeaderText("Output file");
+            exportDialog.setContentText("Enter the name of the output file:");
+
+            Optional<String> result = exportDialog.showAndWait();
+            result.ifPresent(exportFileName -> {
+                if (!exportFileName.trim().isEmpty()) {
+                    String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
+                    String returnedPrompt = PopulateCsv.promptFromData(parsedData);
+                    // TODO EXPORT PATH
+                    String exportPath = "sample-files/TestFiles/" + exportFileName;
+                    PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
+                }
+            });
+        }
     }
 
     private void summarize() {
@@ -384,16 +383,4 @@ public class GUI extends BorderPane {
             });
         }
     }
-
-    private void setSelectedFile(File file) {
-        this.selectedFile = file;
-        fileActionsBox.hasSelectedFilesProperty().set(file != null);
-    }
-
-    private void setSelectedProject(Project project) {
-        this.selectedProject = project;
-        fileActionsBox.hasSelectedProjectProperty().set(project != null);
-    }
-
-
 }
