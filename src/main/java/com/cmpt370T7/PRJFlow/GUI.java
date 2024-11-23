@@ -40,7 +40,8 @@ public class GUI extends BorderPane {
     private javafx.scene.Node prevRightChild;
 
     public GUI() {
-        this.setStyle("-fx-background-color: #f0f0f0");
+        this.setStyle("-fx-background-color: #825B32");
+        this.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         this.projects = AppDataManager.getInstance().getConfigManager().getRecentProjects();
         if (projects == null) {
             projects = new ArrayList<>();
@@ -70,12 +71,16 @@ public class GUI extends BorderPane {
         this.setLeft(leftPane);
         this.setRight(rightPane);
         this.setCenter(centerPane);
+
+        BorderPane.setMargin(leftPane, new Insets(0, 5, 0, 0));   // Gap between left and center
+        BorderPane.setMargin(centerPane, new Insets(0, 5, 0, 5)); // Gaps on both sides of center
+        BorderPane.setMargin(rightPane, new Insets(0, 0, 0, 5)); // Gap between center and right
     }
 
     private VBox createLeftPane() {
         leftPane = new VBox(10);
         leftPane.setPadding(new Insets(10));
-        leftPane.setStyle("-fx-background-color: #f0f0f0;");
+        leftPane.setStyle("-fx-background-color: #E5E1DA;");
 
         Label projectsLabel = new Label("Projects");
         projectsListView = new ListView<>();
@@ -88,11 +93,13 @@ public class GUI extends BorderPane {
         });
 
         Button newProjectButton = new Button("New Project");
-        // Set action for new project button to create a new project
         newProjectButton.setOnAction(e -> createNewProject());
+        newProjectButton.getStyleClass().add("accent-button");
 
         Button deleteProjectButton = new Button("Delete Project");
         deleteProjectButton.setOnAction(e -> deleteProject());
+        deleteProjectButton.getStyleClass().add("accent-button");
+
 
         leftPane.getChildren().addAll(projectsLabel, projectsListView, newProjectButton, deleteProjectButton);
         return leftPane;
@@ -101,7 +108,7 @@ public class GUI extends BorderPane {
     private VBox createCenterPane() {
         centerPane = new VBox(10);
         centerPane.setPadding(new Insets(10));
-        centerPane.setStyle("-fx-background-color: #f0f0f0;");
+        centerPane.setStyle("-fx-background-color: #E5E1DA;");
 
         HBox curInfoBox = new HBox(10);
         curInfoBox.getChildren().addAll(selectedProjectText, selectedFileText);
@@ -116,7 +123,7 @@ public class GUI extends BorderPane {
     private VBox createRightPane() {
         rightPane = new VBox(10);
         rightPane.setPadding(new Insets(10));
-        rightPane.setStyle("-fx-background-color: #f0f0f0;");
+        rightPane.setStyle("-fx-background-color: #E5E1DA;");
         rightPane.getChildren().addAll(calendar);
         return rightPane;
     }
@@ -129,7 +136,7 @@ public class GUI extends BorderPane {
 
     private void createFilesPane() {
         this.filesPane.getChildren().clear();
-        filesPane.setStyle("-fx-background-color: #ffffff;");
+        filesPane.setStyle("-fx-background-color: #F1F0E8;");
         filesPane.setPadding(new Insets(10));
         filesPane.setHgap(5);
         filesPane.setVgap(5);
@@ -152,19 +159,29 @@ public class GUI extends BorderPane {
 
         Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
         addFileButton.setOnAction(e -> addFile());
+        addFileButton.getStyleClass().add("accent-button");
+
         Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
         removeFileButton.setOnAction(e -> removeFile());
+        removeFileButton.getStyleClass().add("accent-button");
+
         Button exportButton = new Button("Export", new FontIcon("mdi-export"));
         exportButton.setOnAction(e -> export());
+        exportButton.getStyleClass().add("accent-button");
+
         Button summarizeButton = new Button("Summarize", new FontIcon("mdi-creation"));
         summarizeButton.setOnAction(e -> summarize());
+        summarizeButton.getStyleClass().add("accent-button");
+
         Button addDeadlineButton = new Button("Add Deadline", new FontIcon("mdi-calendar-plus"));
         addDeadlineButton.setOnAction(e -> addDeadline());
+        addDeadlineButton.getStyleClass().add("accent-button");
 
         fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton, addDeadlineButton);
 
         return fileActionsBox;
     }
+
 
     private void createNewProject() {
         // Prompt the user for a project name
@@ -238,6 +255,8 @@ public class GUI extends BorderPane {
         FontIcon fileIcon = new FontIcon();
 
         fileButton.setFont(Font.font("Courier",  11));
+        fileButton.getStyleClass().add("file-button");
+
 
         // Determine file extension
         String extension = getFileExtension(file);
