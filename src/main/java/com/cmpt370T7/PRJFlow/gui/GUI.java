@@ -29,7 +29,7 @@ public class GUI extends BorderPane {
     private List<Project> projects;
     private final Map<LocalDate, List<String>> remindersMap;
     private ListView<Project> projectsListView;
-    private FlowPane filesPane;
+    private ProjectFilesPane filesPane;
     private Project selectedProject;
     private Text selectedProjectText;
     private File selectedFile; // selected file
@@ -54,13 +54,13 @@ public class GUI extends BorderPane {
 
         this.selectedProject = null;
         this.selectedFile = null;
-        this.filesPane = new FlowPane();
         this.calendar = new CustomCalendar(remindersMap);
         this.prevRightChild = calendar;
         this.selectedProjectText = new Text("No Project Selected");
         selectedProjectText.setFont(new Font(20));
         this.selectedFileText = new Text("No File Selected");
         selectedFileText.setFont(new Font(20));
+        this.filesPane = new ProjectFilesPane();
 
 
         // Set padding for the entire BorderPane
@@ -116,22 +116,14 @@ public class GUI extends BorderPane {
     }
 
     private void createFilesPane() {
+        List<File> projectFiles = selectedProject != null ? selectedProject.getInputFiles() : new ArrayList<>();
+        logger.debug("Creating files pane for project: {}", selectedProject);
         this.filesPane.getChildren().clear();
-        filesPane.setStyle("-fx-background-color: #ffffff;");
-        filesPane.setPadding(new Insets(10));
-        filesPane.setHgap(5);
-        filesPane.setVgap(5);
-
-        if (selectedProject != null) {
-            logger.info("Loading files for project: {}", selectedProject.getName());
-            for (File f : selectedProject.getInputFiles()) {
-                if (f.getName().equals("prjflowconfig.toml")) { continue; }
-                logger.debug("Loaded file: {}", f.getName());
-                Button newButton = createFileButton(f);
-                filesPane.getChildren().add(newButton);
-            }
+        for (File file : projectFiles) {
+            if (file.getName().equals("prjflowconfig.toml")) { continue; }
+            ProjectFileButton newButton = createFileButton(file);
+            this.filesPane.getChildren().add(newButton);
         }
-
     }
 
     private FileActionsBox createFileActionsBox() {
@@ -211,45 +203,24 @@ public class GUI extends BorderPane {
         }
     }
 
-    private Button createFileButton(File file) {
-        Button fileButton = new Button();
-        FontIcon fileIcon = new FontIcon();
-
-        fileButton.setFont(Font.font("Courier",  11));
-
-        // Determine file extension
-        String extension = getFileExtension(file);
-        switch (extension) {
-            case "pdf" -> fileIcon.setIconLiteral("mdi-file-pdf");
-            case "xlsx", "csv" -> fileIcon.setIconLiteral("mdi-file-excel");
-            case "png", "jpg" -> fileIcon.setIconLiteral("mdi-file-image");
-            default -> fileIcon.setIconLiteral("mdi-file");
-        }
-        fileIcon.setIconSize(30);
-
-        // File name cut off if past 20 characters
-        if (file.getName().length() > 20) {
-            fileButton.setText(file.getName().substring(0, (20 - extension.length() - 3)) + "..." + extension);
-        } else {
-            fileButton.setText(file.getName());
-        }
-
-        fileButton.setContentDisplay(ContentDisplay.TOP);
-        fileButton.setGraphic(fileIcon);
-        fileButton.setId(file.getName());
+    private ProjectFileButton createFileButton(File file) {
+        ProjectFileButton fileButton = new ProjectFileButton(file);
 
         fileButton.setOnMouseClicked(e -> {
+            logger.debug("File button clicked: {}", fileButton.getId());
             if (e.getButton().equals(MouseButton.PRIMARY) && selectedProject != null) {
                 if (e.getClickCount() == 1) {
                     setSelectedFile(selectedProject.getFile(fileButton.getId()));
-                    selectedFileText.setText(selectedFile.getName());
+
                 } else if (e.getClickCount() == 2 && getFileExtension(selectedFile.getName()).equals("pdf")) {
                     WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
-                    //this.setRight(pdfViewer);
                     this.rightPane.getChildren().setAll(pdfViewer);
                 }
             }
         });
+
+        logger.debug("File button created: {}", fileButton.getId());
+
         return fileButton;
     }
 
@@ -292,12 +263,6 @@ public class GUI extends BorderPane {
         recentProjects.getProjectsListView().getItems().setAll(projects);
     }
 
-
-
-    private String getFileExtension(File file) {
-        return getFileExtension(file.toString());
-    }
-
     private String getFileExtension(String fileName) {
         String extension = "";
         int i = fileName.lastIndexOf('.');
@@ -333,12 +298,14 @@ public class GUI extends BorderPane {
 
     private void setSelectedFile(File file) {
         this.selectedFile = file;
+
         fileActionsBox.hasSelectedFilesProperty().set(file != null);
+        selectedFileText.setText(selectedFile.getName());
     }
 
     private void setSelectedProject(Project project) {
         this.selectedProject = project;
-        fileActionsBox.hasSelectedProjectProperty().set(project != null);
+        this.fileActionsBox.hasSelectedProjectProperty().set(project != null);
     }
 
     /* LLM Bullshit */
