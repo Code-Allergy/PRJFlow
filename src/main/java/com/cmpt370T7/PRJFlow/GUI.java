@@ -1,14 +1,12 @@
 package com.cmpt370T7.PRJFlow;
 
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
+import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -160,8 +158,11 @@ public class GUI extends BorderPane {
         exportButton.setOnAction(e -> export());
         Button summarizeButton = new Button("Summarize", new FontIcon("mdi-creation"));
         summarizeButton.setOnAction(e -> summarize());
+        Button addDeadlineButton = new Button("Add Deadline", new FontIcon("mdi-calendar-plus"));
+        addDeadlineButton.setOnAction(e -> addDeadline());
 
-        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton);
+        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton, addDeadlineButton);
+
         return fileActionsBox;
     }
 
@@ -370,6 +371,68 @@ public class GUI extends BorderPane {
         }
         createFilesPane();
     }
+
+    private void addDeadline() {
+        if (selectedProject == null) {
+            AlertHelper.showWarning("No Project Selected", "Please select a project before adding a deadline.");
+            return;
+        }
+        if (selectedFile == null) {
+            AlertHelper.showWarning("No File Selected", "Please select a file before adding a deadline.");
+            return;
+        }
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Add Deadline");
+        dialog.setHeaderText("Select Deadline Date and Enter Reminder");
+
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField reminderField = new TextField();
+        reminderField.setPromptText("Reminder");
+
+        grid.add(new Label("Date:"), 0, 0);
+        grid.add(datePicker, 1, 0);
+        grid.add(new Label("Reminder:"), 0, 1);
+        grid.add(reminderField, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == addButtonType) {
+            LocalDate selectedDate = datePicker.getValue();
+            String reminderText = reminderField.getText();
+
+            if (reminderText.trim().isEmpty()) {
+                AlertHelper.showWarning("Invalid Reminder", "Reminder text cannot be empty.");
+                return;
+            }
+
+            // current style project, file then reminder
+            String formattedReminder = String.format("Project: %s\nFile: %s\n%s",
+                    selectedProject.getName(), selectedFile.getName(), reminderText);
+
+
+            remindersMap.computeIfAbsent(selectedDate, k -> new ArrayList<>()).add(formattedReminder);
+            AppDataManager.getInstance().getConfigManager().setReminderMap(remindersMap);
+
+
+            calendar.updateCalendar();
+            calendar.updateReminders();
+
+            logger.info("Added deadline for {}: {}", selectedDate, formattedReminder);
+        }
+    }
+
 
     private void summarize() {
         if (selectedProject == null) {
