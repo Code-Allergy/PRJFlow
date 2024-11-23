@@ -6,7 +6,7 @@
     <module name="PRJFlow" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.cmpt370T7.PRJFlow.*" />
+        <option name="PATTERN" value="com.cmpt370T7.PRJFlow.gui.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

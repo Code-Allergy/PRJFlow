@@ -1,5 +1,6 @@
-package com.cmpt370T7.PRJFlow;
+package com.cmpt370T7.PRJFlow.gui;
 
+import com.cmpt370T7.PRJFlow.*;
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

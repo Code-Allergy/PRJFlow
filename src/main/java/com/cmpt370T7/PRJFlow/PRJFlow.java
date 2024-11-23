@@ -2,6 +2,7 @@ package com.cmpt370T7.PRJFlow;
 
 import java.io.IOException;
 
+import com.cmpt370T7.PRJFlow.gui.GUI;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
