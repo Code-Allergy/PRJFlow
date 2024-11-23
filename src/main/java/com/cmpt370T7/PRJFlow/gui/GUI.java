@@ -24,9 +24,8 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class GUI extends BorderPane {
-
-    // TODO FIX LOGGER
     private final Logger logger = LoggerFactory.getLogger(GUI.class);
+
     private List<Project> projects;
     private final Map<LocalDate, List<String>> remindersMap;
     private ListView<Project> projectsListView;
@@ -41,6 +40,8 @@ public class GUI extends BorderPane {
     private VBox leftPane, centerPane, rightPane;
 
     private javafx.scene.Node prevRightChild;
+
+    private FileActionsBox fileActionsBox;
 
     public GUI() {
         this.setStyle("-fx-background-color: #f0f0f0");
@@ -86,7 +87,7 @@ public class GUI extends BorderPane {
 
         // Handle project selection
         projectsListView.setOnMouseClicked(event -> {
-            selectedProject = projectsListView.getSelectionModel().getSelectedItem();
+            setSelectedProject(projectsListView.getSelectionModel().getSelectedItem());
             projectSelection();
         });
 
@@ -108,7 +109,7 @@ public class GUI extends BorderPane {
 
         HBox curInfoBox = new HBox(10);
         curInfoBox.getChildren().addAll(selectedProjectText, selectedFileText);
-        HBox fileActionsBox = createFileActionsBox();
+        fileActionsBox = createFileActionsBox();
         createFilesPane();
 
         centerPane.getChildren().addAll(curInfoBox, fileActionsBox, filesPane);
@@ -149,20 +150,13 @@ public class GUI extends BorderPane {
 
     }
 
-    private HBox createFileActionsBox() {
-        HBox fileActionsBox = new HBox();
-        fileActionsBox.setAlignment(Pos.CENTER_LEFT);
+    private FileActionsBox createFileActionsBox() {
+        FileActionsBox fileActionsBox = new FileActionsBox();
+        fileActionsBox.setAddFileButtonAction(this::addFile);
+        fileActionsBox.setRemoveFileButtonAction(this::removeFile);
+        fileActionsBox.setExportButtonAction(this::export);
+        fileActionsBox.setSummarizeButtonAction(this::summarize);
 
-        Button addFileButton = new Button("Add file", new FontIcon("mdi-plus-box"));
-        addFileButton.setOnAction(e -> addFile());
-        Button removeFileButton = new Button("Remove file", new FontIcon("mdi-delete"));
-        removeFileButton.setOnAction(e -> removeFile());
-        Button exportButton = new Button("Export", new FontIcon("mdi-export"));
-        exportButton.setOnAction(e -> export());
-        Button summarizeButton = new Button("Summarize", new FontIcon("mdi-creation"));
-        summarizeButton.setOnAction(e -> summarize());
-
-        fileActionsBox.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton);
         return fileActionsBox;
     }
 
@@ -196,7 +190,7 @@ public class GUI extends BorderPane {
                         Project newProject = new Project(name.trim(), selectedFolder);
                         projects.addFirst(newProject); // Add to the top of the list
                         updateProjectsListView();
-                        selectedProject = newProject;
+                        setSelectedProject(newProject);
                         logger.info("New project created: {}", selectedProject.getName());
                         AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
                         try {
@@ -226,7 +220,7 @@ public class GUI extends BorderPane {
             deleteConfirmation.showAndWait();
             if (deleteConfirmation.getResult() == ButtonType.YES) {
                 projects.remove(selectedProject);
-                selectedProject = null;
+                setSelectedProject(null);
                 updateProjectsListView();
                 projectSelection();
             }
@@ -263,7 +257,7 @@ public class GUI extends BorderPane {
         fileButton.setOnMouseClicked(e -> {
             if (e.getButton().equals(MouseButton.PRIMARY) && selectedProject != null) {
                 if (e.getClickCount() == 1) {
-                    selectedFile = selectedProject.getFile(fileButton.getId());
+                    setSelectedFile(selectedProject.getFile(fileButton.getId()));
                     selectedFileText.setText(selectedFile.getName());
                 } else if (e.getClickCount() == 2 && getFileExtension(selectedFile.getName()).equals("pdf")) {
                     WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
@@ -305,7 +299,7 @@ public class GUI extends BorderPane {
             logger.info("Removing file from project: {}", selectedFile.getName());
             selectedProject.removeFile(selectedFile.getName());
             filesPane.getChildren().removeIf(f -> (f.getId().equals(selectedFile.getName())));
-            selectedFile = null;
+            setSelectedFile(null);
             selectedFileText.setText("No File Selected");
         }
     }
@@ -391,6 +385,15 @@ public class GUI extends BorderPane {
         }
     }
 
+    private void setSelectedFile(File file) {
+        this.selectedFile = file;
+        fileActionsBox.hasSelectedFilesProperty().set(file != null);
+    }
+
+    private void setSelectedProject(Project project) {
+        this.selectedProject = project;
+        fileActionsBox.hasSelectedProjectProperty().set(project != null);
+    }
 
 
 }
