@@ -2,19 +2,17 @@ package com.cmpt370T7.PRJFlow.gui;
 
 import com.cmpt370T7.PRJFlow.*;
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
+import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +77,7 @@ public class GUI extends BorderPane {
 
     private VBox createRecentProjectsPane() {
         recentProjects = new RecentProjects(projects);
-        recentProjects.setOnProjectSelected(this::projectSelection);
+        recentProjects.setOnProjectSelected(() -> this.projectSelection(this.recentProjects.getSelectedProject()));
         recentProjects.setOnNewProject(this::createNewProject);
         recentProjects.setOnDeleteProject(this::deleteProject);
 
@@ -149,56 +147,50 @@ public class GUI extends BorderPane {
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
-            if (!name.trim().isEmpty()) {
-                boolean duplicateProject = false;
-                for (Project p : projects) {
-                    if (p.getName().equals(name)) {
-                        duplicateProject = true;
-                        break;
-                    }
-                }
-                if (!duplicateProject) {
-                    DirectoryChooser dc = new DirectoryChooser();
-                    dc.setTitle("Choose the project directory");
+            if (name.trim().isEmpty()) {
+                AlertHelper.showError("Invalid Name", "Project name cannot be empty.");
+                return;
+            }
 
-                    File selectedFolder =  dc.showDialog(this.getScene().getWindow());
-                    if (selectedFolder != null) {
-                        Project newProject = new Project(name.trim(), selectedFolder);
-                        projects.addFirst(newProject); // Add to the top of the list
-                        updateProjectsListView();
-                        setSelectedProject(newProject);
-                        logger.info("New project created: {}", selectedProject.getName());
-                        AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
-                        try {
-                            ProjectManager.saveProject(newProject, selectedFolder);
-                        } catch (IOException e) {
-                            // TODO handle error on project config file creation
-                            throw new RuntimeException(e);
-                        }
+            // Check if the project is a duplicate
+            if (projects.stream().anyMatch(p -> p.getName().equals(name))) {
+                AlertHelper.showError("Invalid Name", "A project with that name is already created.");
+                return;
+            }
 
-                        projectSelection();
-                    }
-                } else {
-                    alert.setContentText("A project with that name is already created.");
-                    alert.showAndWait();
+
+            DirectoryChooser dc = new DirectoryChooser();
+            dc.setTitle("Choose the project directory");
+
+            File selectedFolder =  dc.showDialog(this.getScene().getWindow());
+            if (selectedFolder != null) {
+                Project newProject = new Project(name.trim(), selectedFolder);
+                projects.addFirst(newProject); // Add to the top of the list
+                updateProjectsListView();
+
+                AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                try {
+                    ProjectManager.saveProject(newProject, selectedFolder);
+                } catch (IOException e) {
+                    // TODO handle error on project config file creation
+                    throw new RuntimeException(e);
                 }
-            } else {
-                alert.setContentText("Project name cannot be empty.");
-                alert.showAndWait();
+
+                logger.info("New project created: {}", selectedProject.getName());
+                projectSelection(newProject);
             }
         });
     }
 
     private void deleteProject() {
         if (selectedProject != null) {
-            Alert deleteConfirmation = new Alert(Alert.AlertType.CONFIRMATION, "Delete ", ButtonType.YES, ButtonType.NO);
-            deleteConfirmation.setContentText("Are you sure you want to delete the project called: " + selectedProject.getName() + "?");
-            deleteConfirmation.showAndWait();
-            if (deleteConfirmation.getResult() == ButtonType.YES) {
+            boolean userConfirmation = AlertHelper
+                    .showConfirmation("Delete Project",
+                            "Are you sure you want to delete the project called: " + selectedProject.getName() + "?");
+            if (userConfirmation) {
                 projects.remove(selectedProject);
-                setSelectedProject(null);
                 updateProjectsListView();
-                projectSelection();
+                projectSelection(null);
             }
         }
     }
@@ -223,6 +215,53 @@ public class GUI extends BorderPane {
 
         return fileButton;
     }
+
+    private void updateProjectsListView() {
+        recentProjects.getProjectsListView().getItems().setAll(projects);
+    }
+
+    private String getFileExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1);
+        }
+        return extension;
+    }
+
+    private Optional<File> openFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Add a new File");
+        // Open the file chooser dialog
+        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+
+        if (selectedFile == null) {
+            logger.info("File selection cancelled by user.");
+            return Optional.empty();
+        } else {
+            return Optional.of(selectedFile);
+        }
+    }
+
+    private void projectSelection(Project project) {
+        String projectName = project != null ? project.getName() : "No Project Selected";
+        this.selectedProjectText.setText(projectName);
+        this.selectedProject = project;
+        this.fileActionsBox.hasSelectedProjectProperty().set(project != null);
+        createFilesPane();
+    }
+
+    private void setSelectedFile(File file) {
+        String fileName = file != null ? file.getName() : "No File Selected";
+        this.selectedFile = file;
+
+        fileActionsBox.hasSelectedFilesProperty().set(file != null);
+        selectedFileText.setText(fileName);
+    }
+
+    /*
+     * File actions, try and pull these out into a separate class
+     */
 
     private void addFile() {
         if (selectedProject == null) {
@@ -257,55 +296,6 @@ public class GUI extends BorderPane {
             setSelectedFile(null);
             selectedFileText.setText("No File Selected");
         }
-    }
-
-    private void updateProjectsListView() {
-        recentProjects.getProjectsListView().getItems().setAll(projects);
-    }
-
-    private String getFileExtension(String fileName) {
-        String extension = "";
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            extension = fileName.substring(i+1);
-        }
-        return extension;
-    }
-
-    private Optional<File> openFileChooser() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Add a new File");
-        // Open the file chooser dialog
-        File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-
-        if (selectedFile == null) {
-            logger.info("File selection cancelled by user.");
-            return Optional.empty();
-        } else {
-            return Optional.of(selectedFile);
-        }
-    }
-
-    private void projectSelection() {
-        setSelectedProject(recentProjects.getSelectedProject());
-        if (selectedProject != null) {
-            selectedProjectText.setText(selectedProject.getName());
-        } else {
-            selectedProjectText.setText("No Project Selected");
-        }
-        createFilesPane();
-    }
-
-    private void setSelectedFile(File file) {
-        this.selectedFile = file;
-
-        fileActionsBox.hasSelectedFilesProperty().set(file != null);
-        selectedFileText.setText(selectedFile.getName());
-    }
-
-    private void setSelectedProject(Project project) {
-        this.selectedProject = project;
-        this.fileActionsBox.hasSelectedProjectProperty().set(project != null);
     }
 
     /* LLM Bullshit */
