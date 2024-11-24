@@ -3,9 +3,6 @@ package com.cmpt370T7.PRJFlow;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 
 import org.slf4j.Logger;
@@ -23,12 +20,11 @@ public class AppDataManager {
     /// The folder within the system appdata folder to store the configuration
     private static final String APPDATA_FOLDER = "PRJFlow";
 
-    private static Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(AppDataManager.class);
 
     /// Singleton instance of AppDataManager
     private static AppDataManager instance;
     private final ConfigManager configManager;
-    private final GlobalTermsDatabase globalTermsDatabase;
 
     private final File appDataDirectory;
     private final File tesseractDataDirectory;
@@ -36,7 +32,7 @@ public class AppDataManager {
     /**
      * Default constructor, initializes the AppDataManager with the default app name of PRJFlow.
      */
-    private AppDataManager() {
+    private AppDataManager() throws IOException {
         this(APPDATA_FOLDER);
     }
 
@@ -46,13 +42,11 @@ public class AppDataManager {
      *
      * @param appName the name of the application, used to create a directory in the app data path.
      */
-    private AppDataManager(String appName) {
-        logger = LoggerFactory.getLogger(AppDataManager.class);
+    private AppDataManager(String appName) throws IOException {
         appDataDirectory = getAppDataDirectory(appName);
         createDirectoryIfNotExists(appDataDirectory);
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         initializeTesseractData();
     }
 
@@ -61,11 +55,10 @@ public class AppDataManager {
      *
      * @param customDirectory the directory to use for application data storage.
      */
-    private AppDataManager(File customDirectory) {
+    private AppDataManager(File customDirectory) throws IOException {
         this.appDataDirectory = customDirectory;
         createDirectoryIfNotExists(appDataDirectory);
         this.configManager = new ConfigManager(getConfigFile());
-        this.globalTermsDatabase = new GlobalTermsDatabase(getDatabaseFile());
         this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         initializeTesseractData();
     }
@@ -74,7 +67,7 @@ public class AppDataManager {
      * Instantiates the default singleton instance of AppDataManager.
      * If an instance already exists, a warning is logged.
      */
-    public static void instantiate() {
+    public static void instantiate() throws IOException {
         if (instance == null) {
             instance = new AppDataManager();
         } else {
@@ -88,7 +81,7 @@ public class AppDataManager {
      *
      * @param customDirectory the directory to use for application data storage.
      */
-    public static void instantiateAt(File customDirectory) {
+    public static void instantiateAt(File customDirectory) throws IOException {
         if (instance == null) {
             instance = new AppDataManager(customDirectory);
         } else {
@@ -141,55 +134,47 @@ public class AppDataManager {
      */
     private void initializeTesseractData() {
         try {
-            URI tessDataURL = AppDataManager.class.getResource("tessdata").toURI();
-            if (tessDataURL == null) {
-                throw new IOException("Could not find tessdata resources");
-            }
-            String pathStr = Paths.get(tessDataURL).toString();
-            Path tessDataPath = Paths.get(pathStr);
-
             createDirectoryIfNotExists(tesseractDataDirectory);
 
-            // Iterate through each file in the tessdata directory
-            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tessDataPath)) {
-                for (Path sourceFile : directoryStream) {
-                    Path destFile = tesseractDataDirectory.toPath().resolve(sourceFile.getFileName().toString());
+            // List of files in `tessdata` to be extracted
+            String[] tessdataFiles = {"eng.traineddata", "osd.traineddata"};
+
+            for (String fileName : tessdataFiles) {
+                // Load each file as a stream
+                try (InputStream sourceStream = AppDataManager.class.getResourceAsStream("tessdata/" + fileName)) {
+                    if (sourceStream == null) {
+                        throw new IOException("Resource file not found: " + fileName);
+                    }
+                    Path destFile = tesseractDataDirectory.toPath().resolve(fileName);
 
                     // Only copy if the file doesn't exist or it's newer
-                    if (!Files.exists(destFile) || Files.getLastModifiedTime(sourceFile).toMillis() >
-                            Files.getLastModifiedTime(destFile).toMillis()) {
-                        try (InputStream is = Files.newInputStream(sourceFile)) {
-                            Files.copy(is, destFile, StandardCopyOption.REPLACE_EXISTING);
-                        }
+                    if (!Files.exists(destFile) || Files.getLastModifiedTime(destFile).toMillis() <
+                            System.currentTimeMillis()) {
+                        Files.copy(sourceStream, destFile, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-            logger.error("Tesseract data file could not be loaded. Exiting.");
+        } catch (IOException e) {
+            logger.error("Failed to initialize Tesseract data files.", e);
             System.exit(1);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    // TODO should pass exception up to UI, so we can render something
     /**
      * Creates a directory if it does not already exist.
      *
      * @param dir the directory to create.
      */
-    private void createDirectoryIfNotExists(File dir) {
+    private void createDirectoryIfNotExists(File dir) throws IOException {
         if (!dir.exists()) {
             if (dir.mkdirs()) {
                 logger.info("Directory created: {}", dir.getAbsolutePath());
             } else {
                 logger.error(
-                    "Failed to create directory: {}",
+                    "Failed to create critical directory: {}",
                     dir.getAbsolutePath()
                 );
-                System.exit(1);
+                throw new IOException();
             }
         }
     }
@@ -235,14 +220,5 @@ public class AppDataManager {
      */
     public ConfigManager getConfigManager() {
         return configManager;
-    }
-
-    /**
-     * Gets the global instance of {@link GlobalTermsDatabase}.
-     *
-     * @return the instance of GlobalTermsDatabase associated with the global AppDataManager.
-     */
-    public GlobalTermsDatabase getGlobalTermsDatabase() {
-        return globalTermsDatabase;
     }
 }
