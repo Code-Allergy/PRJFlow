@@ -32,9 +32,12 @@ module com.cmpt370T7.PRJFlow {
     requires org.apache.pdfbox.io;
     requires io.github.cdimascio.dotenv.java;
 
-    opens com.cmpt370T7.PRJFlow to javafx.fxml;
+
+    exports com.cmpt370T7.PRJFlow.gui;
     exports com.cmpt370T7.PRJFlow.util;
     exports com.cmpt370T7.PRJFlow.llm;
     exports com.cmpt370T7.PRJFlow;
     exports com.cmpt370T7.PRJFlow.util.web;
+    opens com.cmpt370T7.PRJFlow to javafx.fxml;
+    opens com.cmpt370T7.PRJFlow.gui to javafx.fxml;
 }

@@ -76,7 +76,7 @@ public class ProjectManager {
      * @throws IllegalArgumentException when supplied with a null project or an incorrect filename
      * @throws IOException if the prjflowconfig.toml file exists but is not writable
      */
-    static void saveProject(Project save, File pathname) throws IllegalArgumentException, IOException {
+    public static void saveProject(Project save, File pathname) throws IllegalArgumentException, IOException {
         if (save == null) throw new IllegalArgumentException("Cannot save null project.");
         File saveFile = getConfigFile(pathname);
 
@@ -105,7 +105,7 @@ public class ProjectManager {
 
     }
 
-    private static File getConfigFile(File pathname) throws IOException {
+    protected static File getConfigFile(File pathname) throws IOException {
         File saveFile = new File(pathname, "prjflowconfig.toml");
 
         if (!saveFile.getName().equals("prjflowconfig.toml")){

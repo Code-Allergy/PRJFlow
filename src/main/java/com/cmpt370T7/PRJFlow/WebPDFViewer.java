@@ -1,5 +1,6 @@
 package com.cmpt370T7.PRJFlow;
 
+import com.cmpt370T7.PRJFlow.gui.GUI;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.concurrent.Worker;
 import javafx.geometry.Insets;

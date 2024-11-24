@@ -107,7 +107,7 @@ public class CustomCalendar extends VBox {
         updateReminders();
     }
 
-    void updateCalendar() {
+    public void updateCalendar() {
         calendarGrid.getChildren().clear();
 
         // Weekday labels
@@ -167,7 +167,7 @@ public class CustomCalendar extends VBox {
         monthYearLabel.setText(month + " " + currentYearMonth.getYear());
     }
 
-    void updateReminders() {
+    public void updateReminders() {
         logger.info("Loading reminders for {}", selectedDate);
         List<String> reminders = remindersMap.getOrDefault(selectedDate, new ArrayList<>());
         remindersList.getItems().setAll(reminders);

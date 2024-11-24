@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,6 +20,18 @@ public class ConfigManager {
     private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
     private final File configFile;
     private Map<String, Object> configData;
+
+    public record LlmProviderConfig(String provider, String key) {
+        public static LlmProviderConfig createGroqProvider(String key) {
+            return new LlmProviderConfig("GroqCloud", key);
+        }
+        public static LlmProviderConfig createOpenAIProvider(String key) {
+            return new LlmProviderConfig("OpenAI", key);
+        }
+        public static LlmProviderConfig createOllamaProvider() {
+            return new LlmProviderConfig("Ollama", "");
+        }
+    }
 
     public ConfigManager(File configFile) {
         this.configFile = configFile;
@@ -41,6 +52,15 @@ public class ConfigManager {
 
     public Object getConfigValue(String key) {
         return configData.get(key);
+    }
+
+    // Try and get the value from the environment variables first, then the config file, otherwise return null
+    public String getFromConfigOrEnv(String key) {
+        String value = System.getenv(key);
+        if (value == null) {
+            value = (String) getConfigValue(key);
+        }
+        return value;
     }
 
     public void saveConfig() throws IOException {
@@ -75,14 +95,11 @@ public class ConfigManager {
         configData.put("reminders", reminderData);
     }
 
-    @SuppressWarnings("unchecked")
     public List<Project> getRecentProjects() {
         List<Project> projectList = new ArrayList<>();
         Object recentProjectsObj = configData.get("recent_projects");
         
-        if (recentProjectsObj instanceof List) {
-            List<?> projects = (List<?>) recentProjectsObj;
-            
+        if (recentProjectsObj instanceof List<?> projects) {
             for (Object pathObj : projects) {
                 try {
                     // Convert the path object to string regardless of its type
@@ -105,6 +122,56 @@ public class ConfigManager {
             .map(project -> project.getDirectory().getAbsolutePath().replace("\\", "/"))
             .collect(Collectors.toList());
         configData.put("recent_projects", projectPaths);
+    }
+
+    public LlmProviderConfig getLlmProviderConfig() {
+        try {
+            String llmProvider = getProviderName();
+            String providerKey = getProviderKey();
+
+            return switch (llmProvider) {
+                case "GroqCloud" -> LlmProviderConfig.createGroqProvider(providerKey);
+                case "OpenAI" -> LlmProviderConfig.createOpenAIProvider(providerKey);
+                case "Ollama" -> LlmProviderConfig.createOllamaProvider();
+                default -> null;
+            };
+        } catch (BadConfigException e) {
+            logger.warn("Failed to load LLM provider config: {}", e.getMessage());
+            return null;
+        }
+
+
+
+
+
+    }
+
+    public void setLlmProviderConfig(LlmProviderConfig providerConfig) {
+        setConfigValue("llm_provider", providerConfig.provider());
+        setConfigValue("llm_provider_key", providerConfig.key());
+    }
+
+    private String getProviderName() {
+        if (!(getFromConfigOrEnv("llm_provider") instanceof String provider)) {
+            throw new BadConfigException("Llm provider not found or not in the expected format.");
+        }
+        return provider;
+    }
+
+    private String getProviderKey() {
+        Object keyObj = getFromConfigOrEnv("llm_provider_key");
+        if (!(keyObj instanceof String key)) {
+            throw new BadConfigException("Provider key not found or not in the expected format.");
+        }
+        return key;
+    }
+
+
+    static class BadConfigException extends RuntimeException {
+        public BadConfigException(String message) {
+            super(message);
+            logger.error("Failed to load config: {}", message);
+        }
     }
 }
 
