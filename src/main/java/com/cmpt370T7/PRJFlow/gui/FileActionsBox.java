@@ -34,7 +34,7 @@ public class FileActionsBox extends HBox {
         addDeadlineButton = createActionButton("Add Deadline", "mdi-calendar-plus", "Add a deadline to the project");
 
         setupButtonBinding();
-        this.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton);
+        this.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton, addDeadlineButton);
     }
 
     private void setupLayout() {
@@ -44,10 +44,15 @@ public class FileActionsBox extends HBox {
     }
 
     private void setupButtonBinding() {
+        // Only on project open
         addFileButton.disableProperty().bind(hasSelectedProject.not());
+
+
+        // Only on file selection
         removeFileButton.disableProperty().bind(hasSelectedFile.not());
         exportButton.disableProperty().bind(hasSelectedFile.not());
         summarizeButton.disableProperty().bind(hasSelectedFile.not());
+        addDeadlineButton.disableProperty().bind(hasSelectedFile.not());
     }
 
     public BooleanProperty hasSelectedFilesProperty() {
