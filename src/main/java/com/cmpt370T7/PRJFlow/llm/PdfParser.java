@@ -1,4 +1,4 @@
-package com.cmpt370T7.PRJFlow;
+package com.cmpt370T7.PRJFlow.llm;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
