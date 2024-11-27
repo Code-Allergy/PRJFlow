@@ -11,6 +11,15 @@ import org.slf4j.LoggerFactory;
 public class PopulateCsv {
     private static final Logger logger = LoggerFactory.getLogger(PopulateCsv.class);
 
+
+    /**
+     * Appends or inserts data at a specific (x, y) position in a CSV file.
+     *
+     * @param x The column index where the data should be inserted.
+     * @param y The row index where the data should be inserted.
+     * @param data The data to insert at the specified position.
+     * @param filename The path to the CSV file.
+     */
     public static void appendDataToCsv(int x, int y, String data, String filename) {
         File file = new File(filename);
         List<List<String>> csvData = new ArrayList<>();
@@ -59,6 +68,12 @@ public class PopulateCsv {
         }
     }
 
+    /**
+     * Generates a prompt from data in a CSV format using a local neural net model.
+     *
+     * @param input The input string to be processed.
+     * @return The response from the model as a string.
+     */
     public static String promptFromDataCsv(String input) {
         // $env:OLLAMA_HOST="127.0.0.1:8000"
         // ollama serve
@@ -75,6 +90,12 @@ public class PopulateCsv {
     }
 
 
+    /**
+     * Writes cleaned data to a specified CSV file.
+     *
+     * @param filePath The path to the output CSV file.
+     * @param data The data to be written.
+     */
     public static void PasteToCsv(String filePath, String data) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             // Strips unnecessary data
@@ -87,6 +108,12 @@ public class PopulateCsv {
         }
     }
 
+    /**
+     * Extracts data from a PDF file, processes it with the model, and writes the result to a CSV file.
+     *
+     * @param inputFilePath The path to the input PDF file.
+     * @param outputFilePath The path to the output CSV file.
+     */
     public static void GenerateCsv(String inputFilePath, String outputFilePath) {
         String parsedData = PdfParser.extractDataElementsFromPdf(inputFilePath);
         String returnedPrompt = promptFromDataCsv(parsedData);
