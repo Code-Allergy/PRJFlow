@@ -1,0 +1,28 @@
+.accent-button {
+    -fx-background-color: #0094c8;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.accent-button:hover {
+    -fx-background-color: #0094c8;
+}
+
+.date-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333333;
+}
+
+.date-button:hover {
+    -fx-background-color: #E0E0E0;
+}
+
+.file-button {
+    -fx-background-color: #E0E0E0;
+    -fx-text-fill: #333333;
+}
+
+.file-button:hover {
+    -fx-background-color: #C0C0C0;
+}
+
