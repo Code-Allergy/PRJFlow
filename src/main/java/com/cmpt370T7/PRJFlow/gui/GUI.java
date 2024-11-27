@@ -3,6 +3,7 @@ package com.cmpt370T7.PRJFlow.gui;
 import com.cmpt370T7.PRJFlow.*;
 import com.cmpt370T7.PRJFlow.llm.PdfParser;
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
+import com.cmpt370T7.PRJFlow.llm.PopulateTxt;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -326,11 +327,11 @@ public class GUI extends BorderPane {
             Optional<String> result = exportDialog.showAndWait();
             result.ifPresent(exportFileName -> {
                 if (!exportFileName.trim().isEmpty()) {
-                    String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
-                    String returnedPrompt = PopulateCsv.promptFromDataCsv(parsedData);
-                    // TODO EXPORT PATH
-                    String exportPath = "sample-files/TestFiles/" + exportFileName;
-                    PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
+                    String exportPath = selectedProject.getDirectory() + "\\" + exportFileName + ".csv";
+                    File exportFile = new File(exportPath);
+                    selectedProject.addInputFile(exportFile);
+                    filesPane.getChildren().add(createFileButton(exportFile));
+                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath);
                 }
             });
         }
@@ -420,7 +421,11 @@ public class GUI extends BorderPane {
             Optional<String> result =  summarizeDialog.showAndWait();
             result.ifPresent(summarizeFileName -> {
                 if (!summarizeFileName.trim().isEmpty()) {
-                    String exportPath = "sample-files/TestFiles/" + summarizeFileName;
+                    String summarizePath = selectedProject.getDirectory() + "\\" + summarizeFileName + ".txt";
+                    File summarizeFile = new File(summarizePath);
+                    selectedProject.addInputFile(summarizeFile);
+                    filesPane.getChildren().add(createFileButton(summarizeFile));
+                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), summarizePath);
                 }
             });
         }
