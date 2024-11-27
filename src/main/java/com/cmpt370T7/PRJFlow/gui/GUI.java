@@ -427,7 +427,7 @@ public class GUI extends BorderPane {
                     File summarizeFile = summarizePath.toFile();
                     selectedProject.addInputFile(summarizeFile);
                     filesPane.getChildren().add(createFileButton(summarizeFile));
-                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), summarizePath.toString());
+                    PopulateTxt.GenerateTxt(selectedFile.getAbsolutePath(), summarizePath.toString());
                 }
             });
         }
