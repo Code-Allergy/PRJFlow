@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -327,11 +329,11 @@ public class GUI extends BorderPane {
             Optional<String> result = exportDialog.showAndWait();
             result.ifPresent(exportFileName -> {
                 if (!exportFileName.trim().isEmpty()) {
-                    String exportPath = selectedProject.getDirectory() + "\\" + exportFileName + ".csv";
-                    File exportFile = new File(exportPath);
+                    Path exportPath = Paths.get(selectedProject.getDirectory().getPath(), exportFileName + ".csv");
+                    File exportFile = exportPath.toFile();
                     selectedProject.addInputFile(exportFile);
                     filesPane.getChildren().add(createFileButton(exportFile));
-                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath);
+                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath.toString());
                 }
             });
         }
@@ -421,11 +423,11 @@ public class GUI extends BorderPane {
             Optional<String> result =  summarizeDialog.showAndWait();
             result.ifPresent(summarizeFileName -> {
                 if (!summarizeFileName.trim().isEmpty()) {
-                    String summarizePath = selectedProject.getDirectory() + "\\" + summarizeFileName + ".txt";
-                    File summarizeFile = new File(summarizePath);
+                    Path summarizePath = Paths.get(selectedProject.getDirectory().getPath(), summarizeFileName + ".txt");
+                    File summarizeFile = summarizePath.toFile();
                     selectedProject.addInputFile(summarizeFile);
                     filesPane.getChildren().add(createFileButton(summarizeFile));
-                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), summarizePath);
+                    PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), summarizePath.toString());
                 }
             });
         }
