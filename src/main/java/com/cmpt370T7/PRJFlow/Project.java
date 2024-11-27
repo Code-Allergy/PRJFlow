@@ -35,7 +35,7 @@ public class Project {
         return directory;
     }
 
-    List<File> getInputFiles(){
+    public List<File> getInputFiles(){
         return inputFiles;
     }
 
@@ -48,12 +48,12 @@ public class Project {
     }
 
     // Dont allow duplicate files
-    void addInputFile(File file) {
+    public void addInputFile(File file) {
         inputFiles.add(file);
     }
 
     // True if inputFiles contains a file with the same name
-    boolean contains(File file) {
+    public boolean contains(File file) {
         for (File f : inputFiles) {
             if (f.getName().equals(file.getName())) {
                 return true;

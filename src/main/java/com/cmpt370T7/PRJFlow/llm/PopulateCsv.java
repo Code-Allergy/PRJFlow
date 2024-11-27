@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.cmpt370T7.PRJFlow.PdfParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,11 @@ public class PopulateCsv {
         }
     }
 
-    public static String promptFromData(String input) {
+    public static String promptFromDataCsv(String input) {
+        // $env:OLLAMA_HOST="127.0.0.1:8000"
+        // ollama serve
+        // Args to start model 8000 is port num
+
         try {
             String response = AiEngine.getInstance().createCSVSummary(input);
             logger.info("Response from Ollama Model: {}", response);
@@ -84,10 +87,17 @@ public class PopulateCsv {
         }
     }
 
+    public static void GenerateCsv(String inputFilePath, String outputFilePath) {
+        String parsedData = PdfParser.extractDataElementsFromPdf(inputFilePath);
+        String returnedPrompt = promptFromDataCsv(parsedData);
+        PasteToCsv(outputFilePath, returnedPrompt);
+
+    }
+
 
     public static void main(String[] args) {
-        String parsedData = PdfParser.extractDataElementsFromPdf("sample-files/TestFiles/ExampleInvoice.pdf");
-        String returnedPrompt = promptFromData(parsedData);
-        PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);
+        //String parsedData = PdfParser.extractDataElementsFromPdf("sample-files/TestFiles/ExampleInvoice.pdf");
+        //String returnedPrompt = promptFromData(parsedData);
+        //PasteToCsv("sample-files/TestFiles/TestCsv.csv", returnedPrompt);
     }
 }
