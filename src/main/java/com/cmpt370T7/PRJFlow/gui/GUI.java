@@ -1,6 +1,5 @@
 package com.cmpt370T7.PRJFlow;
 
-import com.cmpt370T7.PRJFlow.llm.PdfParser;
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -324,21 +323,15 @@ public class GUI extends BorderPane {
             exportDialog.setContentText("Enter the name of the output file:");
 
             Optional<String> result = exportDialog.showAndWait();
-
-            //Had to comment this out Generatetxt and GenerateCsv in
-            //Populate classes in llm have functions nessecary for this to work
-
             result.ifPresent(exportFileName -> {
-                //if (!exportFileName.trim().isEmpty()) {
-                    //String parsedData = PdfParser.pa                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        extractDataElementsFromPdf(selectedFile.getAbsolutePath());
-                    //String returnedPrompt = PopulateCsv.promptFromData(parsedData);
+                if (!exportFileName.trim().isEmpty()) {
+                    String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
+                    String returnedPrompt = PopulateCsv.promptFromData(parsedData);
                     // TODO EXPORT PATH
-                    //String exportPath = "sample-files/TestFiles/" + exportFileName;
-                    //PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
-                //}
+                    String exportPath = "sample-files/TestFiles/" + exportFileName;
+                    PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
+                }
             });
-
-            //TODO: PopulatePdf.GenerateTxt(); also PopulateCsv.GenerateCsv();
         }
     }
 

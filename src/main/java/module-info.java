@@ -37,5 +37,4 @@ module com.cmpt370T7.PRJFlow {
     exports com.cmpt370T7.PRJFlow.llm;
     exports com.cmpt370T7.PRJFlow;
     exports com.cmpt370T7.PRJFlow.util.web;
-    opens com.cmpt370T7.PRJFlow.llm to javafx.fxml;
 }

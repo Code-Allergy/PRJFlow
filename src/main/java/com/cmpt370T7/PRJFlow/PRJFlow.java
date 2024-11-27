@@ -2,6 +2,7 @@ package com.cmpt370T7.PRJFlow;
 
 import java.io.IOException;
 
+import com.cmpt370T7.PRJFlow.gui.GUI;
 import com.cmpt370T7.PRJFlow.llm.*;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.application.Platform;
@@ -49,20 +50,22 @@ public class PRJFlow extends Application {
     private void initialize_llms(Stage stage) {
         // Check if the user has set up the provider
         ConfigManager.LlmProviderConfig providerConfig = AppDataManager.getInstance().getConfigManager().getLlmProviderConfig();
-        if (providerConfig == null) {
-            logger.info("No LLM provider set up, prompting user to set up provider...");
-            Platform.runLater(() -> {
-                ProviderHelper providerHelper = new ProviderHelper(stage);
-                providerHelper.showProviderSelectionDialog().thenRun(() -> {
-                    // this is sloppy. but it works for now.
-                    logger.info("First time setup complete, starting LLM provider...");
-                    ConfigManager.LlmProviderConfig afterSetupProviderConfig = AppDataManager.getInstance().getConfigManager().getLlmProviderConfig();
-                    instantiateAiEngine(afterSetupProviderConfig);
-                });
-            });
-        } else {
+        if (providerConfig != null) {
+            logger.info("LLM provider set up: {}", providerConfig.provider());
             instantiateAiEngine(providerConfig);
+            return;
         }
+
+        logger.info("No LLM provider set up, prompting user to set up provider...");
+        Platform.runLater(() -> {
+            ProviderHelper providerHelper = new ProviderHelper(stage);
+            providerHelper.showProviderSelectionDialog().thenRun(() -> {
+                // this is sloppy. but it works for now.
+                logger.info("First time setup complete, starting LLM provider...");
+                ConfigManager.LlmProviderConfig afterSetupProviderConfig = AppDataManager.getInstance().getConfigManager().getLlmProviderConfig();
+                instantiateAiEngine(afterSetupProviderConfig);
+            });
+        });
     }
 
     private void instantiateAiEngine(ConfigManager.LlmProviderConfig providerConfig) {

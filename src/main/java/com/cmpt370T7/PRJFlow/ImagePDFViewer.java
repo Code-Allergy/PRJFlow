@@ -1,5 +1,6 @@
 package com.cmpt370T7.PRJFlow;
 
+import com.cmpt370T7.PRJFlow.gui.GUI;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
