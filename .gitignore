@@ -45,3 +45,5 @@ build/
 
 ### Env files ###
 .env
+
+OllamaSetup.exe
