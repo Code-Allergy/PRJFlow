@@ -13,6 +13,15 @@ import java.util.List;
 
 public class PdfParser {
 
+    /**
+     * Extracts and cleans text content from a PDF file.
+     * <p>
+     * Uses Apache PDFBox to extract text from the specified PDF file and removes
+     * newline (`\n`) and carriage return (`\r`) characters, returning the cleaned text.
+     *
+     * @param pdfPath The file path to the PDF document.
+     * @return A single string containing the cleaned extracted text
+     */
     public static String extractDataElementsFromPdf(String pdfPath) {
         StringBuilder extractedText = new StringBuilder();
 
