@@ -1,5 +1,7 @@
-package com.cmpt370T7.PRJFlow;
+package com.cmpt370T7.PRJFlow.gui;
 
+import com.cmpt370T7.PRJFlow.*;
+import com.cmpt370T7.PRJFlow.llm.PdfParser;
 import com.cmpt370T7.PRJFlow.llm.PopulateCsv;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -326,7 +328,7 @@ public class GUI extends BorderPane {
             result.ifPresent(exportFileName -> {
                 if (!exportFileName.trim().isEmpty()) {
                     String parsedData = PdfParser.extractDataElementsFromPdf(selectedFile.getAbsolutePath());
-                    String returnedPrompt = PopulateCsv.promptFromData(parsedData);
+                    String returnedPrompt = PopulateCsv.promptFromDataCsv(parsedData);
                     // TODO EXPORT PATH
                     String exportPath = "sample-files/TestFiles/" + exportFileName;
                     PopulateCsv.PasteToCsv(exportPath, returnedPrompt);
