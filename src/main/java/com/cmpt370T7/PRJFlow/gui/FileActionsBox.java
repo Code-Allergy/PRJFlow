@@ -17,6 +17,7 @@ public class FileActionsBox extends HBox {
     private final FileActionButton removeFileButton;
     private final FileActionButton exportButton;
     private final FileActionButton summarizeButton;
+    private final FileActionButton addDeadlineButton;
 
     // Properties to control button states
     private final BooleanProperty hasSelectedProject = new SimpleBooleanProperty(false);
@@ -30,9 +31,10 @@ public class FileActionsBox extends HBox {
         removeFileButton = createActionButton("Remove File", "mdi-delete", "Remove selected files");
         exportButton = createActionButton("Export", "mdi-export", "Export selected files");
         summarizeButton = createActionButton("Summarize", "mdi-creation", "Generate summary for selected files");
+        addDeadlineButton = createActionButton("Add Deadline", "mdi-calendar-plus", "Add a deadline to the project");
 
         setupButtonBinding();
-        this.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton);
+        this.getChildren().addAll(addFileButton, removeFileButton, exportButton, summarizeButton, addDeadlineButton);
     }
 
     private void setupLayout() {
@@ -42,10 +44,15 @@ public class FileActionsBox extends HBox {
     }
 
     private void setupButtonBinding() {
+        // Only on project open
         addFileButton.disableProperty().bind(hasSelectedProject.not());
+
+
+        // Only on file selection
         removeFileButton.disableProperty().bind(hasSelectedFile.not());
         exportButton.disableProperty().bind(hasSelectedFile.not());
         summarizeButton.disableProperty().bind(hasSelectedFile.not());
+        addDeadlineButton.disableProperty().bind(hasSelectedFile.not());
     }
 
     public BooleanProperty hasSelectedFilesProperty() {
@@ -72,6 +79,10 @@ public class FileActionsBox extends HBox {
         summarizeButton.setOnAction(e -> action.run());
     }
 
+    public void setAddDeadlineButton(Runnable action) {
+        addDeadlineButton.setOnAction(e -> action.run());
+    }
+
     private static class FileActionButton extends Button {
         FileActionButton(String text, String iconCode) {
             super(text);
@@ -86,6 +97,7 @@ public class FileActionsBox extends HBox {
     private FileActionButton createActionButton(String text, String iconCode, String tooltipText) {
         FileActionButton button = new FileActionButton(text, iconCode);
         button.setTooltip(new Tooltip(tooltipText));
+        button.getStyleClass().add("accent-button");
         return button;
     }
 

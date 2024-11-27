@@ -35,7 +35,9 @@ public class CustomCalendar extends VBox {
         HBox monthNavigation = new HBox(10);
         monthNavigation.setAlignment(Pos.CENTER); // Center-align the controls
         Button prevMonthButton = new Button("<");
+        prevMonthButton.getStyleClass().add("accent-button");
         Button nextMonthButton = new Button(">");
+        nextMonthButton.getStyleClass().add("accent-button");
         monthYearLabel = new Label();
         monthYearLabel.setFont(new Font("Arial", 16));
         updateMonthYearLabel();
@@ -64,6 +66,7 @@ public class CustomCalendar extends VBox {
         Label remindersLabel = new Label("Reminders");
         remindersLabel.setFont(new Font("Arial", 14)); // Increase font size
         Button addReminderButton = new Button("+");
+        addReminderButton.getStyleClass().add("accent-button");
 
         // Spacer to push the add button to the right
         Region spacer = new Region();
@@ -104,7 +107,7 @@ public class CustomCalendar extends VBox {
         updateReminders();
     }
 
-    private void updateCalendar() {
+    public void updateCalendar() {
         calendarGrid.getChildren().clear();
 
         // Weekday labels
@@ -128,6 +131,7 @@ public class CustomCalendar extends VBox {
         for (int day = 1; day <= daysInMonth; day++) {
             LocalDate date = currentYearMonth.atDay(day);
             Button dayButton = new Button(String.valueOf(day));
+            dayButton.getStyleClass().add("date-button");
 
             // Highlight today's date
             if (date.equals(LocalDate.now())) {
@@ -163,7 +167,7 @@ public class CustomCalendar extends VBox {
         monthYearLabel.setText(month + " " + currentYearMonth.getYear());
     }
 
-    private void updateReminders() {
+    public void updateReminders() {
         logger.info("Loading reminders for {}", selectedDate);
         List<String> reminders = remindersMap.getOrDefault(selectedDate, new ArrayList<>());
         remindersList.getItems().setAll(reminders);

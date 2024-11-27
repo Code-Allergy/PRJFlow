@@ -7,6 +7,7 @@ public class ProjectFilesPane extends FlowPane {
     private static final double VSPACING = 5;
     private static final double HSPACING = 5;
     private static final double PADDING = 10;
+    private static final String STYLE = "-fx-background-color: #F1F0E8;";
 
     private static final String CONFIG_FILE = "prjflowconfig.toml";
 

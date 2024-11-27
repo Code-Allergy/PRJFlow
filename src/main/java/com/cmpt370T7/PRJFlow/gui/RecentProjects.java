@@ -20,14 +20,17 @@ public class RecentProjects extends VBox {
     public RecentProjects(List<Project> projects) {
         super(10);
         this.setPadding(new Insets(PADDING));
-        this.setStyle("-fx-background-color: #f0f0f0;");
+        this.setStyle("-fx-background-color: #E5E1DA;");
 
         Label projectsLabel = new Label("Recent Projects");
         projectsListView = new ListView<>();
         projectsListView.getItems().addAll(projects);
 
         newProjectButton = new Button("New Project");
+        newProjectButton.getStyleClass().add("accent-button");
+
         deleteProjectButton = new Button("Delete Project");
+        deleteProjectButton.getStyleClass().add("accent-button");
 
         this.getChildren().addAll(projectsLabel, projectsListView, newProjectButton, deleteProjectButton);
     }
