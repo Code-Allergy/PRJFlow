@@ -18,6 +18,21 @@ public class PopulateTxt {
         }
     }
 
+    public static String promptFromDataTxt(String input) {
+        // $env:OLLAMA_HOST="127.0.0.1:8000"
+        // ollama serve
+        // Args to start model 8000 is port num
+
+        try {
+            String response = AiEngine.getInstance().createTextSummary(input);
+            logger.info("Response from Ollama Model: {}", response);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Errored out";
+    }
+
     public static void pasteToTxt(String filePath, String data) {
         File file = new File(filePath);
 
@@ -28,15 +43,18 @@ public class PopulateTxt {
         }
     }
 
+    public static void GenerateTxt(String inputFilePath, String outputFilePath) {
+        String parsedData = PdfParser.extractDataElementsFromPdf(inputFilePath);
+        String returnedPrompt = promptFromDataTxt(parsedData);
+        pasteToTxt(outputFilePath, returnedPrompt);
+    }
+
     public static void main(String[] args) {
-        // Example usages
-        String filename = "example.txt";
+        //String filename = "example.txt";
 
-        //Appending to file
-        pasteToTxt(filename, "This is the first line.");
-        appendDataToTxt("This is the second line.", filename);
+        //pasteToTxt(filename, "This is the first line.");
+        //appendDataToTxt("This is the second line.", filename);
 
-        // Overwriting or creating
-        pasteToTxt(filename, "This text overwrites the entire file.");
+        //pasteToTxt(filename, "This text overwrites the entire file.");
     }
 }
