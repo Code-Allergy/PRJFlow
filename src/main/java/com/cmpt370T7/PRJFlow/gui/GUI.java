@@ -226,11 +226,8 @@ public class GUI extends BorderPane {
                         this.rightPane.getChildren().setAll(pdfViewer);
                     } else if (getFileExtension(selectedFile.getName()).equals("txt") || getFileExtension(selectedFile.getName()).equals("csv")) {
                         String summaryString = readFile(selectedFile);
-                        System.out.println(summaryString);
-                        Text summaryText = new Text(summaryString);
                         Label summaryLabel = new Label(summaryString);
                         summaryLabel.setMinWidth(200);
-                        summaryText.wrappingWidthProperty().set(200);
                         summaryLabel.setWrapText(true);
                         summaryLabel.setMaxWidth(300);
 
