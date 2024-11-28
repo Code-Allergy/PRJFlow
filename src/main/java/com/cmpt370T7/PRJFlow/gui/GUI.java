@@ -22,8 +22,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -221,9 +220,22 @@ public class GUI extends BorderPane {
                 if (e.getClickCount() == 1) {
                     setSelectedFile(selectedProject.getFile(fileButton.getId()));
 
-                } else if (e.getClickCount() == 2 && getFileExtension(selectedFile.getName()).equals("pdf")) {
-                    WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
-                    this.rightPane.getChildren().setAll(pdfViewer);
+                } else if (e.getClickCount() == 2) {
+                    if (getFileExtension(selectedFile.getName()).equals("pdf")) {
+                        WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
+                        this.rightPane.getChildren().setAll(pdfViewer);
+                    } else if (getFileExtension(selectedFile.getName()).equals("txt") || getFileExtension(selectedFile.getName()).equals("csv")) {
+                        String summaryString = readFile(selectedFile);
+                        System.out.println(summaryString);
+                        Text summaryText = new Text(summaryString);
+                        Label summaryLabel = new Label(summaryString);
+                        summaryLabel.setMinWidth(200);
+                        summaryText.wrappingWidthProperty().set(200);
+                        summaryLabel.setWrapText(true);
+                        summaryLabel.setMaxWidth(300);
+
+                        this.rightPane.getChildren().setAll(summaryLabel);
+                    }
                 }
             }
         });
@@ -231,6 +243,21 @@ public class GUI extends BorderPane {
         logger.debug("File button created: {}", fileButton.getId());
 
         return fileButton;
+    }
+
+    public String readFile(File file) {
+        StringBuilder readString = new StringBuilder();
+        try {
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                String lineString = scanner.nextLine();
+                readString.append(lineString);
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return readString.toString();
     }
 
     private void updateProjectsListView() {
