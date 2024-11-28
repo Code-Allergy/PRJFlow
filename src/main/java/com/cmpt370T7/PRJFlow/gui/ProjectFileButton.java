@@ -36,7 +36,21 @@ public class ProjectFileButton extends Button {
         this.setFont(Font.font(BUTTON_FONT,  BUTTON_FONT_SIZE));
         setIcon(file);
         this.fileIcon.setIconSize(FILE_ICON_SIZE);
-        this.setText(truncateFileName(file.getName()));
+
+        String extension = "";
+        int i = file.getName().lastIndexOf('.');
+        if (i > 0) {
+            extension = file.getName().substring(i+1);
+        }
+
+        // File name cut off if past 15 characters
+        if (file.getName().length() > 17) {
+            this.setText(file.getName().substring(0, (17 - extension.length() - 3)) + "..." + extension);
+        } else {
+            this.setText(file.getName());
+        }
+
+        //this.setText(truncateFileName(file.getName()));
 
         this.setContentDisplay(ContentDisplay.TOP);
         this.setGraphic(fileIcon);
