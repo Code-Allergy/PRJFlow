@@ -24,12 +24,15 @@ public class AiEngine {
      * with properly aligned columns and rows for human readability.
      */
     private static final String CSV_GENERATOR_PROMPT = """
-        Generate only the following, do not speak or add anything unnecessary.
-        From the following data you should output in csv format any key info you
-        deem necessary from the parsed data. Do not speak, generate only one csv
-        format message surrounded by {}. You should also try to align the columns and rows
-        in a manner that would make the best sense to a human.
-    """;
+    Generate a detailed CSV format containing key information extracted from the following data. 
+    Do not speak or add anything unnecessary. 
+    Output only the CSV data surrounded by curly braces {}. 
+    Ensure that the columns and rows are well-aligned for readability and clarity.
+    Include all relevant key information that a human would find useful, and make sure the CSV is 
+    properly formatted with headers where applicable. Organize the data logically, ensuring consistency 
+    in the columns and rows to best represent the data in a structured and clear manner.
+""";
+
 
 
     /**
@@ -38,10 +41,15 @@ public class AiEngine {
      * additional commentary or formatting.
      */
     private static final String TEXT_GENERATOR_PROMPT = """
-        Generate only the following, do not speak or add anything unnecessary.
-        From the following data you should output a text summary of the input data.
-        Do not speak, generate only one text summary message.
-    """;
+    Generate a detailed, comprehensive summary of the following input data.  
+    Do not speak or add anything unnecessary.  
+    Do not say 'here is your summary', just provide the summary.
+    Include as much relevant detail as possible while ensuring clarity and coherence but keep it succinct.  
+    Your summary should highlight the key points, provide context, and
+    explain the most important aspects of the input data in a well-structured manner.
+    Make sure the summary is thorough but concise enough to be easily understood.
+    Avoid omitting important information.
+""";
 
     /**
      * Private constructor for the singleton pattern.
