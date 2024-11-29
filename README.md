@@ -184,9 +184,9 @@ Linux:
 TODO: segment about skipping UI based tests.
 
 ## Documentation
-A live version of our documentation can be viewed at [this link](https://cmpt370.vada.life). This site includes
-all javadocs, along with testing coverage and testing reports. If the website is unavailable, or you want a development version,
-you can generate the documentation locally by running the following command:
+You can generate a documentation site for the project with Maven. This site includes
+all javadocs, along with testing coverage and testing reports. 
+You can generate the documentation site locally by running the following command:
 ```
 ./mvnw site
 ```
