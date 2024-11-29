@@ -27,7 +27,6 @@ public class AppDataManager {
     private final ConfigManager configManager;
 
     private final File appDataDirectory;
-    private final File tesseractDataDirectory;
 
     /**
      * Default constructor, initializes the AppDataManager with the default app name of PRJFlow.
@@ -45,9 +44,7 @@ public class AppDataManager {
     private AppDataManager(String appName) throws IOException {
         appDataDirectory = getAppDataDirectory(appName);
         createDirectoryIfNotExists(appDataDirectory);
-        this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
         this.configManager = new ConfigManager(getConfigFile());
-        initializeTesseractData();
     }
 
     /**
@@ -59,8 +56,6 @@ public class AppDataManager {
         this.appDataDirectory = customDirectory;
         createDirectoryIfNotExists(appDataDirectory);
         this.configManager = new ConfigManager(getConfigFile());
-        this.tesseractDataDirectory = new File(appDataDirectory, "tesseract_data");
-        initializeTesseractData();
     }
 
     /**
@@ -130,37 +125,6 @@ public class AppDataManager {
     }
 
     /**
-     * Copies the Tesseract data language files to the user app data folder.
-     */
-    private void initializeTesseractData() {
-        try {
-            createDirectoryIfNotExists(tesseractDataDirectory);
-
-            // List of files in `tessdata` to be extracted
-            String[] tessdataFiles = {"eng.traineddata", "osd.traineddata"};
-
-            for (String fileName : tessdataFiles) {
-                // Load each file as a stream
-                try (InputStream sourceStream = AppDataManager.class.getResourceAsStream("tessdata/" + fileName)) {
-                    if (sourceStream == null) {
-                        throw new IOException("Resource file not found: " + fileName);
-                    }
-                    Path destFile = tesseractDataDirectory.toPath().resolve(fileName);
-
-                    // Only copy if the file doesn't exist or it's newer
-                    if (!Files.exists(destFile) || Files.getLastModifiedTime(destFile).toMillis() <
-                            System.currentTimeMillis()) {
-                        Files.copy(sourceStream, destFile, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            logger.error("Failed to initialize Tesseract data files.", e);
-            System.exit(1);
-        }
-    }
-
-    /**
      * Creates a directory if it does not already exist.
      *
      * @param dir the directory to create.
@@ -202,15 +166,6 @@ public class AppDataManager {
      */
     public File getConfigFile() {
         return new File(appDataDirectory, "config.toml");
-    }
-
-    /**
-     * Returns the file handle of the Tesseract data directory.
-     *
-     * @return a File object representing the Tesseract data directory.
-     */
-    public File getTesseractDataDirectory() {
-        return tesseractDataDirectory;
     }
 
     /**
