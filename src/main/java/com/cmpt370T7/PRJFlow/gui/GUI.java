@@ -177,6 +177,15 @@ public class GUI extends BorderPane {
 
             DirectoryChooser dc = new DirectoryChooser();
             dc.setTitle("Choose the project directory");
+            Path defaultPath = Paths.get(System.getProperty("user.home"), "Documents");
+            String defaultDirectoryString = defaultPath.toString();
+            File defaultDirectory = null;
+            try {
+                defaultDirectory = new File(defaultDirectoryString);
+            } catch (Exception e) {
+                defaultDirectory = new File(System.getProperty("user.home"));
+            }
+            dc.setInitialDirectory(defaultDirectory);
 
             File selectedFolder =  dc.showDialog(this.getScene().getWindow());
             if (selectedFolder != null) {
@@ -455,6 +464,19 @@ public class GUI extends BorderPane {
                 }
             });
         }
+    }
+
+    public boolean containsProject(String pName) {
+        for (Project p : projects) {
+            if (p.getName().equals(pName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsProject(Project p) {
+        return projects.contains(p);
     }
 }
 
