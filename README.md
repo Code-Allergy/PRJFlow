@@ -19,15 +19,12 @@ language models, as well as cloud-based models (via GroqCloud, but easily extend
     - [TestFX Documentation](https://testfx.github.io/)
     - [TestFX GitHub Repository](https://github.com/TestFX/TestFX)
 
-- **Tesseract**: Image OCR library for parsing images of text (via JavaCPP-tesseract).
-    - [JavaCPP Tesseract Documentation](http://bytedeco.org/javacpp-presets/tesseract/apidocs/)
-    - [JavaCPP Tesseract Github Repository](https://github.com/bytedeco/javacpp-presets/blob/master/tesseract/README.md)
+- **Ikonli JavaFX**: An icon library for java applications
+    - [Icon Pack -- Material Design](https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-materialdesign-pack)
+    - [Ikonli Documentation](https://kordamp.org/ikonli/)
+    - [Ikonli Github Repository](https://github.com/kordamp/ikonli)
 
 
-- **Team: Maintain this list with all technologies used.**
-
-- **GUI Team: I would recommend using the scene builder built into IntelliJ IDEA or installing [Gluon Scene Builder](https://gluonhq.com/products/scene-builder/) to help with building your layouts.**
-- ** Before submission, ensure this list is up to date!!**
 ## Installation
 
 ### Dependencies
