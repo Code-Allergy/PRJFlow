@@ -70,6 +70,9 @@ as the user has Java installed. To decrease the hassle for our stakeholder, we a
 provide a simple installer for Windows.
 
 ### Building for Release (Windows)
+First install [WiX Tools](https://github.com/wixtoolset/wix3/releases), as it is required by jpackage.
+
+
 In order to build the project for distribution, we include a batch script to
 create a simple installer. To use the batch script, you will first need to package
 the application by running the command
