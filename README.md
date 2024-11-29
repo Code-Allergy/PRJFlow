@@ -31,10 +31,21 @@ language models, as well as cloud-based models (via GroqCloud, but easily extend
 ## Installation
 
 ### Dependencies
-You should have a version of JDK21 installed locally on your system if you are building from source.
+You should have a version of JDK21 installed locally (ideally [temurin-21](https://adoptium.net/temurin/releases/), as that's what we worked with) on your system if you are building from source.
 All other Java dependencies are installed via Maven, which is bundled in the repo. There
 are no external dependencies, and everything required is managed through Maven.
 
+### Cloning
+Clone with depth 1 and only main branch to avoid downloading all our history.
+
+With SSH:
+```
+git clone --depth 1 -b main git@git.cs.usask.ca:wwj033/cmpt370t7.git
+```
+With HTTPS:
+```
+git clone --depth 1 -b main https://git.cs.usask.ca/wwj033/cmpt370t7.git
+```
 ### Project Setup
 To get started with our project, clone it locally to your system.
 Then, navigate to the root folder and run the command
