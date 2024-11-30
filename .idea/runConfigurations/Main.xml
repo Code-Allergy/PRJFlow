@@ -3,10 +3,10 @@
     <option name="ALTERNATIVE_JRE_PATH" value="temurin-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.cmpt370T7.PRJFlow.Main" />
-    <module name="demo" />
+    <module name="PRJFlow" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.cmpt370T7.PRJFlow.*" />
+        <option name="PATTERN" value="com.cmpt370T7.PRJFlow.gui.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
