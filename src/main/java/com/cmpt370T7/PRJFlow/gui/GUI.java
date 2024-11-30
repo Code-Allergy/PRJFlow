@@ -53,7 +53,7 @@ public class GUI extends BorderPane {
     private Label summaryLabel;
 
     public GUI() {
-        this.setStyle("-fx-background-color: #825B32");
+        this.setStyle("-fx-background-color: #1A1A1D");
         this.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
 
         this.projects = AppDataManager.getInstance().getConfigManager().getRecentProjects();
