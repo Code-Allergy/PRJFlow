@@ -2,11 +2,13 @@ package com.cmpt370T7.PRJFlow.gui;
 
 import com.cmpt370T7.PRJFlow.Project;
 import com.cmpt370T7.PRJFlow.WebPDFViewer;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,35 +24,28 @@ public class ProjectFileButton extends Button {
 
     private static final String BUTTON_FONT = "Courier";
     private static final double BUTTON_FONT_SIZE = 11;
+    private static final int BUTTON_MAX_WIDTH = 80;
 
     private static final int FILE_ICON_SIZE = 30;
 
-    private static final int MAX_FILE_NAME_LENGTH = 20;
+    private static final int MAX_FILE_NAME_LENGTH = 26;
 
     private final FontIcon fileIcon;
 
     public ProjectFileButton(File file) {
         super();
+        this.setAlignment(Pos.CENTER);
         this.fileIcon = new FontIcon();
 
         this.setFont(Font.font(BUTTON_FONT,  BUTTON_FONT_SIZE));
         setIcon(file);
         this.fileIcon.setIconSize(FILE_ICON_SIZE);
 
-        String extension = "";
-        int i = file.getName().lastIndexOf('.');
-        if (i > 0) {
-            extension = file.getName().substring(i+1);
-        }
+        this.setText(truncateFileName(file.getName()));
+        this.setTextAlignment(TextAlignment.CENTER);
+        this.wrapTextProperty().setValue(true);
 
-        // File name cut off if past 15 characters
-        if (file.getName().length() > 17) {
-            this.setText(file.getName().substring(0, (17 - extension.length() - 3)) + "..." + extension);
-        } else {
-            this.setText(file.getName());
-        }
-
-        //this.setText(truncateFileName(file.getName()));
+        this.setMaxWidth(BUTTON_MAX_WIDTH);
 
         this.setContentDisplay(ContentDisplay.TOP);
         this.setGraphic(fileIcon);
@@ -120,9 +115,19 @@ public class ProjectFileButton extends Button {
         }
     }
 
+    private String getExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1);
+        }
+        return extension.toLowerCase();
+    }
+
     private String truncateFileName(String fileName) {
+        String extension = getExtension(fileName);
         if (fileName.length() > MAX_FILE_NAME_LENGTH) {
-            return fileName.substring(0, MAX_FILE_NAME_LENGTH) + "...";
+            return fileName.substring(0, (MAX_FILE_NAME_LENGTH - extension.length() - 3)) + "..." + extension;
         } else {
             return fileName;
         }
