@@ -19,7 +19,7 @@ public class Project {
         this.directory = directory;
         this.inputFiles = new ArrayList<>();
         this.summaryFiles = new ArrayList<>();
-        addInitialFiles();
+        //addInitialFiles();
     }
 
 
@@ -86,7 +86,8 @@ public class Project {
         return summaryFiles.stream().map(File::toString).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private void addInitialFiles() {
+    public void addInitialFiles() {
+        System.out.println("addInitialFiles for project: " + name);
         File[] directoryFiles = directory.listFiles();
         if (directoryFiles != null) {
             for (File f : directoryFiles) {

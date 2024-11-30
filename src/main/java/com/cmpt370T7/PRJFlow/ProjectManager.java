@@ -40,31 +40,36 @@ public class ProjectManager {
         if (config.containsTableArray("inputFiles")){
             List<String> ConfigInputList = config.getList("inputFiles");
             for (String nextInputFile : ConfigInputList) {
-                if (nextInputFile == null) break;
-                File addFile = new File(nextInputFile);
-
-                if (addFile.exists())
-                    open.addInputFile(addFile);
-
-                else
-                    logger.warn("Input file specified in the project config does not exist: {}", addFile.getPath());
+                if (nextInputFile != null) {
+                    File addFile = new File(nextInputFile);
+                    if (addFile.exists()) {
+                        open.addInputFile(addFile);
+                    } else {
+                        logger.warn("Input file specified in the project config does not exist: {}", addFile.getPath());
+                    }
+                } else {
+                    System.out.println("!!!!!!!!");
+                }
             }
+            System.out.println("ConfigInputList size: " + ConfigInputList.size());
+            System.out.println("open.getInputFiles size: " + open.getInputFiles().size());
+
         }
 
         //Populate the list of generated summary files from the config TOML
         if (config.containsTableArray("summaryFiles")){
             List<String> ConfigSummaryList = config.getList("summaryFiles");
             for (String nextSummaryFile : ConfigSummaryList) {
-                if (nextSummaryFile == null) break;
-                File addFile = new File(nextSummaryFile);
-
-                if (addFile.exists())
-                    open.addSummaryFile(addFile);
-                else
-                    logger.warn("Summary file specified in the project config does not exist: {}", addFile.getPath());
+                if (nextSummaryFile != null) {
+                    File addFile = new File(nextSummaryFile);
+                    if (addFile.exists()) {
+                        open.addSummaryFile(addFile);
+                    } else {
+                        logger.warn("Summary file specified in the project config does not exist: {}", addFile.getPath());
+                    }
+                }
             }
         }
-
         return open;
     }
 

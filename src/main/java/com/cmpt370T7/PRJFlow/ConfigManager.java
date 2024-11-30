@@ -74,7 +74,6 @@ public class ConfigManager {
         Object reminderDataObj = configData.get("reminders");
 
         if (reminderDataObj instanceof Map) {
-            @SuppressWarnings("unchecked")
             Map<String, List<String>> reminderData = (Map<String, List<String>>) reminderDataObj;
             for (Map.Entry<String, List<String>> entry : reminderData.entrySet()) {
                 LocalDate date = LocalDate.parse(entry.getKey(), DateTimeFormatter.ISO_LOCAL_DATE);
@@ -96,15 +95,17 @@ public class ConfigManager {
     }
 
     public List<Project> getRecentProjects() {
+        System.out.print("getRecentProjects()");
         List<Project> projectList = new ArrayList<>();
         Object recentProjectsObj = configData.get("recent_projects");
-        
+
         if (recentProjectsObj instanceof List<?> projects) {
             for (Object pathObj : projects) {
                 try {
                     // Convert the path object to string regardless of its type
                     String projectPath = pathObj.toString();
                     File projectFile = new File(projectPath, "prjflowconfig.toml");
+                    System.out.println("Project Path: " + projectFile.getAbsolutePath());
                     projectList.add(ProjectManager.openProject(projectFile));
                 } catch (NoSuchFieldException | FileNotFoundException e) {
                     logger.warn("Could not find project at path: {}", pathObj);
@@ -113,6 +114,17 @@ public class ConfigManager {
         } else {
             logger.warn("Recent projects data not found or not in the expected format.");
         }
+
+
+
+        for (Project p : projectList) {
+            System.out.print(p.getName() + ": ");
+            for (File f : p.getInputFiles()) {
+                System.out.print(f.getName() + " ");
+            }
+        }
+        System.out.println();
+
         
         return projectList;
     }
@@ -139,11 +151,6 @@ public class ConfigManager {
             logger.warn("Failed to load LLM provider config: {}", e.getMessage());
             return null;
         }
-
-
-
-
-
     }
 
     public void setLlmProviderConfig(LlmProviderConfig providerConfig) {
