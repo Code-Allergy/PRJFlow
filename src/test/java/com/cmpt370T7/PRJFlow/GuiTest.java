@@ -1,47 +1,67 @@
 package com.cmpt370T7.PRJFlow;
 
 import com.cmpt370T7.PRJFlow.gui.GUI;
-import javafx.scene.Node;
-import javafx.scene.Parent;
+import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationTest;
-import static org.testfx.api.FxAssert.verifyThat;
+
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
-import java.util.List;
-import java.util.Set;
-
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuiTest extends ApplicationTest {
-    private Project project;
-    private File directory;
     private GUI gui;
     private String testProjectName;
+    private String defaultDirectoryString;
+    private File testFile;
+    private Project testProject;
+
 
     @BeforeEach
     public void setUp() {
-        //directory = new File("test-directory");
-        //project = new Project("Test Project", directory);
-        //gui = new GUI();
+        Platform.runLater(() -> gui.clearAllProjects());
+        //Platform.runLater(() -> gui = new GUI());
     }
+
+    public String readFile(File file) {
+        StringBuilder readString = new StringBuilder();
+        try {
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                String lineString = scanner.nextLine();
+                readString.append(lineString);
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return readString.toString();
+    }
+
+
 
     @Override
     public void start(Stage stage) throws Exception {
         AppDataManager.instantiate();
         stage.setTitle("GuiTest");
-        //gui = new GUI();
-        //Scene scene = new Scene(gui);
         gui = new GUI();
         gui.clearAllProjects();
-        testProjectName = "Test Project 1";
+        //Scene scene = new Scene(gui);
+        testProjectName = "Test Project one";
+        defaultDirectoryString = System.getProperty("user.home") + "\\Documents";
+        testFile = new File(System.getProperty("user.dir") + "\\src\\test\\java\\com\\cmpt370T7\\PRJFlow\\testFile.txt");
+        testProject = new Project(testProjectName, new File(defaultDirectoryString));
+        System.out.println(testFile.toString());
         Scene scene = new Scene(gui);
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -49,10 +69,7 @@ public class GuiTest extends ApplicationTest {
         stage.requestFocus();
     }
 
-    @Test
-    public void contains_new_project_button() {
-        verifyThat(".button", hasText("New Project"));
-    }
+    // User Story: Create New Project
 
     @Test
     public void create_new_project() {
@@ -64,91 +81,107 @@ public class GuiTest extends ApplicationTest {
     }
 
     @Test
+    public void create_new_project_empty_name() {
+        assertThat(gui.getProjectCount()).isEqualTo(0);
+        clickOn(hasText("New Project"));
+        write("");
+        clickOn(hasText("OK"));
+        clickOn(hasText("OK")); //Warning message
+        assertThat(gui.getProjectCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void create_project_duplicate_name() {
+        gui.addProject(testProject);
+        assertThat(gui.getProjectCount()).isEqualTo(1);
+        clickOn(hasText("New Project"));
+        write(testProjectName);
+        clickOn(hasText("OK")); //Warning message
+        assertThat(gui.getProjectCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void cancel_create_new_project() {
+        assertThat(gui.getProjectCount()).isEqualTo(0);
+        clickOn(hasText("New Project"));
+        clickOn(hasText("Cancel"));
+        assertThat(gui.getProjectCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void cancel_after_naming_project() {
+        clickOn(hasText("New Project"));
+        write(testProjectName);
+        clickOn(hasText("OK"));
+        press(KeyCode.ESCAPE);
+        assertThat(gui.getProjectCount()).isEqualTo(0);
+    }
+
+
+
+    //User Story: View and edit project info
+
+    @Test
     public void delete_project() {
-        //clickOn(hasText(testProjectName));
+        gui.addProject(testProject);
 
-        Project selectedProject = gui.getSelectedProject();
-        clickOn(gui.getRecentListView().get);
-
-
+        clickOn(gui.getRecentListView());
+        press(KeyCode.ENTER); //First and only item in ListView
         clickOn(hasText("Delete Project"));
         clickOn(hasText("OK"));
-        //System.out.println()
         assertThat(gui.containsProject(testProjectName)).isFalse();
     }
-/*
+
     @Test
-    public void testGetName() {
-        assertThat(project.getName()).isEqualTo("Test Project");
+    public void cancel_delete_project() {
+        gui.addProject(testProject);
+
+        clickOn(gui.getRecentListView());
+        press(KeyCode.ENTER); //First and only item in ListView
+        clickOn(hasText("Delete Project"));
+        clickOn(hasText("Cancel"));
+        assertThat(gui.containsProject(testProjectName)).isTrue();
     }
 
     @Test
-    public void testGetOwner() {
-        project.setOwner("Owner");
-        assertThat(project.getOwner()).isEqualTo("Owner");
+    public void add_file() {
+        gui.addProject(testProject);
+        clickOn(gui.getRecentListView());
+        press(KeyCode.ENTER); //First and only item in ListView
+
+        clickOn(hasText("Add File"));
+
+        Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+        StringSelection stringSelection = new StringSelection(testFile.getAbsolutePath());
+        c.setContents(stringSelection, stringSelection);
+        press(KeyCode.CONTROL).press(KeyCode.V).release(KeyCode.V).release(KeyCode.CONTROL);
+        push(KeyCode.ENTER);
+        push(KeyCode.ENTER);
+
+        assertThat(gui.getSelectedProject().contains(testFile)).isTrue();
     }
 
     @Test
-    public void testGetDirectory() {
-        assertThat(project.getDirectory()).isEqualTo(directory);
+    public void delete_file() {
+        gui.addProject(testProject);
+        Platform.runLater(() -> gui.addFile(testFile));
+        clickOn(gui.getRecentListView());
+        press(KeyCode.ENTER); //First and only item in ListView
+        clickOn(hasText(testFile.getName()));
+        clickOn("Remove File");
+
+        assertThat(gui.getSelectedProject().contains(testFile)).isFalse();
     }
 
     @Test
-    public void testAddInputFile() {
-        File file = new File("input-file.txt");
-        project.addInputFile(file);
-        assertThat(project.getInputFiles()).contains(file);
+    public void view_file_summary() {
+        gui.addProject(testProject);
+        Platform.runLater(() -> gui.addFile(testFile));
+        String fileContents = readFile(testFile);
+
+        doubleClickOn(hasText(testFile.getName()));
+
+        assertThat(gui.getRightPaneLabel().getText()).isEqualTo(fileContents);
     }
 
-    @Test
-    public void testContains() {
-        File file = new File("input-file.txt");
-        project.addInputFile(file);
-        assertThat(project.contains(file)).isTrue();
-    }
-
-    @Test
-    public void testAddSummaryFile() {
-        File file = new File("summary-file.txt");
-        project.addSummaryFile(file);
-        assertThat(project.getSummaryFiles()).contains(file);
-    }
-
-    @Test
-    public void testRemoveFile() {
-        File file = new File("input-file.txt");
-        project.addInputFile(file);
-        project.removeFile(file.getName());
-        assertThat(project.getInputFiles()).doesNotContain(file);
-    }
-
-    @Test
-    public void testGetInputFileNames() {
-        File file = new File("input-file.txt");
-        project.addInputFile(file);
-        List<String> fileNames = project.getInputFileNames();
-        assertThat(fileNames).contains(file.toString());
-    }
-
-    @Test
-    public void testGetSummaryFileNames() {
-        File file = new File("summary-file.txt");
-        project.addSummaryFile(file);
-        List<String> fileNames = project.getSummaryFileNames();
-        assertThat(fileNames).contains(file.toString());
-    }
-
-    @Test
-    public void testGetFile() {
-        File file = new File("input-file.txt");
-        project.addInputFile(file);
-        assertThat(project.getFile(file.getName())).isEqualTo(file);
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(project.toString()).isEqualTo("Test Project");
-    }
-
- */
 }

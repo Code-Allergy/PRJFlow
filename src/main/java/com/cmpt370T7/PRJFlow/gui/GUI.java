@@ -7,6 +7,7 @@ import com.cmpt370T7.PRJFlow.llm.PopulateTxt;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -49,6 +50,7 @@ public class GUI extends BorderPane {
 
     private FileActionsBox fileActionsBox;
     private RecentProjects recentProjects;
+    private Label summaryLabel;
 
     public GUI() {
         this.setStyle("-fx-background-color: #825B32");
@@ -69,6 +71,7 @@ public class GUI extends BorderPane {
         this.selectedFileText = new Text("No File Selected");
         selectedFileText.setFont(new Font(20));
         this.filesPane = new ProjectFilesPane();
+        this.summaryLabel = null;
 
 
         // Set padding for the entire BorderPane
@@ -132,7 +135,9 @@ public class GUI extends BorderPane {
         logger.debug("Creating files pane for project: {}", selectedProject);
         this.filesPane.getChildren().clear();
         for (File file : projectFiles) {
-            if (file.getName().equals("prjflowconfig.toml")) { continue; }
+            if (file.getName().equals("prjflowconfig.toml")) {
+                continue;
+            }
             ProjectFileButton newButton = createFileButton(file);
             this.filesPane.getChildren().add(newButton);
         }
@@ -187,12 +192,10 @@ public class GUI extends BorderPane {
             }
             dc.setInitialDirectory(defaultDirectory);
 
-            File selectedFolder =  dc.showDialog(this.getScene().getWindow());
+            File selectedFolder = dc.showDialog(this.getScene().getWindow());
             if (selectedFolder != null) {
                 Project newProject = new Project(name.trim(), selectedFolder);
-                projects.addFirst(newProject); // Add to the top of the list
-                updateProjectsListView();
-                selectedProject = newProject;
+                addProject(newProject); // Add to the top of the list
 
                 AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
                 try {
@@ -206,6 +209,13 @@ public class GUI extends BorderPane {
                 projectSelection(newProject);
             }
         });
+    }
+
+    // Create project
+    public void addProject(Project project) {
+        projects.addFirst(project);
+        updateProjectsListView();
+        selectedProject = project;
     }
 
     private void deleteProject() {
@@ -243,7 +253,7 @@ public class GUI extends BorderPane {
                         this.rightPane.getChildren().setAll(pdfViewer);
                     } else if (getFileExtension(selectedFile.getName()).equals("txt") || getFileExtension(selectedFile.getName()).equals("csv")) {
                         String summaryString = readFile(selectedFile);
-                        Label summaryLabel = new Label(summaryString);
+                        summaryLabel = new Label(summaryString);
                         summaryLabel.setMinWidth(200);
                         summaryLabel.setWrapText(true);
                         summaryLabel.setMaxWidth(300);
@@ -282,7 +292,7 @@ public class GUI extends BorderPane {
         String extension = "";
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
-            extension = fileName.substring(i+1);
+            extension = fileName.substring(i + 1);
         }
         return extension;
     }
@@ -336,11 +346,15 @@ public class GUI extends BorderPane {
                         alert.setContentText("A file with that name is already in the project.");
                         alert.showAndWait();
                     } else {
-                        selectedProject.addInputFile(file);
-                        filesPane.getChildren().add(createFileButton(file));
+                        addFile(file);
                     }
                 }
         );
+    }
+
+    public void addFile(File file) {
+        selectedProject.addInputFile(file);
+        filesPane.getChildren().add(createFileButton(file));
     }
 
     private void removeFile() {
@@ -368,6 +382,20 @@ public class GUI extends BorderPane {
             exportDialog.setContentText("Enter the name of the output file:");
 
             Optional<String> result = exportDialog.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Name");
+            alert.setHeaderText(null);
+            if (result.isPresent()) {
+                if (result.orElse("").equals("")) {
+                    alert.setContentText("Cannot be empty name");
+                    alert.showAndWait();
+                    return;
+                } else if (result.orElse("<").matches(".*[<>:\"/\\|?*].*")) {
+                    alert.setContentText("Illegal file name characters");
+                    alert.showAndWait();
+                    return;
+                }
+            }
             result.ifPresent(exportFileName -> {
                 if (!exportFileName.trim().isEmpty()) {
                     Path exportPath = Paths.get(selectedProject.getDirectory().getPath(), exportFileName + ".csv");
@@ -456,12 +484,12 @@ public class GUI extends BorderPane {
             return;
         }
         if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
-            TextInputDialog  summarizeDialog = new TextInputDialog();
+            TextInputDialog summarizeDialog = new TextInputDialog();
             summarizeDialog.setTitle("Summarize");
             summarizeDialog.setHeaderText("Output file");
             summarizeDialog.setContentText("Enter the name of the output file:");
 
-            Optional<String> result =  summarizeDialog.showAndWait();
+            Optional<String> result = summarizeDialog.showAndWait();
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Name");
             alert.setHeaderText(null);
@@ -500,6 +528,7 @@ public class GUI extends BorderPane {
     public boolean containsProject(Project p) {
         return projects.contains(p);
     }
+
     public void clearAllProjects() {
         projects.clear();
         projectSelection(null);
@@ -517,5 +546,14 @@ public class GUI extends BorderPane {
     public ListView<Project> getRecentListView() {
         return recentProjects.getProjectsListView();
     }
+
+    public Label getRightPaneLabel() {
+        return summaryLabel;
+    }
+
+    public int getProjectCount() {
+        return projects.size();
+    }
+
 }
 
