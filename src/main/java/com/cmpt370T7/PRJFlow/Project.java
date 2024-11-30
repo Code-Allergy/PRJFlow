@@ -89,7 +89,13 @@ public class Project {
     private void addInitialFiles() {
         File[] directoryFiles = directory.listFiles();
         if (directoryFiles != null) {
-            Collections.addAll(inputFiles, directoryFiles);
+            for (File f : directoryFiles) {
+                if (f.isFile()) {
+                    System.out.println(f);
+                    inputFiles.add(f);
+                }
+            }
+            //Collections.addAll(inputFiles, directoryFiles);
         }
 
     }

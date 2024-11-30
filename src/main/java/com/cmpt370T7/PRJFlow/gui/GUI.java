@@ -192,6 +192,7 @@ public class GUI extends BorderPane {
                 Project newProject = new Project(name.trim(), selectedFolder);
                 projects.addFirst(newProject); // Add to the top of the list
                 updateProjectsListView();
+                selectedProject = newProject;
 
                 AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
                 try {
@@ -215,6 +216,13 @@ public class GUI extends BorderPane {
             if (userConfirmation) {
                 projects.remove(selectedProject);
                 updateProjectsListView();
+                AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                /*try {
+                    ProjectManager.removeProject(selectedProject);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                 */
                 projectSelection(null);
             }
         }
@@ -454,6 +462,20 @@ public class GUI extends BorderPane {
             summarizeDialog.setContentText("Enter the name of the output file:");
 
             Optional<String> result =  summarizeDialog.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Name");
+            alert.setHeaderText(null);
+            if (result.isPresent()) {
+                if (result.orElse("").equals("")) {
+                    alert.setContentText("Cannot be empty name");
+                    alert.showAndWait();
+                    return;
+                } else if (result.orElse("<").matches(".*[<>:\"/\\|?*].*")) {
+                    alert.setContentText("Illegal file name characters");
+                    alert.showAndWait();
+                    return;
+                }
+            }
             result.ifPresent(summarizeFileName -> {
                 if (!summarizeFileName.trim().isEmpty()) {
                     Path summarizePath = Paths.get(selectedProject.getDirectory().getPath(), summarizeFileName + ".txt");
@@ -477,6 +499,23 @@ public class GUI extends BorderPane {
 
     public boolean containsProject(Project p) {
         return projects.contains(p);
+    }
+    public void clearAllProjects() {
+        projects.clear();
+        projectSelection(null);
+        updateProjectsListView();
+    }
+
+    public Project getSelectedProject() {
+        return selectedProject;
+    }
+
+    public File getSelectedFile() {
+        return selectedFile;
+    }
+
+    public ListView<Project> getRecentListView() {
+        return recentProjects.getProjectsListView();
     }
 }
 
