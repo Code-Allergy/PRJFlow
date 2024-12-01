@@ -243,7 +243,6 @@ public class GUI extends BorderPane {
 
             Alert alert = new Alert(Alert.AlertType.WARNING);
 
-
             Optional<String> result = projectNameDialog(alert);
             result.ifPresent(name -> {
                 if (name.trim().isEmpty()) {
@@ -255,8 +254,6 @@ public class GUI extends BorderPane {
                     AlertHelper.showError("Invalid Name", "A project with that name is already created.");
                     return;
                 }
-
-
 
 
                 File selectedFolder = selectedProject.getDirectory();
@@ -454,7 +451,7 @@ public class GUI extends BorderPane {
                 } else if (!exportFileName.trim().isEmpty()) {
                     Path exportPath = Paths.get(selectedProject.getDirectory().getPath(), exportFileName + ".csv");
                     File exportFile = exportPath.toFile();
-                    selectedProject.addInputFile(exportFile);
+                    selectedProject.addSummaryFile(exportFile);
                     filesPane.getChildren().add(createFileButton(exportFile));
                     System.out.println("Before GenerateCsv Starts");
                     PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath.toString());
@@ -563,7 +560,7 @@ public class GUI extends BorderPane {
                 } else if (!summarizeFileName.trim().isEmpty()) {
                     Path summaryPath = Paths.get(selectedProject.getDirectory().getPath(), summarizeFileName + ".txt");
                     File summaryFile = summaryPath.toFile();
-                    selectedProject.addInputFile(summaryFile);
+                    selectedProject.addSummaryFile(summaryFile);
                     filesPane.getChildren().add(createFileButton(summaryFile));
                     System.out.println("Before PopulateTxt Starts");
                     PopulateTxt.GenerateTxt(selectedFile.getAbsolutePath(), summaryPath.toString());

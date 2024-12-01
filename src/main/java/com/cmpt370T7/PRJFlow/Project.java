@@ -66,7 +66,7 @@ public class Project {
         this.name = newName;
     }
 
-    void addSummaryFile(File fileName){
+    public void addSummaryFile(File fileName){
         summaryFiles.add(fileName);
     }
 
