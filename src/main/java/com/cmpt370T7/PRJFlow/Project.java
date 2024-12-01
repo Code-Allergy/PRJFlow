@@ -1,6 +1,7 @@
 package com.cmpt370T7.PRJFlow;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +84,12 @@ public class Project {
             s.add(f.toString());
         }
         return summaryFiles.stream().map(File::toString).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<String> getAllFileNames() {
+        ArrayList<String> allFileNames = getSummaryFileNames();
+        allFileNames.addAll(getInputFileNames());
+        return allFileNames;
     }
 
     public void addInitialFiles() {

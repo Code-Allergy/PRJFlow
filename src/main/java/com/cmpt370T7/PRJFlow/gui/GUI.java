@@ -198,12 +198,7 @@ public class GUI extends BorderPane {
                 addProject(newProject); // Add to the top of the list
 
                 AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
-                try {
-                    ProjectManager.saveProject(newProject, selectedFolder);
-                } catch (IOException e) {
-                    // TODO handle error on project config file creation
-                    throw new RuntimeException(e);
-                }
+                updateConfig(newProject, selectedFolder);
 
                 logger.info("New project created: {}", selectedProject.getName());
                 projectSelection(newProject);
@@ -352,11 +347,7 @@ public class GUI extends BorderPane {
                         alert.showAndWait();
                     } else {
                         addFile(file);
-                        try {
-                            ProjectManager.saveProject(selectedProject, selectedProject.getDirectory());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        updateConfig(selectedProject, selectedProject.getDirectory());
 
                     }
                 }
@@ -375,11 +366,7 @@ public class GUI extends BorderPane {
         if (selectedFile != null) {
             logger.info("Removing file from project: {}", selectedFile.getName());
             selectedProject.removeFile(selectedFile.getName());
-            try {
-                ProjectManager.saveProject(selectedProject, selectedProject.getDirectory());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            updateConfig(selectedProject, selectedProject.getDirectory());
             filesPane.getChildren().removeIf(f -> (f.getId().equals(selectedFile.getName())));
             setSelectedFile(null);
             selectedFileText.setText("No File Selected");
@@ -401,24 +388,27 @@ public class GUI extends BorderPane {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Name");
             alert.setHeaderText(null);
-            if (result.isPresent()) {
-                if (result.orElse("").equals("")) {
+
+
+            result.ifPresent(exportFileName -> {
+                if (exportFileName.equals("")) {
                     alert.setContentText("Cannot be empty name");
                     alert.showAndWait();
-                    return;
-                } else if (result.orElse("<").matches(".*[<>:\"/\\|?*].*")) {
+                } else if (containsIllegalCharacters(exportFileName)) {
                     alert.setContentText("Illegal file name characters");
                     alert.showAndWait();
-                    return;
-                }
-            }
-            result.ifPresent(exportFileName -> {
-                if (!exportFileName.trim().isEmpty()) {
+                } else if (selectedProject.getAllFileNames().contains(selectedProject.getDirectory() + "\\" + exportFileName + ".csv")) {
+                    alert.setContentText("A file with that name is already in the project.");
+                    alert.showAndWait();
+                } else if (!exportFileName.trim().isEmpty()) {
                     Path exportPath = Paths.get(selectedProject.getDirectory().getPath(), exportFileName + ".csv");
                     File exportFile = exportPath.toFile();
                     selectedProject.addInputFile(exportFile);
                     filesPane.getChildren().add(createFileButton(exportFile));
+                    System.out.println("Before GenerateCsv Starts");
                     PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath.toString());
+                    System.out.println("After GenerateCsv Ends");
+                    updateConfig(selectedProject, selectedProject.getDirectory());
                 }
             });
         }
@@ -509,26 +499,39 @@ public class GUI extends BorderPane {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Name");
             alert.setHeaderText(null);
-            if (result.isPresent()) {
-                if (result.orElse("").equals("")) {
+            result.ifPresent(summarizeFileName -> {
+                if (summarizeFileName.equals("")) {
                     alert.setContentText("Cannot be empty name");
                     alert.showAndWait();
-                    return;
-                } else if (result.orElse("<").matches(".*[<>:\"/\\|?*].*")) {
+                } else if (containsIllegalCharacters(summarizeFileName)) {
                     alert.setContentText("Illegal file name characters");
                     alert.showAndWait();
-                    return;
-                }
-            }
-            result.ifPresent(summarizeFileName -> {
-                if (!summarizeFileName.trim().isEmpty()) {
-                    Path summarizePath = Paths.get(selectedProject.getDirectory().getPath(), summarizeFileName + ".txt");
-                    File summarizeFile = summarizePath.toFile();
-                    selectedProject.addInputFile(summarizeFile);
-                    filesPane.getChildren().add(createFileButton(summarizeFile));
-                    PopulateTxt.GenerateTxt(selectedFile.getAbsolutePath(), summarizePath.toString());
+                } else if (selectedProject.getAllFileNames().contains(selectedProject.getDirectory() + "\\" + summarizeFileName + ".txt")) {
+                    alert.setContentText("A file with that name is already in the project.");
+                    alert.showAndWait();
+                } else if (!summarizeFileName.trim().isEmpty()) {
+                    Path summaryPath = Paths.get(selectedProject.getDirectory().getPath(), summarizeFileName + ".txt");
+                    File summaryFile = summaryPath.toFile();
+                    selectedProject.addInputFile(summaryFile);
+                    filesPane.getChildren().add(createFileButton(summaryFile));
+                    System.out.println("Before PopulateTxt Starts");
+                    PopulateTxt.GenerateTxt(selectedFile.getAbsolutePath(), summaryPath.toString());
+                    System.out.println("After PopulateTxt Ends");
+                    updateConfig(selectedProject, selectedProject.getDirectory());
                 }
             });
+        }
+    }
+
+    private boolean containsIllegalCharacters(String pathName) {
+        return pathName.matches(".*[<>:\"/\\|?*].*");
+    }
+
+    public void updateConfig(Project project, File folder) {
+        try {
+            ProjectManager.saveProject(project, folder);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
