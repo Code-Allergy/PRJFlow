@@ -47,13 +47,8 @@ public class ProjectManager {
                     } else {
                         logger.warn("Input file specified in the project config does not exist: {}", addFile.getPath());
                     }
-                } else {
-                    System.out.println("!!!!!!!!");
                 }
             }
-            System.out.println("ConfigInputList size: " + ConfigInputList.size());
-            System.out.println("open.getInputFiles size: " + open.getInputFiles().size());
-
         }
 
         //Populate the list of generated summary files from the config TOML
@@ -107,7 +102,19 @@ public class ProjectManager {
 
         //Write the ma to the config file
         writer.write(configMap, saveFile);
+    }
 
+    /**
+     * Removes a Project object from a config file.
+     *
+     * @param project Project object to save to file
+     * @throws IllegalArgumentException when supplied with a null project or an incorrect filename
+     * @throws IOException if the prjflowconfig.toml file exists but is not writable
+     */
+    public static void removeProject(Project project) throws IOException{
+        if (project == null) throw new IllegalArgumentException("Cannot remove a null project.");
+        File tomlFile = getConfigFile(project.getDirectory());
+        tomlFile.delete();
     }
 
     protected static File getConfigFile(File pathname) throws IOException {

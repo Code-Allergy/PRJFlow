@@ -61,10 +61,6 @@ public class GUI extends BorderPane {
         }
         this.remindersMap = AppDataManager.getInstance().getConfigManager().getReminderMap();
 
-        for (Project p : projects) {
-            System.out.println("Project: " + p.getName() + " , inputFiles.size(): " + p.getInputFiles().size());
-        }
-
         this.selectedProject = null;
         this.selectedFile = null;
         this.calendar = new CustomCalendar(remindersMap);
@@ -105,7 +101,6 @@ public class GUI extends BorderPane {
     }
 
     private VBox createCenterPane() {
-        System.out.println("!!! createCenterPane() !!!");
         centerPane = new VBox(10);
         centerPane.setPadding(new Insets(10));
         centerPane.setStyle("-fx-background-color: #E5E1DA;");
@@ -138,19 +133,12 @@ public class GUI extends BorderPane {
         List<File> projectFiles = selectedProject != null ? selectedProject.getInputFiles() : new ArrayList<>();
         logger.debug("Creating files pane for project: {}", selectedProject);
         this.filesPane.getChildren().clear();
-        int fileCounter = 0;
-        System.out.println("Project files size: " + projectFiles.size());
-        if (selectedProject != null) {
-            System.out.println("selectedProject.size() = " + selectedProject.getInputFiles().size());
-        }
         for (File file : projectFiles) {
             if (file.getName().equals("prjflowconfig.toml")) {
                 continue;
             }
-            System.out.println(fileCounter + " Adding: " + file.getName());
             ProjectFileButton newButton = createFileButton(file);
             this.filesPane.getChildren().add(newButton);
-            fileCounter++;
         }
     }
 
@@ -238,6 +226,11 @@ public class GUI extends BorderPane {
             if (userConfirmation) {
                 projects.remove(selectedProject);
                 updateProjectsListView();
+                try {
+                    ProjectManager.removeProject(selectedProject);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
                 /*try {
                     ProjectManager.removeProject(selectedProject);
@@ -324,7 +317,6 @@ public class GUI extends BorderPane {
     }
 
     private void projectSelection(Project project) {
-        System.out.println("!! projectSelection() !!");
         String projectName = project != null ? project.getName() : "No Project Selected";
         this.selectedProjectText.setText(projectName);
         this.selectedProject = project;

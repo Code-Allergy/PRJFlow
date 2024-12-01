@@ -19,7 +19,6 @@ public class Project {
         this.directory = directory;
         this.inputFiles = new ArrayList<>();
         this.summaryFiles = new ArrayList<>();
-        //addInitialFiles();
     }
 
 
@@ -87,12 +86,10 @@ public class Project {
     }
 
     public void addInitialFiles() {
-        System.out.println("addInitialFiles for project: " + name);
         File[] directoryFiles = directory.listFiles();
         if (directoryFiles != null) {
             for (File f : directoryFiles) {
                 if (f.isFile()) {
-                    System.out.println(f);
                     inputFiles.add(f);
                 }
             }

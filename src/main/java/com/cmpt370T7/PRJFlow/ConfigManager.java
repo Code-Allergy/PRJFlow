@@ -95,7 +95,6 @@ public class ConfigManager {
     }
 
     public List<Project> getRecentProjects() {
-        System.out.print("getRecentProjects()");
         List<Project> projectList = new ArrayList<>();
         Object recentProjectsObj = configData.get("recent_projects");
 
@@ -105,7 +104,6 @@ public class ConfigManager {
                     // Convert the path object to string regardless of its type
                     String projectPath = pathObj.toString();
                     File projectFile = new File(projectPath, "prjflowconfig.toml");
-                    System.out.println("Project Path: " + projectFile.getAbsolutePath());
                     projectList.add(ProjectManager.openProject(projectFile));
                 } catch (NoSuchFieldException | FileNotFoundException e) {
                     logger.warn("Could not find project at path: {}", pathObj);
@@ -114,17 +112,6 @@ public class ConfigManager {
         } else {
             logger.warn("Recent projects data not found or not in the expected format.");
         }
-
-
-
-        for (Project p : projectList) {
-            System.out.print(p.getName() + ": ");
-            for (File f : p.getInputFiles()) {
-                System.out.print(f.getName() + " ");
-            }
-        }
-        System.out.println();
-
         
         return projectList;
     }
