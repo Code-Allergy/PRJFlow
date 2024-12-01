@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Project {
 
-    private final String name;
+    private String name;
     private final File directory;
     private String owner;
     private List<File> inputFiles;
@@ -60,6 +60,10 @@ public class Project {
             }
         }
         return false;
+    }
+
+    public void setName(String newName) {
+        this.name = newName;
     }
 
     void addSummaryFile(File fileName){

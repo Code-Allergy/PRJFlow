@@ -96,6 +96,7 @@ public class GUI extends BorderPane {
         recentProjects.setOnProjectSelected(() -> this.projectSelection(this.recentProjects.getSelectedProject()));
         recentProjects.setOnNewProject(this::createNewProject);
         recentProjects.setOnDeleteProject(this::deleteProject);
+        recentProjects.setOnEditProjectName(this::editProjectName);
 
         return recentProjects;
     }
@@ -178,7 +179,6 @@ public class GUI extends BorderPane {
                 return;
             }
 
-
             DirectoryChooser dc = new DirectoryChooser();
             dc.setTitle("Choose the project directory");
             Path defaultPath = Paths.get(System.getProperty("user.home"), "Documents");
@@ -236,6 +236,57 @@ public class GUI extends BorderPane {
                 projectSelection(null);
             }
         }
+    }
+
+    private void editProjectName() {
+        if (selectedProject != null) {
+
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+
+
+            Optional<String> result = projectNameDialog(alert);
+            result.ifPresent(name -> {
+                if (name.trim().isEmpty()) {
+                    AlertHelper.showError("Invalid Name", "Project name cannot be empty.");
+                    return;
+                }
+                // Check if the project is a duplicate
+                if (projects.stream().anyMatch(p -> p.getName().equals(name))) {
+                    AlertHelper.showError("Invalid Name", "A project with that name is already created.");
+                    return;
+                }
+
+
+
+
+                File selectedFolder = selectedProject.getDirectory();
+                if (selectedFolder != null) {
+                    Project newProject = new Project(name.trim(), selectedFolder);
+                    newProject.addInitialFiles();
+                    addProject(newProject); // Add to the top of the list
+
+                    AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                    updateConfig(newProject, selectedFolder);
+
+                    logger.info("New project created: {}", selectedProject.getName());
+                    projectSelection(newProject);
+                }
+            });
+        }
+    }
+
+    private Optional<String> projectNameDialog(Alert alert) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Edit Project Name");
+        dialog.setHeaderText("Enter the new project name");
+        dialog.setContentText("Project Name:");
+
+        alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Invalid Name");
+        alert.setHeaderText(null);
+
+        Optional<String> result = dialog.showAndWait();
+        return result;
     }
 
     private ProjectFileButton createFileButton(File file) {

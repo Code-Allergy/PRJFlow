@@ -1,6 +1,7 @@
 package com.cmpt370T7.PRJFlow.gui;
 
 import com.cmpt370T7.PRJFlow.Project;
+import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +17,7 @@ public class RecentProjects extends VBox {
 
     private final Button newProjectButton;
     private final Button deleteProjectButton;
+    private final Button editProjectNameButton;
 
     public RecentProjects(List<Project> projects) {
         super(10);
@@ -32,7 +34,10 @@ public class RecentProjects extends VBox {
         deleteProjectButton = new Button("Delete Project");
         deleteProjectButton.getStyleClass().add("accent-button");
 
-        this.getChildren().addAll(projectsLabel, projectsListView, newProjectButton, deleteProjectButton);
+        editProjectNameButton = new Button("Edit Project Name");
+        editProjectNameButton.getStyleClass().add("accent-button");
+
+        this.getChildren().addAll(projectsLabel, projectsListView, newProjectButton, deleteProjectButton, editProjectNameButton);
     }
 
     public ListView<Project> getProjectsListView() {
@@ -57,6 +62,10 @@ public class RecentProjects extends VBox {
 
     public void setOnDeleteProject(Runnable action) {
         deleteProjectButton.setOnAction(e -> action.run());
+    }
+
+    public void setOnEditProjectName(Runnable action) {
+        editProjectNameButton.setOnAction(e -> action.run());
     }
 
 }
