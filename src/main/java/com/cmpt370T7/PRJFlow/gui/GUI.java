@@ -240,35 +240,7 @@ public class GUI extends BorderPane {
 
     private void editProjectName() {
         if (selectedProject != null) {
-
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-
-            Optional<String> result = projectNameDialog(alert);
-            result.ifPresent(name -> {
-                if (name.trim().isEmpty()) {
-                    AlertHelper.showError("Invalid Name", "Project name cannot be empty.");
-                    return;
-                }
-                // Check if the project is a duplicate
-                if (projects.stream().anyMatch(p -> p.getName().equals(name))) {
-                    AlertHelper.showError("Invalid Name", "A project with that name is already created.");
-                    return;
-                }
-
-
-                File selectedFolder = selectedProject.getDirectory();
-                if (selectedFolder != null) {
-                    Project newProject = new Project(name.trim(), selectedFolder);
-                    newProject.addInitialFiles();
-                    addProject(newProject); // Add to the top of the list
-
-                    AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
-                    updateConfig(newProject, selectedFolder);
-
-                    logger.info("New project created: {}", selectedProject.getName());
-                    projectSelection(newProject);
-                }
-            });
+            
         }
     }
 
