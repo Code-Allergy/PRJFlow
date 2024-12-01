@@ -8,6 +8,7 @@ import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -19,6 +20,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -121,17 +125,21 @@ public class GUI extends BorderPane {
         rightPane = new VBox(10);
 
         Button calendarButton = new Button("Calendar");
+        calendarButton.getStyleClass().add("accent-button");
         calendarButton.setOnAction(a -> {
             viewCalendar();
         });
         Button viewPdfButton = new Button("ViewPDF");
+        viewPdfButton.getStyleClass().add("accent-button");
         viewPdfButton.setOnAction(a -> {
             viewPDF();
         });
         Button viewTxtButton = new Button("ViewTxt");
+        viewTxtButton.getStyleClass().add("accent-button");
         viewTxtButton.setOnAction(a -> {
             viewTXT();
         });
+        rightPaneButtonBox.setSpacing(5);
         rightPaneButtonBox.getChildren().addAll(calendarButton, viewPdfButton, viewTxtButton);
 
         rightPane.setPadding(new Insets(10));
@@ -143,7 +151,12 @@ public class GUI extends BorderPane {
 
 
     private void createFilesPane() {
-        List<File> projectFiles = selectedProject != null ? selectedProject.getInputFiles() : new ArrayList<>();
+        List<File> projectFiles = new ArrayList<>();
+        if (selectedProject != null) {
+            projectFiles.addAll(selectedProject.getInputFiles());
+            projectFiles.addAll(selectedProject.getSummaryFiles());
+        }
+
         logger.debug("Creating files pane for project: {}", selectedProject);
         this.filesPane.getChildren().clear();
         for (File file : projectFiles) {

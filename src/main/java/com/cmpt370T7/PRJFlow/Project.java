@@ -39,7 +39,7 @@ public class Project {
         return inputFiles;
     }
 
-    List<File> getSummaryFiles(){
+    public List<File> getSummaryFiles(){
         return summaryFiles;
     }
 
@@ -111,6 +111,11 @@ public class Project {
 
     public File getFile(String fileName) {
         for (File f : inputFiles) {
+            if (f.getName().equals(fileName)) {
+                return f;
+            }
+        }
+        for (File f : summaryFiles) {
             if (f.getName().equals(fileName)) {
                 return f;
             }

@@ -6,6 +6,7 @@ import com.cmpt370T7.PRJFlow.gui.GUI;
 import com.cmpt370T7.PRJFlow.llm.*;
 import com.cmpt370T7.PRJFlow.util.AlertHelper;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,6 +25,12 @@ public class ProjectFileButton extends Button {
     private static final String BUTTON_FONT = "Courier";
     private static final double BUTTON_FONT_SIZE = 11;
     private static final int BUTTON_MAX_WIDTH = 80;
+    private static final int BUTTON_MAX_HEIGHT = 100;
+    private static final int BUTTON_MIN_WIDTH = 80;
+    private static final int BUTTON_MIN_HEIGHT = 100;
+    private static final int BUTTON_WIDTH = 70;
+    private static final int BUTTON_HEIGHT = 90;
+
 
     private static final int FILE_ICON_SIZE = 30;
 
@@ -45,7 +51,8 @@ public class ProjectFileButton extends Button {
         this.setTextAlignment(TextAlignment.CENTER);
         this.wrapTextProperty().setValue(true);
 
-        this.setMaxWidth(BUTTON_MAX_WIDTH);
+        this.setMaxSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+        this.setMinSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
         this.setContentDisplay(ContentDisplay.TOP);
         this.setGraphic(fileIcon);
