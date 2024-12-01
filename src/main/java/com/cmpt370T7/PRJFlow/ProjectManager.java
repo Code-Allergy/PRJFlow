@@ -104,11 +104,6 @@ public class ProjectManager {
         writer.write(configMap, saveFile);
     }
 
-    public static void renameProject(Project save, File pathname, String newname) throws IllegalArgumentException, IOException {
-        save.setName(newname);
-        saveProject(save, pathname);
-    }
-
     /**
      * Removes a Project object from a config file.
      *

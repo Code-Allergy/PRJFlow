@@ -97,6 +97,8 @@ public class GUI extends BorderPane {
         recentProjects.setOnNewProject(this::createNewProject);
         recentProjects.setOnDeleteProject(this::deleteProject);
         recentProjects.setOnEditProjectName(this::editProjectName);
+        recentProjects.setOnContextEditProjectName(this::editProjectName);
+        recentProjects.setOnContextDeleteProjectName(this::deleteProject);
 
         return recentProjects;
     }
@@ -227,12 +229,6 @@ public class GUI extends BorderPane {
                     e.printStackTrace();
                 }
                 AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
-                /*try {
-                    ProjectManager.removeProject(selectedProject);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                 */
                 projectSelection(null);
             }
         }
@@ -240,7 +236,22 @@ public class GUI extends BorderPane {
 
     private void editProjectName() {
         if (selectedProject != null) {
-            
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            Optional<String> result = projectNameDialog(alert);
+            result.ifPresent(name -> {
+                if (name.trim().isEmpty()) {
+                    AlertHelper.showError("Invalid Name", "Project name cannot be empty.");
+                } else if (projects.stream().anyMatch(p -> p.getName().equals(name))) {
+                    AlertHelper.showError("Invalid Name", "A project with that name is already created.");
+                } else {
+                    selectedProject.setName(name);
+                    updateConfig(selectedProject, selectedProject.getDirectory());
+                    AppDataManager.getInstance().getConfigManager().setRecentProjects(projects);
+                    updateProjectsListView();
+                    logger.info("Project changed name, new name: {}", selectedProject.getName());
+                    projectSelection(selectedProject);
+                }
+            });
         }
     }
 
