@@ -352,6 +352,12 @@ public class GUI extends BorderPane {
                         alert.showAndWait();
                     } else {
                         addFile(file);
+                        try {
+                            ProjectManager.saveProject(selectedProject, selectedProject.getDirectory());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
                     }
                 }
         );
@@ -369,13 +375,18 @@ public class GUI extends BorderPane {
         if (selectedFile != null) {
             logger.info("Removing file from project: {}", selectedFile.getName());
             selectedProject.removeFile(selectedFile.getName());
+            try {
+                ProjectManager.saveProject(selectedProject, selectedProject.getDirectory());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             filesPane.getChildren().removeIf(f -> (f.getId().equals(selectedFile.getName())));
             setSelectedFile(null);
             selectedFileText.setText("No File Selected");
         }
     }
 
-    /* LLM Bullshit */
+
     private void export() {
         if (selectedProject == null) {
             return;
