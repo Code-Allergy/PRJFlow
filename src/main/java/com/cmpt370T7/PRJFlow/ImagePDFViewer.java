@@ -32,11 +32,7 @@ public class ImagePDFViewer extends VBox {
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
-        Button backButton = new Button("Back");
 
-        backButton.setOnAction(e -> {
-            gui.revertRightPane();
-        });
 
 
         ScrollPane scrollPane = new ScrollPane();
@@ -69,7 +65,7 @@ public class ImagePDFViewer extends VBox {
             }
         }).start();
 
-        this.getChildren().addAll(backButton, scrollPane);
+        this.getChildren().addAll(scrollPane);
     }
 
     private Image renderPageToImage(PDFRenderer pdfRenderer, int pageIndex) throws IOException {

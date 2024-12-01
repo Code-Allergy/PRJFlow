@@ -45,11 +45,10 @@ public class GUI extends BorderPane {
 
     private VBox leftPane, centerPane, rightPane;
 
-    private javafx.scene.Node prevRightChild;
-
     private FileActionsBox fileActionsBox;
     private RecentProjects recentProjects;
     private Label summaryLabel;
+    private HBox rightPaneButtonBox;
 
     public GUI() {
         this.setStyle("-fx-background-color: #1A1A1D");
@@ -64,13 +63,13 @@ public class GUI extends BorderPane {
         this.selectedProject = null;
         this.selectedFile = null;
         this.calendar = new CustomCalendar(remindersMap);
-        this.prevRightChild = calendar;
         this.selectedProjectText = new Text("No Project Selected");
         selectedProjectText.setFont(new Font(20));
         this.selectedFileText = new Text("No File Selected");
         selectedFileText.setFont(new Font(20));
         this.filesPane = new ProjectFilesPane();
         this.summaryLabel = null;
+        this.rightPaneButtonBox = new HBox();
 
 
         // Set padding for the entire BorderPane
@@ -120,17 +119,28 @@ public class GUI extends BorderPane {
 
     private VBox createRightPane() {
         rightPane = new VBox(10);
+
+        Button calendarButton = new Button("Calendar");
+        calendarButton.setOnAction(a -> {
+            viewCalendar();
+        });
+        Button viewPdfButton = new Button("ViewPDF");
+        viewPdfButton.setOnAction(a -> {
+            viewPDF();
+        });
+        Button viewTxtButton = new Button("ViewTxt");
+        viewTxtButton.setOnAction(a -> {
+            viewTXT();
+        });
+        rightPaneButtonBox.getChildren().addAll(calendarButton, viewPdfButton, viewTxtButton);
+
         rightPane.setPadding(new Insets(10));
         rightPane.setStyle("-fx-background-color: #E5E1DA;");
-        rightPane.getChildren().addAll(calendar);
+        rightPane.getChildren().addAll(rightPaneButtonBox,calendar);
         return rightPane;
     }
 
-    public void revertRightPane() {
-        logger.info("Reverting right pane back to previous: {}", prevRightChild);
-        rightPane.getChildren().clear();
-        rightPane.getChildren().addAll(prevRightChild);
-    }
+
 
     private void createFilesPane() {
         List<File> projectFiles = selectedProject != null ? selectedProject.getInputFiles() : new ArrayList<>();
@@ -280,16 +290,9 @@ public class GUI extends BorderPane {
 
                 } else if (e.getClickCount() == 2) {
                     if (getFileExtension(selectedFile.getName()).equals("pdf")) {
-                        WebPDFViewer pdfViewer = new WebPDFViewer(file, this);
-                        this.rightPane.getChildren().setAll(pdfViewer);
+                        viewPDF();
                     } else if (getFileExtension(selectedFile.getName()).equals("txt") || getFileExtension(selectedFile.getName()).equals("csv")) {
-                        String summaryString = readFile(selectedFile);
-                        summaryLabel = new Label(summaryString);
-                        summaryLabel.setMinWidth(200);
-                        summaryLabel.setWrapText(true);
-                        summaryLabel.setMaxWidth(300);
-
-                        this.rightPane.getChildren().setAll(summaryLabel);
+                        viewTXT();
                     }
                 }
             }
@@ -299,6 +302,35 @@ public class GUI extends BorderPane {
 
         return fileButton;
     }
+
+
+    public void viewPDF() {
+        if (selectedFile != null && getFileExtension(selectedFile.getName()).equals("pdf")) {
+            WebPDFViewer pdfViewer = new WebPDFViewer(selectedFile, this);
+            this.rightPane.getChildren().setAll(rightPaneButtonBox, pdfViewer);
+        }
+    }
+
+    public void viewCalendar() {
+        this.rightPane.getChildren().setAll(rightPaneButtonBox, calendar);
+    }
+
+    public void viewTXT() {
+        if (selectedFile != null) {
+            if (getFileExtension(selectedFile.getName()).equals("txt") ||
+                    getFileExtension(selectedFile.getName()).equals("csv")) {
+                String summaryString = readFile(selectedFile);
+                summaryLabel = new Label(summaryString);
+                summaryLabel.setMinWidth(200);
+                summaryLabel.setWrapText(true);
+                summaryLabel.setMaxWidth(300);
+
+                this.rightPane.getChildren().setAll(rightPaneButtonBox, summaryLabel);
+            }
+        }
+    }
+
+
 
     public String readFile(File file) {
         StringBuilder readString = new StringBuilder();

@@ -41,10 +41,6 @@ public class WebPDFViewer extends VBox {
         this.setPadding(new Insets(10));
         this.setSpacing(10);
 
-        Button backButton = new Button("Back");
-        backButton.setOnAction(e -> {
-            gui.revertRightPane();
-        });
         WebEngine engine = webView.getEngine();
         try {
             String url = Objects.requireNonNull(getClass().getResource("/web/viewer.html")).toURI().toString();
@@ -73,11 +69,10 @@ public class WebPDFViewer extends VBox {
                             logger.error("Unable to load file in web viewer: {}", pdfFile.getAbsolutePath(), ex);
                             AlertHelper.showError("Error", "Failed to load file in web viewer");
                             // TODO: throw exception up the stack, for now, just bail out
-                            gui.revertRightPane();
                         }
                     }
                 });
 
-        this.getChildren().addAll(backButton, webView);
+        this.getChildren().addAll(webView);
     }
 }
