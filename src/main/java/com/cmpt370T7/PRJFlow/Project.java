@@ -104,7 +104,6 @@ public class Project {
                     inputFiles.add(f);
                 }
             }
-            //Collections.addAll(inputFiles, directoryFiles);
         }
 
     }
