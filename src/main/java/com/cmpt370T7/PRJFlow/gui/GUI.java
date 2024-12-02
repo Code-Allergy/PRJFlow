@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -82,6 +83,10 @@ public class GUI extends BorderPane {
         leftPane = createRecentProjectsPane();
         // Right pane: Calendar and reminders
         rightPane = createRightPane();
+        rightPane.setMinWidth(400);
+        rightPane.setMaxWidth(600);
+        rightPane.setPrefWidth(400);
+
         // Center pane: Recent projects and new project button
         centerPane = createCenterPane();
         // Set the panes in the BorderPane
@@ -92,6 +97,7 @@ public class GUI extends BorderPane {
         BorderPane.setMargin(leftPane, new Insets(0, 5, 0, 0));   // Gap between left and center
         BorderPane.setMargin(centerPane, new Insets(0, 5, 0, 5)); // Gaps on both sides of center
         BorderPane.setMargin(rightPane, new Insets(0, 0, 0, 5)); // Gap between center and right
+        BorderPane.setAlignment(rightPane, Pos.CENTER_RIGHT);
     }
 
     private VBox createRecentProjectsPane() {
@@ -123,6 +129,7 @@ public class GUI extends BorderPane {
 
     private VBox createRightPane() {
         rightPane = new VBox(10);
+        rightPane.setMaxWidth(100);
 
         Button calendarButton = new Button("Calendar");
         calendarButton.getStyleClass().add("accent-button");
@@ -322,42 +329,43 @@ public class GUI extends BorderPane {
             WebPDFViewer pdfViewer = new WebPDFViewer(selectedFile, this);
             this.rightPane.getChildren().setAll(rightPaneButtonBox, pdfViewer);
         }
+        rightPane.setMinWidth(600);
+        rightPane.setMaxWidth(600);
+        rightPane.setPrefWidth(600);
     }
 
     public void viewCalendar() {
         this.rightPane.getChildren().setAll(rightPaneButtonBox, calendar);
+        rightPane.setMinWidth(400);
+        rightPane.setMaxWidth(600);
+        rightPane.setPrefWidth(400);
     }
 
     public void viewTXT() {
         if (selectedFile != null) {
             if (getFileExtension(selectedFile.getName()).equals("txt") ||
                     getFileExtension(selectedFile.getName()).equals("csv")) {
-                String summaryString = readFile(selectedFile);
+                String summaryString = "";
+                try {
+                    summaryString = readFile(selectedFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 summaryLabel = new Label(summaryString);
-                summaryLabel.setMinWidth(200);
                 summaryLabel.setWrapText(true);
-                summaryLabel.setMaxWidth(300);
 
                 this.rightPane.getChildren().setAll(rightPaneButtonBox, summaryLabel);
+                rightPane.setMinWidth(600);
+                rightPane.setMaxWidth(600);
+                rightPane.setPrefWidth(600);
             }
         }
     }
 
 
 
-    public String readFile(File file) {
-        StringBuilder readString = new StringBuilder();
-        try {
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String lineString = scanner.nextLine();
-                readString.append(lineString);
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return readString.toString();
+    public String readFile(File file) throws IOException{
+        return Files.readString(Path.of(file.getAbsolutePath()));
     }
 
     private void updateProjectsListView() {
@@ -481,9 +489,7 @@ public class GUI extends BorderPane {
                     File exportFile = exportPath.toFile();
                     selectedProject.addSummaryFile(exportFile);
                     filesPane.getChildren().add(createFileButton(exportFile));
-                    System.out.println("Before GenerateCsv Starts");
                     PopulateCsv.GenerateCsv(selectedFile.getAbsolutePath(), exportPath.toString());
-                    System.out.println("After GenerateCsv Ends");
                     updateConfig(selectedProject, selectedProject.getDirectory());
                 }
             });
@@ -590,9 +596,7 @@ public class GUI extends BorderPane {
                     File summaryFile = summaryPath.toFile();
                     selectedProject.addSummaryFile(summaryFile);
                     filesPane.getChildren().add(createFileButton(summaryFile));
-                    System.out.println("Before PopulateTxt Starts");
                     PopulateTxt.GenerateTxt(selectedFile.getAbsolutePath(), summaryPath.toString());
-                    System.out.println("After PopulateTxt Ends");
                     updateConfig(selectedProject, selectedProject.getDirectory());
                 }
             });

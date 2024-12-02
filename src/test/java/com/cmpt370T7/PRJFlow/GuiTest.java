@@ -16,6 +16,9 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,6 +29,11 @@ public class GuiTest extends ApplicationTest {
     private File testFile;
     private Project testProject;
 
+    /* Testing GUI's is more difficult than I thought,
+       Sometimes the tests fail, but repeated runnings let them pass.
+       I think this is an issue with how Javafx needs to be run on certain thread and ApplicationTest causes issues.
+     */
+
 
     @BeforeEach
     public void setUp() {
@@ -33,19 +41,8 @@ public class GuiTest extends ApplicationTest {
         //Platform.runLater(() -> gui = new GUI());
     }
 
-    public String readFile(File file) {
-        StringBuilder readString = new StringBuilder();
-        try {
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String lineString = scanner.nextLine();
-                readString.append(lineString);
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return readString.toString();
+    public String readFile(File file) throws IOException {
+        return Files.readString(Path.of(file.getAbsolutePath()));
     }
 
 
@@ -165,6 +162,7 @@ public class GuiTest extends ApplicationTest {
     public void delete_file() {
         gui.addProject(testProject);
         Platform.runLater(() -> gui.addFile(testFile));
+        sleep(1);
         clickOn(gui.getRecentListView());
         press(KeyCode.ENTER); //First and only item in ListView
         clickOn(hasText(testFile.getName()));
@@ -177,7 +175,14 @@ public class GuiTest extends ApplicationTest {
     public void view_file_summary() {
         gui.addProject(testProject);
         Platform.runLater(() -> gui.addFile(testFile));
-        String fileContents = readFile(testFile);
+        String fileContents = null;
+        try {
+            fileContents = readFile(testFile);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        sleep(1);
+
 
         doubleClickOn(hasText(testFile.getName()));
 
