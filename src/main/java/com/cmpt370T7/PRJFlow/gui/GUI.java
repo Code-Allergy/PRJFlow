@@ -236,13 +236,11 @@ public class GUI extends BorderPane {
             DirectoryChooser dc = new DirectoryChooser();
             dc.setTitle("Choose the project directory");
             Path defaultPath = Paths.get(System.getProperty("user.home"), "Documents");
-            String defaultDirectoryString = defaultPath.toString();
-            File defaultDirectory = null;
-            try {
-                defaultDirectory = new File(defaultDirectoryString);
-            } catch (Exception e) {
+            File defaultDirectory = defaultPath.toFile();
+            if (!defaultDirectory.exists()) {
                 defaultDirectory = new File(System.getProperty("user.home"));
             }
+
             dc.setInitialDirectory(defaultDirectory);
 
             File selectedFolder = dc.showDialog(this.getScene().getWindow());
