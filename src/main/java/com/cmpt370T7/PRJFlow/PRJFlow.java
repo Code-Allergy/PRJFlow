@@ -75,6 +75,7 @@ public class PRJFlow extends Application {
             case "GroqCloud" -> AiEngine.instantiate(CloudLlmProvider.createGroqProvider(providerConfig.key()));
             case "OpenAI" -> AiEngine.instantiate(CloudLlmProvider.createOpenAIProvider(providerConfig.key()));
             case "Ollama" -> AiEngine.instantiate(new OllamaProvider());
+            case "Google Gemini" -> AiEngine.instantiate(new GeminiLlmProvider(providerConfig.key())); // New case
             default -> {
                 logger.error("Invalid provider name in config file: {}", providerConfig.provider());
                 AlertHelper.showError("Error", "Invalid provider name in config file, please check logs for more information.");
