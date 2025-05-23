@@ -85,8 +85,23 @@ public class ProviderHelper {
             });
         });
 
+        Button geminiButton = new Button("Google Gemini (Cloud-Based)");
+        geminiButton.setOnAction(e -> {
+            dialog.close();
+            CompletableFuture<Void> geminiSetupFuture = openGeminiSetup(dialog);
+            geminiSetupFuture.thenRun(() -> {
+                logger.debug("Gemini setup process finished successfully.");
+                showSuccessDialog();
+                setupComplete.complete(null); // Complete the main setup future
+            }).exceptionally(ex -> {
+                logger.warn("Gemini setup was cancelled or failed: " + (ex != null ? ex.getMessage() : "Unknown reason"));
+                // Optionally, re-show the provider selection dialog or handle other cleanup
+                return null;
+            });
+        });
+
         VBox layout = new VBox(20);
-        layout.getChildren().addAll(titleLabel, localAiButton, webUiButton);
+        layout.getChildren().addAll(titleLabel, localAiButton, webUiButton, geminiButton);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20));
 
@@ -305,6 +320,146 @@ public class ProviderHelper {
         dialog.setScene(scene);
         dialog.showAndWait();
     }
+
+    private CompletableFuture<Void> openGeminiSetup(Stage parentDialog) {
+        CompletableFuture<Void> setupSuccessful = new CompletableFuture<>();
+
+        Stage geminiStage = new Stage();
+        geminiStage.initModality(Modality.APPLICATION_MODAL);
+        geminiStage.initOwner(parentDialog); // Use parentDialog here if needed, or primaryStage
+        geminiStage.setTitle("Google Gemini Setup");
+
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+        // Tab 1: Get API Key
+        Tab getKeyTab = new Tab("1. Get API Key");
+        VBox getKeyContent = new VBox(10);
+        getKeyContent.setPadding(new Insets(20));
+        getKeyContent.setAlignment(Pos.CENTER_LEFT); // Align text to left for readability
+
+        Label infoLabel = new Label("First, get your Google Gemini API key from Google AI Studio.");
+        TextField urlField = new TextField("https://aistudio.google.com/app/apikey");
+        urlField.setEditable(false);
+        urlField.setFocusTraversable(false);
+        urlField.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0; -fx-padding: 3 0 3 0;"); // Adjusted padding
+
+        Button openStudioButton = new Button("Open Google AI Studio");
+        openStudioButton.setOnAction(e -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://aistudio.google.com/app/apikey"));
+            } catch (Exception ex) {
+                logger.error("Failed to open Google AI Studio website", ex);
+                // Optionally show an error to the user
+            }
+        });
+
+        VBox instructionsBox = new VBox(5);
+        instructionsBox.getChildren().addAll(
+                new Label("Instructions:"),
+                new Label("1. Click 'Open Google AI Studio' above."),
+                new Label("2. Sign in if prompted."),
+                new Label("3. Click 'Create API key'. You might need to create a new project."),
+                new Label("4. Copy the generated API key."),
+                new Label("5. Click 'Next' and paste the key in the next tab.")
+        );
+
+        getKeyContent.getChildren().addAll(infoLabel, urlField, openStudioButton, new Separator(), instructionsBox);
+        getKeyTab.setContent(getKeyContent);
+
+        // Tab 2: Enter API Key
+        Tab enterKeyTab = new Tab("2. Enter API Key");
+        VBox enterKeyContent = new VBox(10);
+        enterKeyContent.setPadding(new Insets(20));
+        enterKeyContent.setAlignment(Pos.CENTER);
+
+        Label enterKeyLabel = new Label("Enter your Gemini API Key:");
+        PasswordField apiKeyField = new PasswordField();
+        apiKeyField.setMaxWidth(300);
+        apiKeyField.setPromptText("Paste your API key here");
+
+        Button saveApiKeyButton = new Button("Save API Key");
+        Label statusLabel = new Label();
+        statusLabel.setWrapText(true);
+
+        saveApiKeyButton.setOnAction(e -> {
+            String apiKey = apiKeyField.getText().trim();
+            if (apiKey.isEmpty()) {
+                statusLabel.setText("API key cannot be empty.");
+                statusLabel.setTextFill(Color.RED);
+                return;
+            }
+            try {
+                AppDataManager.getInstance().getConfigManager()
+                        .setLlmProviderConfig(ConfigManager.LlmProviderConfig.createGeminiProvider(apiKey));
+                statusLabel.setText("API key saved successfully!");
+                statusLabel.setTextFill(Color.GREEN);
+                logger.info("Google Gemini API key saved.");
+
+                // Close the dialog and complete the future
+                geminiStage.close();
+                setupSuccessful.complete(null);
+
+            } catch (Exception ex) {
+                statusLabel.setText("Error saving API key: " + ex.getMessage());
+                statusLabel.setTextFill(Color.RED);
+                logger.error("Failed to save Gemini API key", ex);
+            }
+        });
+
+        enterKeyContent.getChildren().addAll(enterKeyLabel, apiKeyField, saveApiKeyButton, statusLabel);
+        enterKeyTab.setContent(enterKeyContent);
+
+        tabPane.getTabs().addAll(getKeyTab, enterKeyTab);
+
+        Button backButton = new Button("← Back");
+        Button nextButton = new Button("Next →");
+
+        backButton.setOnAction(e -> {
+            int currentIndex = tabPane.getSelectionModel().getSelectedIndex();
+            if (currentIndex > 0) {
+                tabPane.getSelectionModel().select(currentIndex - 1);
+            }
+        });
+        nextButton.setOnAction(e -> {
+            int currentIndex = tabPane.getSelectionModel().getSelectedIndex();
+            if (currentIndex < tabPane.getTabs().size() - 1) {
+                tabPane.getSelectionModel().select(currentIndex + 1);
+            }
+        });
+
+        HBox navigationButtons = new HBox(10, backButton, nextButton);
+        navigationButtons.setAlignment(Pos.CENTER);
+
+        tabPane.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            backButton.setDisable(newVal.intValue() == 0);
+            nextButton.setDisable(newVal.intValue() == tabPane.getTabs().size() - 1);
+            saveApiKeyButton.setVisible(newVal.intValue() == tabPane.getTabs().size() - 1); // Show save only on last tab
+        });
+        // Initial state for buttons
+        backButton.setDisable(true);
+        saveApiKeyButton.setVisible(tabPane.getSelectionModel().getSelectedIndex() == tabPane.getTabs().size() -1);
+
+
+        VBox mainLayout = new VBox(10, tabPane, navigationButtons);
+        mainLayout.setPadding(new Insets(10));
+
+        Scene scene = new Scene(mainLayout, 450, 400); // Adjusted size
+        geminiStage.setScene(scene);
+
+        geminiStage.setOnCloseRequest(event -> {
+            if (!setupSuccessful.isDone()) {
+                logger.info("Gemini setup dialog closed by user without saving.");
+                // Optionally complete exceptionally to signal cancellation
+                setupSuccessful.completeExceptionally(new RuntimeException("Gemini setup cancelled by user."));
+            }
+        });
+
+        geminiStage.showAndWait(); // Use showAndWait to block until this dialog is handled
+
+        return setupSuccessful;
+    }
+
 
     // TODO failure dialog, or show AlertHelper.showError
 }

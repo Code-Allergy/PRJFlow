@@ -31,6 +31,9 @@ public class ConfigManager {
         public static LlmProviderConfig createOllamaProvider() {
             return new LlmProviderConfig("Ollama", "");
         }
+        public static LlmProviderConfig createGeminiProvider(String key) {
+            return new LlmProviderConfig("Google Gemini", key);
+        }
     }
 
     public ConfigManager(File configFile) {
@@ -132,7 +135,11 @@ public class ConfigManager {
                 case "GroqCloud" -> LlmProviderConfig.createGroqProvider(providerKey);
                 case "OpenAI" -> LlmProviderConfig.createOpenAIProvider(providerKey);
                 case "Ollama" -> LlmProviderConfig.createOllamaProvider();
-                default -> null;
+                case "Google Gemini" -> LlmProviderConfig.createGeminiProvider(providerKey); // New case
+                default -> {
+                    logger.warn("Unsupported LLM provider configured: {}", llmProvider);
+                    yield null; // Or throw a BadConfigException
+                }
             };
         } catch (BadConfigException e) {
             logger.warn("Failed to load LLM provider config: {}", e.getMessage());
