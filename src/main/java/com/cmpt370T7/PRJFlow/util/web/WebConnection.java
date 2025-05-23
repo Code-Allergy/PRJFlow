@@ -31,6 +31,8 @@ public class WebConnection {
 
     // Active connection
     private HttpURLConnection connection;
+    private int responseCode; // New field
+    private String responseMessage; // New field
 
     /**
      * Creates a new WebConnection with specified parameters.
@@ -62,6 +64,8 @@ public class WebConnection {
     public String getAccept() { return accept; }
     public String getAuthorization() { return authorization; }
     public String getUserAgent() { return userAgent; }
+    public int getResponseCode() { return responseCode; }
+    public String getResponseMessage() { return responseMessage; }
 
     /**
      * Establishes a connection to the specified URL with configured parameters.
@@ -141,10 +145,13 @@ public class WebConnection {
      * Validates the response code from the server.
      */
     private boolean validateResponse() throws IOException {
-        if (connection.getResponseCode() != 200) {
+        this.responseCode = connection.getResponseCode(); // Store code
+        this.responseMessage = connection.getResponseMessage(); // Store message
+
+        if (this.responseCode != 200) { // Use the field here
             logger.error("Received status code {} from url: {}",
-                    connection.getResponseCode(), this.url);
-            logger.error("Response message: {}", connection.getResponseMessage());
+                    this.responseCode, this.url);
+            logger.error("Response message: {}", this.responseMessage);
             logger.error("Sent request: {}", body);
             return false;
         }
